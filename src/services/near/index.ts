@@ -1,5 +1,5 @@
-import { connect, keyStores, Near } from 'near-api-js';
-import type { NearConfig } from '../../types';
+import { connect, keyStores, Near } from "near-api-js";
+import type { NearConfig } from "../../types";
 
 export class NearService {
   private near: Near;
@@ -17,7 +17,7 @@ export class NearService {
       const account = await this.near.account(accountId);
       return account;
     } catch (error) {
-      console.error('Error getting NEAR account:', error);
+      console.error("Error getting NEAR account:", error);
       throw error;
     }
   }
@@ -32,7 +32,7 @@ export class NearService {
       });
       return result;
     } catch (error) {
-      console.error('Error calling view method:', error);
+      console.error("Error calling view method:", error);
       throw error;
     }
   }
@@ -41,7 +41,7 @@ export class NearService {
     contractId: string,
     method: string,
     args: object = {},
-    deposit: string = '0'
+    deposit: string = "0",
   ) {
     try {
       const account = await this.near.account(contractId);
@@ -53,7 +53,7 @@ export class NearService {
       });
       return result;
     } catch (error) {
-      console.error('Error calling method:', error);
+      console.error("Error calling method:", error);
       throw error;
     }
   }

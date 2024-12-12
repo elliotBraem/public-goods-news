@@ -3,7 +3,7 @@ export interface NewsProposal {
   submitter: string;
   content: string;
   category: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   tweetId: string;
 }
 

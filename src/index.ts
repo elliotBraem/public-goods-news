@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
-import { TwitterService } from './services/twitter/client';
-import { NearService } from './services/near';
-import config from './config/config';
+import dotenv from "dotenv";
+import { TwitterService } from "./services/twitter/client";
+import { NearService } from "./services/near";
+import config from "./config/config";
 
 // Load environment variables
 dotenv.config();
@@ -14,20 +14,20 @@ async function main() {
     // Initialize Twitter service
     const twitterService = new TwitterService(config.twitter.apiKey);
     await twitterService.initialize();
-    
+
     // Start Twitter stream
     const stream = await twitterService.startStream();
 
     // Handle graceful shutdown
-    process.on('SIGINT', async () => {
-      console.log('Shutting down...');
+    process.on("SIGINT", async () => {
+      console.log("Shutting down...");
       stream.destroy();
       process.exit(0);
     });
 
-    console.log('Bot is running...');
+    console.log("Bot is running...");
   } catch (error) {
-    console.error('Error starting the bot:', error);
+    console.error("Error starting the bot:", error);
     process.exit(1);
   }
 }

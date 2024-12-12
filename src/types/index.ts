@@ -1,8 +1,8 @@
-export * from './twitter';
-export * from './near';
+export * from "./twitter";
+export * from "./near";
 
 export interface AppConfig {
-  twitter: import('./twitter').TwitterConfig;
-  near: import('./near').NearConfig;
-  environment: 'development' | 'production' | 'test';
+  twitter: import("./twitter").TwitterConfig;
+  near: import("./near").NearConfig;
+  environment: "development" | "production" | "test";
 }

@@ -5,13 +5,13 @@ export interface TwitterSubmission {
   hashtags: Array<string>;
   category?: string;
   description?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   moderationHistory: Moderation[];
 }
 
 export interface Moderation {
   adminId: string;
-  action: 'approve' | 'reject';
+  action: "approve" | "reject";
   timestamp: Date;
   tweetId: string;
 }
