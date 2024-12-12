@@ -8,7 +8,7 @@
 <h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Curation</h1>
 
   <p>
-    <strong>a bot to curate public goods bot to streamline public goods</strong>
+    <strong>Bot to curate and to streamline public goods news</strong>
   </p>
 
 </div>
@@ -18,9 +18,11 @@
 
 - [Getting Started](#getting-started)
   - [Installing dependencies](#installing-dependencies)
+  - [Environment Setup](#environment-setup)
   - [Running the app](#running-the-app)
   - [Building for production](#building-for-production)
   - [Running tests](#running-tests)
+- [Usage](#usage)
 - [Contributing](#contributing)
 
 </details>
@@ -32,6 +34,20 @@
 ```bash
 bun install
 ```
+
+### Environment Setup
+
+Copy the environment template and configure your credentials:
+
+```bash
+cp .env.example .env
+```
+
+Required environment variables:
+
+- Twitter API credentials for bot functionality
+- NEAR network configuration
+- Environment settings
 
 ### Running the app
 
@@ -54,6 +70,15 @@ bun run test
 ```
 
 See the full [testing guide](./playwright-tests/README.md).
+
+## Usage
+
+The bot provides two main interactions:
+
+1. **Submit News**: Tweet with `!submit` to submit news content
+2. **Approve Content**: Moderators can approve content using the `#approve` hashtag
+
+Each user is limited to 10 submissions per day to maintain quality.
 
 ## Contributing
 
