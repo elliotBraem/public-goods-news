@@ -1,0 +1,77 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.46.1
+        version: 1.46.1
+      '@types/node':
+        specifier: ^22.5.0
+        version: 22.5.0
+      prettier:
+        specifier: ^3.2.5
+        version: 3.3.3
+
+packages:
+
+  '@playwright/test@1.46.1':
+    resolution: {integrity: sha512-Fq6SwLujA/DOIvNC2EL/SojJnkKf/rAwJ//APpJJHRyMi1PdKrY3Az+4XNQ51N4RTbItbIByQ0jgd1tayq1aeA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  '@types/node@22.5.0':
+    resolution: {integrity: sha512-DkFrJOe+rfdHTqqMg0bSNlGlQ85hSoh2TPzZyhHsXnMtligRWpxUySiyw8FY14ITt24HVCiQPWxS3KO/QlGmWg==}
+
+  fsevents@2.3.2:
+    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+
+  playwright-core@1.46.1:
+    resolution: {integrity: sha512-h9LqIQaAv+CYvWzsZ+h3RsrqCStkBHlgo6/TJlFst3cOTlLghBQlJwPOZKQJTKNaD3QIB7aAVQ+gfWbN3NXB7A==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  playwright@1.46.1:
+    resolution: {integrity: sha512-oPcr1yqoXLCkgKtD5eNUPLiN40rYEM39odNpIb6VE6S7/15gJmA1NzVv6zJYusV0e7tzvkU/utBFNa/Kpxmwng==}
+    engines: {node: '>=18'}
+    hasBin: true
+
+  prettier@3.3.3:
+    resolution: {integrity: sha512-i2tDNA0O5IrMO757lfrdQZCc2jPNDVntV0m/+4whiDfWaTKfMNgR7Qz0NAeGz/nRqF4m5/6CLzbP4/liHt12Ew==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  undici-types@6.19.8:
+    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
+
+snapshots:
+
+  '@playwright/test@1.46.1':
+    dependencies:
+      playwright: 1.46.1
+
+  '@types/node@22.5.0':
+    dependencies:
+      undici-types: 6.19.8
+
+  fsevents@2.3.2:
+    optional: true
+
+  playwright-core@1.46.1: {}
+
+  playwright@1.46.1:
+    dependencies:
+      playwright-core: 1.46.1
+    optionalDependencies:
+      fsevents: 2.3.2
+
+  prettier@3.3.3: {}
+
+  undici-types@6.19.8: {}
