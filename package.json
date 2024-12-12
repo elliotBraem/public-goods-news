@@ -1,12 +1,10 @@
 {
-  "name": "builddao-project-template",
+  "name": "public-goods-news",
   "version": "0.0.1",
   "homepage": "/",
   "scripts": {
     "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
-    "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'",
-    "test": "npx playwright test",
-    "test:ui": "npx playwright test --ui"
+    "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'"
   },
   "browserslist": {
     "production": [
@@ -21,7 +19,6 @@
     ]
   },
   "devDependencies": {
-    "@playwright/test": "^1.46.1",
     "prettier": "^3.3.3"
   }
 }

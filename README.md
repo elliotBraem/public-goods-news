@@ -5,10 +5,10 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">Project Title</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Curation</h1>
 
   <p>
-    <strong>This is a basic project template for new Build DAO projects</strong>
+    <strong>a bot to curate public goods bot to streamline public goods</strong>
   </p>
 
 </div>
@@ -30,7 +30,7 @@
 ### Installing dependencies
 
 ```bash
-pnpm install
+bun install
 ```
 
 ### Running the app
@@ -38,19 +38,19 @@ pnpm install
 First, run the development server:
 
 ```bash
-pnpm run dev
+bun run dev
 ```
 
 ### Building for production
 
 ```bash
-pnpm run build
+bun run build
 ```
 
 ### Running tests
 
 ```bash
-pnpm run test
+bun run test
 ```
 
 See the full [testing guide](./playwright-tests/README.md).
