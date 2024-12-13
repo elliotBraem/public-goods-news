@@ -46,6 +46,8 @@ async function main() {
       nearNetwork: config.near.networkId,
       twitterEnabled: true
     });
+
+    await twitterService.sendTestTweetAndReply();
   } catch (error) {
     // Handle any initialization errors
     ['env', 'near', 'twitter-init'].forEach(key => {

@@ -36,10 +36,8 @@ export class TwitterService {
   private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
     const cookieStrings = cookiesArray.map(
       (cookie) =>
-        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-          cookie.secure ? "Secure" : ""
-        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-          cookie.sameSite || "Lax"
+        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
         }`
     );
     await this.client.setCookies(cookieStrings);
@@ -51,10 +49,10 @@ export class TwitterService {
       const fs = await import('fs/promises');
       const path = await import('path');
       const cookiePath = path.join(process.cwd(), '.twitter-cookies.json');
-      
+
       const data = await fs.readFile(cookiePath, 'utf-8');
       const cache: CookieCache = JSON.parse(data);
-      
+
       if (cache[username]) {
         return cache[username];
       }
@@ -70,7 +68,7 @@ export class TwitterService {
       const fs = await import('fs/promises');
       const path = await import('path');
       const cookiePath = path.join(process.cwd(), '.twitter-cookies.json');
-      
+
       let cache: CookieCache = {};
       try {
         const data = await fs.readFile(cookiePath, 'utf-8');
@@ -126,10 +124,34 @@ export class TwitterService {
       logger.info('Successfully logged in to Twitter');
 
       // Start checking for mentions periodically
-      this.startMentionsCheck();
+      // this.startMentionsCheck();
+
+      // Send test tweet and reply
     } catch (error) {
       logger.error('Failed to initialize Twitter client:', error);
       throw error;
+    }
+  }
+
+  async sendTestTweetAndReply() {
+    try {
+      // Send initial test tweet
+      const response = await this.client.sendTweet("Testing the Public Goods News bot again again! 🤖 #PublicGoods");
+      const body: any = await response.json();
+      logger.info('Test tweet sent:', body);
+
+      // Extract tweet ID from response
+      const tweetId = body?.data?.create_tweet?.tweet_results?.result.rest_id;
+
+
+      // Wait a moment before replying
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Reply to the test tweet
+      await this.replyToTweet(tweetId, "And here's a reply to test the reply functionality! 🎉");
+      logger.info('Test reply sent');
+    } catch (error) {
+      logger.error('Error sending test tweet and reply:', error);
     }
   }
 
@@ -137,7 +159,7 @@ export class TwitterService {
     // Check mentions every minute
     this.checkInterval = setInterval(async () => {
       if (!this.isInitialized) return;
-      
+
       try {
         // Check for mentions
         const mentionCandidates = (
