@@ -1,6 +1,21 @@
 import { Scraper, SearchMode, Tweet } from "agent-twitter-client";
 import { TwitterSubmission, Moderation, TwitterConfig } from "../../types/twitter";
 import { ADMIN_ACCOUNTS } from "../../config/admins";
+import { logger } from "../../utils/logger";
+
+interface TwitterCookie {
+  key: string;
+  value: string;
+  domain: string;
+  path: string;
+  secure: boolean;
+  httpOnly: boolean;
+  sameSite?: string;
+}
+
+interface CookieCache {
+  [username: string]: TwitterCookie[];
+}
 
 export class TwitterService {
   private client: Scraper;
@@ -18,26 +33,102 @@ export class TwitterService {
     this.config = config;
   }
 
+  private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
+    const cookieStrings = cookiesArray.map(
+      (cookie) =>
+        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+          cookie.secure ? "Secure" : ""
+        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+          cookie.sameSite || "Lax"
+        }`
+    );
+    await this.client.setCookies(cookieStrings);
+  }
+
+  private async getCachedCookies(username: string): Promise<TwitterCookie[] | null> {
+    try {
+      // Try to read cookies from a local cache file
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const cookiePath = path.join(process.cwd(), '.twitter-cookies.json');
+      
+      const data = await fs.readFile(cookiePath, 'utf-8');
+      const cache: CookieCache = JSON.parse(data);
+      
+      if (cache[username]) {
+        return cache[username];
+      }
+    } catch (error) {
+      // If file doesn't exist or is invalid, return null
+      return null;
+    }
+    return null;
+  }
+
+  private async cacheCookies(username: string, cookies: TwitterCookie[]) {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const cookiePath = path.join(process.cwd(), '.twitter-cookies.json');
+      
+      let cache: CookieCache = {};
+      try {
+        const data = await fs.readFile(cookiePath, 'utf-8');
+        cache = JSON.parse(data);
+      } catch (error) {
+        // If file doesn't exist, start with empty cache
+      }
+
+      cache[username] = cookies;
+      await fs.writeFile(cookiePath, JSON.stringify(cache, null, 2));
+    } catch (error) {
+      logger.error('Failed to cache cookies:', error);
+    }
+  }
+
   async initialize() {
     try {
-      // Login using credentials
-      await this.client.login(
-        this.config.username,
-        this.config.password,
-        this.config.email,
-        this.config.apiKey,
-        this.config.apiSecret,
-        this.config.accessToken,
-        this.config.accessTokenSecret
-      );
+      // Check for cached cookies
+      const cachedCookies = await this.getCachedCookies(this.twitterUsername);
+      if (cachedCookies) {
+        await this.setCookiesFromArray(cachedCookies);
+      }
+
+      // Try to login with retries
+      logger.info('Attempting Twitter login...');
+      while (true) {
+        try {
+          await this.client.login(
+            this.config.username,
+            this.config.password,
+            this.config.email,
+            // this.config.apiKey,
+            // this.config.apiSecret,
+            // this.config.accessToken,
+            // this.config.accessTokenSecret
+          );
+
+          if (await this.client.isLoggedIn()) {
+            // Cache the new cookies
+            const cookies = await this.client.getCookies();
+            await this.cacheCookies(this.config.username, cookies);
+            break;
+          }
+        } catch (error) {
+          logger.error('Failed to login to Twitter, retrying...', error);
+        }
+
+        // Wait before retrying
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
 
       this.isInitialized = true;
-      console.log("Logged in to Twitter successfully");
+      logger.info('Successfully logged in to Twitter');
 
       // Start checking for mentions periodically
       this.startMentionsCheck();
     } catch (error) {
-      console.error("Failed to initialize Twitter client:", error);
+      logger.error('Failed to initialize Twitter client:', error);
       throw error;
     }
   }
@@ -66,11 +157,11 @@ export class TwitterService {
               await this.handleModeration(tweet);
             }
           } catch (error) {
-            console.error("Error processing tweet:", error);
+            logger.error('Error processing tweet:', error);
           }
         }
       } catch (error) {
-        console.error("Error checking mentions:", error);
+        logger.error('Error checking mentions:', error);
       }
     }, 60000); // Check every minute
   }
@@ -196,7 +287,7 @@ export class TwitterService {
     try {
       await this.client.sendTweet(message, tweetId); // Second parameter is the tweet to reply to
     } catch (error) {
-      console.error("Error replying to tweet:", error);
+      logger.error('Error replying to tweet:', error);
       throw error;
     }
   }
