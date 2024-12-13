@@ -25,7 +25,7 @@ async function main() {
 
     // Initialize Twitter service
     startSpinner('twitter-init', 'Initializing Twitter service...');
-    const twitterService = new TwitterService(config.twitter.apiKey);
+    const twitterService = new TwitterService(config.twitter);
     await twitterService.initialize();
     succeedSpinner('twitter-init', 'Twitter service initialized');
 

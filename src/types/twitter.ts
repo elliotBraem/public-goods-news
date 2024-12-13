@@ -21,4 +21,5 @@ export interface TwitterConfig {
   apiSecret: string;
   accessToken: string;
   accessTokenSecret: string;
+  bearerToken: string;
 }

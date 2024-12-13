@@ -1,6 +1,7 @@
 import { TwitterApi } from "twitter-api-v2";
-import { TwitterSubmission, Moderation } from "../../types/twitter";
+import { TwitterSubmission, Moderation, TwitterConfig } from "../../types/twitter";
 import { ADMIN_ACCOUNTS } from "../../config/admins";
+import config from "../../config/config";
 
 interface TwitterHashtag {
   tag: string;
@@ -26,11 +27,21 @@ export class TwitterService {
   private submissions: Map<string, TwitterSubmission> = new Map(); // Key is original submission tweetId
   private readonly DAILY_SUBMISSION_LIMIT = 10;
 
-  constructor(apiKey: string) {
-    this.client = new TwitterApi(apiKey);
+  constructor(config: TwitterConfig) {
+    // this.client = new TwitterApi(config.bearerToken);
+    this.client = new TwitterApi({
+      appKey: config.apiKey,
+      appSecret: config.apiSecret,
+      // accessToken: config.accessToken,
+      // accessSecret: config.accessTokenSecret
+    });
   }
 
   async initialize() {
+    // Login
+    this.client = await this.client.appLogin();
+    console.log("logged in to", await this.client.currentUser());
+
     // Set up tweet stream rules
     const rules = await this.client.v2.streamRules();
     if (rules.data?.length) {
