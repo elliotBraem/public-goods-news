@@ -7,7 +7,6 @@ import {
   startSpinner, 
   succeedSpinner, 
   failSpinner, 
-  handleError, 
   cleanup 
 } from "./utils/logger";
 
@@ -38,7 +37,7 @@ async function main() {
         process.exit(0);
       } catch (error) {
         failSpinner('shutdown', 'Error during shutdown');
-        handleError(error, 'Shutdown');
+        logger.error('Shutdown', error);
         process.exit(1);
       }
     });
@@ -52,7 +51,7 @@ async function main() {
     ['env', 'near', 'twitter-init'].forEach(key => {
       failSpinner(key, `Failed during ${key}`);
     });
-    handleError(error, 'Startup');
+    logger.error('Startup', error);
     cleanup();
     process.exit(1);
   }
@@ -61,6 +60,6 @@ async function main() {
 // Start the application
 logger.info('Starting Public Goods News Bot...');
 main().catch((error) => {
-  handleError(error, 'Unhandled Exception');
+  logger.error('Unhandled Exception', error);
   process.exit(1);
 });

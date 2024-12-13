@@ -1,0 +1,123 @@
+{
+  "test_curation": [
+    {
+      "key": "guest_id_marketing",
+      "value": "v1%3A173411156497448262",
+      "expires": "2026-12-13T17:39:24.000Z",
+      "maxAge": 63072000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:24.940Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    },
+    {
+      "key": "guest_id_ads",
+      "value": "v1%3A173411156497448262",
+      "expires": "2026-12-13T17:39:24.000Z",
+      "maxAge": 63072000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:24.940Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    },
+    {
+      "key": "personalization_id",
+      "value": "\"v1_diGrW+pVpR/ssMAngcgWSA==\"",
+      "expires": "2026-12-13T17:39:24.000Z",
+      "maxAge": 63072000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:24.940Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    },
+    {
+      "key": "guest_id",
+      "value": "v1%3A173411156497448262",
+      "expires": "2026-12-13T17:39:24.000Z",
+      "maxAge": 63072000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:24.940Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    },
+    {
+      "key": "kdt",
+      "value": "0p4rMjho9o97e4PUZO3xaUQK8FQTA4zxhd0rYRLk",
+      "expires": "2026-06-13T17:39:25.000Z",
+      "maxAge": 47260800,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:25.756Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z"
+    },
+    {
+      "key": "twid",
+      "value": "\"u=1867312511835414528\"",
+      "expires": "2029-12-12T17:39:25.000Z",
+      "maxAge": 157680000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:25.756Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    },
+    {
+      "key": "ct0",
+      "value": "b663b7bf057d3c93f8bb152b771623828817043839fc6690c9102eed68300459083078ccaff9297fa1089f35cc8a768aeb3e374b55a478d566b8eae1f3a6216248836c623b67452b51a74dc0cd0d5fe8",
+      "expires": "2029-12-12T17:39:25.000Z",
+      "maxAge": 157680000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:25.756Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "lax"
+    },
+    {
+      "key": "auth_token",
+      "value": "80fbaad906276362298e0eddfaa47b85f303e641",
+      "expires": "2029-12-12T17:39:25.000Z",
+      "maxAge": 157680000,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:25.757Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    },
+    {
+      "key": "att",
+      "value": "1-oY95via1STozr4kmdfAWOlTYQPi3VDX2R5RGaWl1",
+      "expires": "2024-12-14T17:39:25.000Z",
+      "maxAge": 86400,
+      "domain": "twitter.com",
+      "path": "/",
+      "secure": true,
+      "httpOnly": true,
+      "hostOnly": false,
+      "creation": "2024-12-13T17:39:25.842Z",
+      "lastAccessed": "2024-12-13T17:39:26.028Z",
+      "sameSite": "none"
+    }
+  ]
+}

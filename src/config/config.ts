@@ -2,11 +2,13 @@ import { AppConfig } from "../types";
 
 const config: AppConfig = {
   twitter: {
+    username: process.env.TWITTER_USERNAME!,
+    password: process.env.TWITTER_PASSWORD!,
+    email: process.env.TWITTER_EMAIL!,
     apiKey: process.env.TWITTER_API_KEY || "",
     apiSecret: process.env.TWITTER_API_SECRET || "",
     accessToken: process.env.TWITTER_ACCESS_TOKEN || "",
     accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || "",
-    bearerToken: process.env.TWITTER_BEARER_TOKEN || "",
   },
   near: {
     networkId: process.env.NEAR_NETWORK_ID || "testnet",

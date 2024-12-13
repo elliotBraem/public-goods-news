@@ -15,7 +15,7 @@ export const logger = winston.createLogger({
       showMeta: true,
       metaStrip: ['timestamp', 'service'],
       inspectOptions: {
-        depth: 1,
+        depth: 4, // Increased depth for better error inspection
         colors: true,
         maxArrayLength: 10,
         breakLength: 120,
@@ -42,7 +42,7 @@ export const startSpinner = (key: string, text: string): void => {
     return;
   }
   spinners[key] = ora({
-    text,
+    text: `${text}\n`,
     color: 'cyan',
     spinner: 'dots',
   }).start();
@@ -75,15 +75,17 @@ export const clearSpinner = (key: string): void => {
   }
 };
 
-// Error handling
-export const handleError = (error: unknown, context: string): void => {
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  logger.error(`${context}: ${errorMessage}`, {
-    error,
-    context,
-    timestamp: new Date().toISOString(),
-  });
-};
+// Interface for error details
+interface ErrorDetails {
+  name: string;
+  message: string;
+  stack?: string;
+  context: string;
+  timestamp: string;
+  type?: string;
+  possibleCause?: string;
+  [key: string]: unknown; // Index signature for additional properties
+}
 
 // Cleanup function to clear all spinners
 export const cleanup = (): void => {
