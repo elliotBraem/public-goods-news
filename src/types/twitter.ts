@@ -17,6 +17,9 @@ export interface Moderation {
 }
 
 export interface TwitterConfig {
+  username: string;
+  password: string;
+  email: string;
   apiKey: string;
   apiSecret: string;
   accessToken: string;

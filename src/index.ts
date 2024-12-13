@@ -29,16 +29,11 @@ async function main() {
     await twitterService.initialize();
     succeedSpinner('twitter-init', 'Twitter service initialized');
 
-    // Start Twitter stream
-    startSpinner('twitter-stream', 'Starting Twitter stream...');
-    const stream = await twitterService.startStream();
-    succeedSpinner('twitter-stream', 'Twitter stream started');
-
     // Handle graceful shutdown
     process.on("SIGINT", async () => {
       startSpinner('shutdown', 'Shutting down gracefully...');
       try {
-        stream.destroy();
+        await twitterService.stop();
         succeedSpinner('shutdown', 'Shutdown complete');
         process.exit(0);
       } catch (error) {
@@ -54,7 +49,7 @@ async function main() {
     });
   } catch (error) {
     // Handle any initialization errors
-    ['env', 'near', 'twitter-init', 'twitter-stream'].forEach(key => {
+    ['env', 'near', 'twitter-init'].forEach(key => {
       failSpinner(key, `Failed during ${key}`);
     });
     handleError(error, 'Startup');
