@@ -3,20 +3,14 @@ import { TwitterSubmission, Moderation, TwitterConfig } from "../../types/twitte
 import { ADMIN_ACCOUNTS } from "../../config/admins";
 import { logger } from "../../utils/logger";
 import { db } from "../db";
-
-interface TwitterCookie {
-  key: string;
-  value: string;
-  domain: string;
-  path: string;
-  secure: boolean;
-  httpOnly: boolean;
-  sameSite?: string;
-}
-
-interface CookieCache {
-  [username: string]: TwitterCookie[];
-}
+import { 
+  TwitterCookie,
+  ensureCacheDirectory,
+  getCachedCookies,
+  cacheCookies,
+  getLastCheckedTweetId,
+  saveLastCheckedTweetId
+} from "../../utils/cache";
 
 export class TwitterService {
   private client: Scraper;
@@ -26,33 +20,12 @@ export class TwitterService {
   private isInitialized = false;
   private checkInterval: NodeJS.Timeout | null = null;
   private lastCheckedTweetId: string | null = null;
-  private cacheDir: string;
   private adminIdCache: Map<string, string> = new Map();
 
   constructor(config: TwitterConfig) {
     this.client = new Scraper();
     this.twitterUsername = config.username;
     this.config = config;
-    this.cacheDir = '.cache';
-  }
-
-  private async ensureCacheDirectory() {
-    try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const cacheDir = path.join(process.cwd(), this.cacheDir);
-      
-      try {
-        await fs.access(cacheDir);
-      } catch {
-        // Directory doesn't exist, create it
-        await fs.mkdir(cacheDir, { recursive: true });
-        logger.info('Created cache directory');
-      }
-    } catch (error) {
-      logger.error('Failed to create cache directory:', error);
-      throw error;
-    }
   }
 
   private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
@@ -63,82 +36,6 @@ export class TwitterService {
         }`
     );
     await this.client.setCookies(cookieStrings);
-  }
-
-  private async getCachedCookies(username: string): Promise<TwitterCookie[] | null> {
-    try {
-      // Try to read cookies from a local cache file
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const cookiePath = path.join(process.cwd(), this.cacheDir, '.twitter-cookies.json');
-
-      const data = await fs.readFile(cookiePath, 'utf-8');
-      const cache: CookieCache = JSON.parse(data);
-
-      if (cache[username]) {
-        return cache[username];
-      }
-    } catch (error) {
-      // If file doesn't exist or is invalid, return null
-      return null;
-    }
-    return null;
-  }
-
-  private async cacheCookies(username: string, cookies: TwitterCookie[]) {
-    try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const cookiePath = path.join(process.cwd(), this.cacheDir, '.twitter-cookies.json');
-
-      let cache: CookieCache = {};
-      try {
-        const data = await fs.readFile(cookiePath, 'utf-8');
-        cache = JSON.parse(data);
-      } catch (error) {
-        // If file doesn't exist, start with empty cache
-      }
-
-      cache[username] = cookies;
-      await fs.writeFile(cookiePath, JSON.stringify(cache, null, 2));
-    } catch (error) {
-      logger.error('Failed to cache cookies:', error);
-    }
-  }
-
-  private async getLastCheckedTweetId(): Promise<string | null> {
-    try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const statePath = path.join(process.cwd(), this.cacheDir, '.twitter-state.json');
-
-      const data = await fs.readFile(statePath, 'utf-8');
-      const state = JSON.parse(data);
-      return state.lastCheckedTweetId || null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  private async saveLastCheckedTweetId(tweetId: string) {
-    try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const statePath = path.join(process.cwd(), this.cacheDir, '.twitter-state.json');
-
-      let state = { lastCheckedTweetId: tweetId };
-      try {
-        const data = await fs.readFile(statePath, 'utf-8');
-        state = { ...JSON.parse(data), lastCheckedTweetId: tweetId };
-      } catch (error) {
-        // If file doesn't exist, use the default state
-      }
-
-      await fs.writeFile(statePath, JSON.stringify(state, null, 2));
-      this.lastCheckedTweetId = tweetId;
-    } catch (error) {
-      logger.error('Failed to save last checked tweet ID:', error);
-    }
   }
 
   private async initializeAdminIds() {
@@ -160,16 +57,16 @@ export class TwitterService {
   async initialize() {
     try {
       // Ensure cache directory exists
-      await this.ensureCacheDirectory();
+      await ensureCacheDirectory();
 
       // Check for cached cookies
-      const cachedCookies = await this.getCachedCookies(this.twitterUsername);
+      const cachedCookies = await getCachedCookies(this.twitterUsername);
       if (cachedCookies) {
         await this.setCookiesFromArray(cachedCookies);
       }
 
       // Load last checked tweet ID
-      this.lastCheckedTweetId = await this.getLastCheckedTweetId();
+      this.lastCheckedTweetId = await getLastCheckedTweetId();
 
       // Try to login with retries
       logger.info('Attempting Twitter login...');
@@ -184,7 +81,7 @@ export class TwitterService {
           if (await this.client.isLoggedIn()) {
             // Cache the new cookies
             const cookies = await this.client.getCookies();
-            await this.cacheCookies(this.config.username, cookies);
+            await cacheCookies(this.config.username, cookies);
             break;
           }
         } catch (error) {
@@ -284,7 +181,8 @@ export class TwitterService {
             // Update the last checked tweet ID to the most recent one
             const latestTweetId = sortedTweets[sortedTweets.length - 1].id;
             if (latestTweetId) {
-              await this.saveLastCheckedTweetId(latestTweetId);
+              await saveLastCheckedTweetId(latestTweetId);
+              this.lastCheckedTweetId = latestTweetId;
             }
           }
         } else {
