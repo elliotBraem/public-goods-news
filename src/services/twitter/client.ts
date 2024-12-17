@@ -8,8 +8,6 @@ import {
   ensureCacheDirectory,
   getCachedCookies,
   cacheCookies,
-  getLastCheckedTweetId,
-  saveLastCheckedTweetId
 } from "../../utils/cache";
 
 export class TwitterService {
@@ -65,8 +63,8 @@ export class TwitterService {
         await this.setCookiesFromArray(cachedCookies);
       }
 
-      // Load last checked tweet ID
-      this.lastCheckedTweetId = await getLastCheckedTweetId();
+      // Load last checked tweet ID from database
+      this.lastCheckedTweetId = db.getLastCheckedTweetId();
 
       // Try to login with retries
       logger.info('Attempting Twitter login...');
@@ -92,7 +90,7 @@ export class TwitterService {
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
-      // Initialize admin IDs after successful login
+      // Initialize admin IDs after successful login (convert from handle to account id)
       await this.initializeAdminIds();
 
       this.isInitialized = true;
@@ -100,27 +98,6 @@ export class TwitterService {
     } catch (error) {
       logger.error('Failed to initialize Twitter client:', error);
       throw error;
-    }
-  }
-
-  async sendTestTweetAndReply() {
-    try {
-      // Send initial test tweet
-      const response = await this.client.sendTweet("Testing the Public Goods News bot again again! 🤖 #PublicGoods");
-      const body: any = await response.json();
-      logger.info('Test tweet sent:', body);
-
-      // Extract tweet ID from response
-      const tweetId = body?.data?.create_tweet?.tweet_results?.result.rest_id;
-
-      // Wait a moment before replying
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Reply to the test tweet
-      await this.replyToTweet(tweetId, "And here's a reply to test the reply functionality! 🎉");
-      logger.info('Test reply sent');
-    } catch (error) {
-      logger.error('Error sending test tweet and reply:', error);
     }
   }
 
@@ -181,7 +158,7 @@ export class TwitterService {
             // Update the last checked tweet ID to the most recent one
             const latestTweetId = sortedTweets[sortedTweets.length - 1].id;
             if (latestTweetId) {
-              await saveLastCheckedTweetId(latestTweetId);
+              db.saveLastCheckedTweetId(latestTweetId);
               this.lastCheckedTweetId = latestTweetId;
             }
           }

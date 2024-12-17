@@ -71,33 +71,3 @@ export async function cacheCookies(username: string, cookies: TwitterCookie[]) {
     logger.error('Failed to cache cookies:', error);
   }
 }
-
-export async function getLastCheckedTweetId(): Promise<string | null> {
-  try {
-    const statePath = path.join(process.cwd(), CACHE_DIR, '.twitter-state.json');
-
-    const data = await fs.readFile(statePath, 'utf-8');
-    const state = JSON.parse(data);
-    return state.lastCheckedTweetId || null;
-  } catch (error) {
-    return null;
-  }
-}
-
-export async function saveLastCheckedTweetId(tweetId: string) {
-  try {
-    const statePath = path.join(process.cwd(), CACHE_DIR, '.twitter-state.json');
-
-    let state = { lastCheckedTweetId: tweetId };
-    try {
-      const data = await fs.readFile(statePath, 'utf-8');
-      state = { ...JSON.parse(data), lastCheckedTweetId: tweetId };
-    } catch (error) {
-      // If file doesn't exist, use the default state
-    }
-
-    await fs.writeFile(statePath, JSON.stringify(state, null, 2));
-  } catch (error) {
-    logger.error('Failed to save last checked tweet ID:', error);
-  }
-}
