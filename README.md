@@ -52,7 +52,7 @@ cp .env.example .env
 
 Required environment variables:
 
-```
+```env
 # Twitter API Credentials
 TWITTER_USERNAME=your_twitter_username
 TWITTER_PASSWORD=your_twitter_password
@@ -60,7 +60,9 @@ TWITTER_EMAIL=your_twitter_email
 
 # NEAR Configuration
 NEAR_NETWORK_ID=testnet
-NEAR_CONTRACT_NAME=your_contract_name
+NEAR_LIST_CONTRACT=your_list_contract_name
+NEAR_SIGNER_ACCOUNT=your_signer_account
+NEAR_SIGNER_PRIVATE_KEY=your_signer_private_key
 ```
 
 ### Running the app
