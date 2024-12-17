@@ -26,11 +26,33 @@ export class TwitterService {
   private config: TwitterConfig;
   private isInitialized = false;
   private checkInterval: NodeJS.Timeout | null = null;
+  private lastCheckedTweetId: string | null = null;
+  private cacheDir: string;
 
   constructor(config: TwitterConfig) {
     this.client = new Scraper();
     this.twitterUsername = config.username;
     this.config = config;
+    this.cacheDir = '.cache';
+  }
+
+  private async ensureCacheDirectory() {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const cacheDir = path.join(process.cwd(), this.cacheDir);
+      
+      try {
+        await fs.access(cacheDir);
+      } catch {
+        // Directory doesn't exist, create it
+        await fs.mkdir(cacheDir, { recursive: true });
+        logger.info('Created cache directory');
+      }
+    } catch (error) {
+      logger.error('Failed to create cache directory:', error);
+      throw error;
+    }
   }
 
   private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
@@ -48,7 +70,7 @@ export class TwitterService {
       // Try to read cookies from a local cache file
       const fs = await import('fs/promises');
       const path = await import('path');
-      const cookiePath = path.join(process.cwd(), '.twitter-cookies.json');
+      const cookiePath = path.join(process.cwd(), this.cacheDir, '.twitter-cookies.json');
 
       const data = await fs.readFile(cookiePath, 'utf-8');
       const cache: CookieCache = JSON.parse(data);
@@ -67,7 +89,7 @@ export class TwitterService {
     try {
       const fs = await import('fs/promises');
       const path = await import('path');
-      const cookiePath = path.join(process.cwd(), '.twitter-cookies.json');
+      const cookiePath = path.join(process.cwd(), this.cacheDir, '.twitter-cookies.json');
 
       let cache: CookieCache = {};
       try {
@@ -84,13 +106,54 @@ export class TwitterService {
     }
   }
 
+  private async getLastCheckedTweetId(): Promise<string | null> {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const statePath = path.join(process.cwd(), this.cacheDir, '.twitter-state.json');
+
+      const data = await fs.readFile(statePath, 'utf-8');
+      const state = JSON.parse(data);
+      return state.lastCheckedTweetId || null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private async saveLastCheckedTweetId(tweetId: string) {
+    try {
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const statePath = path.join(process.cwd(), this.cacheDir, '.twitter-state.json');
+
+      let state = { lastCheckedTweetId: tweetId };
+      try {
+        const data = await fs.readFile(statePath, 'utf-8');
+        state = { ...JSON.parse(data), lastCheckedTweetId: tweetId };
+      } catch (error) {
+        // If file doesn't exist, use the default state
+      }
+
+      await fs.writeFile(statePath, JSON.stringify(state, null, 2));
+      this.lastCheckedTweetId = tweetId;
+    } catch (error) {
+      logger.error('Failed to save last checked tweet ID:', error);
+    }
+  }
+
   async initialize() {
     try {
+      // Ensure cache directory exists
+      await this.ensureCacheDirectory();
+
       // Check for cached cookies
       const cachedCookies = await this.getCachedCookies(this.twitterUsername);
       if (cachedCookies) {
         await this.setCookiesFromArray(cachedCookies);
       }
+
+      // Load last checked tweet ID
+      this.lastCheckedTweetId = await this.getLastCheckedTweetId();
 
       // Try to login with retries
       logger.info('Attempting Twitter login...');
@@ -122,11 +185,6 @@ export class TwitterService {
 
       this.isInitialized = true;
       logger.info('Successfully logged in to Twitter');
-
-      // Start checking for mentions periodically
-      // this.startMentionsCheck();
-
-      // Send test tweet and reply
     } catch (error) {
       logger.error('Failed to initialize Twitter client:', error);
       throw error;
@@ -143,7 +201,6 @@ export class TwitterService {
       // Extract tweet ID from response
       const tweetId = body?.data?.create_tweet?.tweet_results?.result.rest_id;
 
-
       // Wait a moment before replying
       await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -155,12 +212,16 @@ export class TwitterService {
     }
   }
 
-  private async startMentionsCheck() {
+  async startMentionsCheck() {
+    logger.info('Listening for mentions...');
+    
     // Check mentions every minute
     this.checkInterval = setInterval(async () => {
       if (!this.isInitialized) return;
 
       try {
+        logger.info('Checking mentions...');
+        
         // Check for mentions
         const mentionCandidates = (
           await this.client.fetchSearchTweets(
@@ -170,17 +231,47 @@ export class TwitterService {
           )
         ).tweets;
 
-        // Process each mention
-        for (const tweet of mentionCandidates) {
-          try {
-            if (this.isSubmission(tweet)) {
-              await this.handleSubmission(tweet);
-            } else if (this.isModeration(tweet)) {
-              await this.handleModeration(tweet);
+        if (mentionCandidates.length > 0) {
+          // Sort tweets by ID (chronologically)
+          const sortedTweets = mentionCandidates.sort((a, b) => {
+            const aId = BigInt(a.id || '0');
+            const bId = BigInt(b.id || '0');
+            return aId > bId ? 1 : aId < bId ? -1 : 0;
+          });
+
+          // Filter new tweets
+          const newTweets = sortedTweets.filter(tweet => 
+            tweet.id && (!this.lastCheckedTweetId || BigInt(tweet.id) > BigInt(this.lastCheckedTweetId))
+          );
+
+          if (newTweets.length === 0) {
+            logger.info('No new mentions');
+          } else {
+            logger.info(`Found ${newTweets.length} new mentions`);
+
+            // Process only tweets newer than the last checked ID
+            for (const tweet of newTweets) {
+              if (!tweet.id) continue;
+              
+              try {
+                if (this.isSubmission(tweet)) {
+                  await this.handleSubmission(tweet);
+                } else if (this.isModeration(tweet)) {
+                  await this.handleModeration(tweet);
+                }
+              } catch (error) {
+                logger.error('Error processing tweet:', error);
+              }
             }
-          } catch (error) {
-            logger.error('Error processing tweet:', error);
+
+            // Update the last checked tweet ID to the most recent one
+            const latestTweetId = sortedTweets[sortedTweets.length - 1].id;
+            if (latestTweetId) {
+              await this.saveLastCheckedTweetId(latestTweetId);
+            }
           }
+        } else {
+          logger.info('No new mentions');
         }
       } catch (error) {
         logger.error('Error checking mentions:', error);
@@ -208,6 +299,7 @@ export class TwitterService {
         tweet.id,
         "You've reached your daily submission limit. Please try again tomorrow."
       );
+      logger.info(`User ${userId} had reached limit, replied to submission.`);
       return;
     }
 
@@ -227,6 +319,7 @@ export class TwitterService {
       tweet.id,
       "Successfully submitted to publicgoods.news!"
     );
+    logger.info(`Received submission, replied to User: ${userId}.`)
   }
 
   private async handleModeration(tweet: Tweet): Promise<void> {
@@ -269,8 +362,10 @@ export class TwitterService {
 
     // Process the moderation action
     if (action === "approve") {
+      logger.info(`Received review from User ${userId}, processing approval.`)
       await this.processApproval(submission);
     } else {
+      logger.info(`Received review from User ${userId}, processing rejection.`)
       await this.processRejection(submission);
     }
   }

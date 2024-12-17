@@ -47,10 +47,14 @@ async function main() {
       twitterEnabled: true
     });
 
-    await twitterService.sendTestTweetAndReply();
+    // Start checking for mentions
+    startSpinner('twitter-mentions', 'Starting mentions check...');
+    await twitterService.startMentionsCheck();
+    succeedSpinner('twitter-mentions', 'Mentions check started');
+
   } catch (error) {
     // Handle any initialization errors
-    ['env', 'near', 'twitter-init'].forEach(key => {
+    ['env', 'near', 'twitter-init', 'twitter-mentions'].forEach(key => {
       failSpinner(key, `Failed during ${key}`);
     });
     logger.error('Startup', error);
