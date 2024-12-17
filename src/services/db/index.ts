@@ -32,6 +32,8 @@ export class DatabaseService {
         category TEXT,
         description TEXT,
         status TEXT NOT NULL DEFAULT 'pending',
+        acknowledgment_tweet_id TEXT,
+        moderation_response_tweet_id TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -71,13 +73,19 @@ export class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_submission_counts_date 
       ON submission_counts(last_reset_date)
     `);
+
+    // Add index on acknowledgment_tweet_id for faster lookups
+    this.db.run(`
+      CREATE INDEX IF NOT EXISTS idx_acknowledgment_tweet_id
+      ON submissions(acknowledgment_tweet_id)
+    `);
   }
 
   saveSubmission(submission: TwitterSubmission): void {
     const stmt = this.db.prepare(`
       INSERT INTO submissions (
-        tweet_id, user_id, content, hashtags, category, description, status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        tweet_id, user_id, content, hashtags, category, description, status, acknowledgment_tweet_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -87,7 +95,8 @@ export class DatabaseService {
       JSON.stringify(submission.hashtags),
       submission.category || null,
       submission.description || null,
-      submission.status
+      submission.status,
+      submission.acknowledgmentTweetId || null
     );
   }
 
@@ -104,13 +113,15 @@ export class DatabaseService {
       moderation.action,
       moderation.timestamp.toISOString()
     );
+  }
 
-    // Update submission status
+  updateSubmissionStatus(tweetId: string, status: TwitterSubmission['status'], moderationResponseTweetId: string): void {
     this.db.prepare(`
       UPDATE submissions 
-      SET status = ? 
+      SET status = ?,
+          moderation_response_tweet_id = ?
       WHERE tweet_id = ?
-    `).run(moderation.action === 'approve' ? 'approved' : 'rejected', moderation.tweetId);
+    `).run(status, moderationResponseTweetId, tweetId);
   }
 
   getSubmission(tweetId: string): TwitterSubmission | null {
@@ -139,6 +150,45 @@ export class DatabaseService {
       category: submission.category,
       description: submission.description,
       status: submission.status,
+      acknowledgmentTweetId: submission.acknowledgment_tweet_id,
+      moderationResponseTweetId: submission.moderation_response_tweet_id,
+      moderationHistory: submission.moderation_history 
+        ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp)
+          }))
+        : []
+    };
+  }
+
+  getSubmissionByAcknowledgmentTweetId(acknowledgmentTweetId: string): TwitterSubmission | null {
+    const submission = this.db.prepare(`
+      SELECT s.*, GROUP_CONCAT(
+        json_object(
+          'adminId', m.admin_id,
+          'action', m.action,
+          'timestamp', m.timestamp,
+          'tweetId', m.tweet_id
+        )
+      ) as moderation_history
+      FROM submissions s
+      LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
+      WHERE s.acknowledgment_tweet_id = ?
+      GROUP BY s.tweet_id
+    `).get(acknowledgmentTweetId) as any;
+
+    if (!submission) return null;
+
+    return {
+      tweetId: submission.tweet_id,
+      userId: submission.user_id,
+      content: submission.content,
+      hashtags: JSON.parse(submission.hashtags),
+      category: submission.category,
+      description: submission.description,
+      status: submission.status,
+      acknowledgmentTweetId: submission.acknowledgment_tweet_id,
+      moderationResponseTweetId: submission.moderation_response_tweet_id,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
@@ -171,6 +221,8 @@ export class DatabaseService {
       category: submission.category,
       description: submission.description,
       status: submission.status,
+      acknowledgmentTweetId: submission.acknowledgment_tweet_id,
+      moderationResponseTweetId: submission.moderation_response_tweet_id,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
@@ -204,6 +256,8 @@ export class DatabaseService {
       category: submission.category,
       description: submission.description,
       status: submission.status,
+      acknowledgmentTweetId: submission.acknowledgment_tweet_id,
+      moderationResponseTweetId: submission.moderation_response_tweet_id,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
@@ -266,6 +320,14 @@ export class DatabaseService {
       value = ?,
       updated_at = CURRENT_TIMESTAMP
     `).run(tweetId, tweetId);
+  }
+
+  updateSubmissionAcknowledgment(tweetId: string, acknowledgmentTweetId: string): void {
+    this.db.prepare(`
+      UPDATE submissions 
+      SET acknowledgment_tweet_id = ? 
+      WHERE tweet_id = ?
+    `).run(acknowledgmentTweetId, tweetId);
   }
 }
 

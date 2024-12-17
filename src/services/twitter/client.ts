@@ -40,7 +40,7 @@ export class TwitterService {
     for (const handle of ADMIN_ACCOUNTS) {
       try {
         const userId = await this.client.getUserIdByScreenName(handle);
-        this.adminIdCache.set(handle, userId);
+        this.adminIdCache.set(userId, handle);
         logger.info(`Cached admin ID for @${handle}: ${userId}`);
       } catch (error) {
         logger.error(`Failed to fetch ID for admin handle @${handle}:`, error);
@@ -49,7 +49,7 @@ export class TwitterService {
   }
 
   private isAdmin(userId: string): boolean {
-    return Array.from(this.adminIdCache.values()).includes(userId);
+    return this.adminIdCache.has(userId);
   }
 
   async initialize() {
@@ -172,10 +172,10 @@ export class TwitterService {
             
             try {
               if (this.isSubmission(tweet)) {
-                logger.info("Received new submission.");
+                logger.info(`Received new submission: ${this.getTweetLink(tweet.id, tweet.username)}`);
                 await this.handleSubmission(tweet);
               } else if (this.isModeration(tweet)) {
-                logger.info("Received new moderation.");
+                logger.info(`Received new moderation: ${this.getTweetLink(tweet.id, tweet.username)}`);
                 await this.handleModeration(tweet);
               }
             } catch (error) {
@@ -235,18 +235,23 @@ export class TwitterService {
     // Increment submission count in database
     db.incrementDailySubmissionCount(userId);
 
-    await this.replyToTweet(
+    // Send acknowledgment and save its ID
+    const acknowledgmentTweetId = await this.replyToTweet(
       tweet.id,
       "Successfully submitted to publicgoods.news!"
     );
-    logger.info(`Successfully submitted. Replied to User: ${userId}.`)
+    
+    if (acknowledgmentTweetId) {
+      db.updateSubmissionAcknowledgment(tweet.id, acknowledgmentTweetId);
+      logger.info(`Successfully submitted. Sent reply: ${this.getTweetLink(acknowledgmentTweetId)}`)
+    } else {
+      logger.error(`Failed to acknowledge submission: ${this.getTweetLink(tweet.id, tweet.username)}`)
+    }
   }
 
   private async handleModeration(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return;
-
-    logger.info(`Handling moderation for ${JSON.stringify(tweet)}`);
 
     // Verify admin status using cached ID
     if (!this.isAdmin(userId)) {
@@ -254,25 +259,22 @@ export class TwitterService {
       return; // Silently ignore non-admin moderation attempts
     }
 
-    // Get the original submission tweet this is in response to
+    // Get the tweet this is in response to (should be our acknowledgment tweet)
     const inReplyToId = tweet.inReplyToStatusId;
-    logger.info(`It was a reply to ${tweet.inReplyToStatusId}`);
     if (!inReplyToId) return;
 
-    // Get submission from database
-    const submission = db.getSubmission(inReplyToId);
-    logger.info(`Got the original submission: ${JSON.stringify(submission)}`);
+    // Get submission by acknowledgment tweet ID
+    const submission = db.getSubmissionByAcknowledgmentTweetId(inReplyToId);
     if (!submission) return;
 
-    const action = this.getModerationAction(tweet);
-    logger.info(`Determined the action: ${action}`);
-    if (!action) return;
+    // Check if submission has already been moderated by any admin
+    if (submission.moderationHistory.length > 0) {
+      logger.info(`Submission ${submission.tweetId} has already been moderated, ignoring new moderation attempt.`);
+      return;
+    }
 
-    // Check if this admin has already moderated this submission
-    const hasModerated = submission.moderationHistory.some(
-      (mod) => mod.adminId === userId
-    );
-    if (hasModerated) return;
+    const action = this.getModerationAction(tweet);
+    if (!action) return;
 
     // Add moderation to database
     const moderation: Moderation = {
@@ -285,27 +287,33 @@ export class TwitterService {
 
     // Process the moderation action
     if (action === "approve") {
-      logger.info(`Received review from User ${userId}, processing approval.`)
+      logger.info(`Received review from Admin ${this.adminIdCache.get(userId)}, processing approval.`)
       await this.processApproval(submission);
     } else {
-      logger.info(`Received review from User ${userId}, processing rejection.`)
+      logger.info(`Received review from Admin ${this.adminIdCache.get(userId)}, processing rejection.`)
       await this.processRejection(submission);
     }
   }
 
   private async processApproval(submission: TwitterSubmission): Promise<void> {
     // TODO: Add NEAR integration here for approved submissions
-    await this.replyToTweet(
+    const responseTweetId = await this.replyToTweet(
       submission.tweetId,
       "Your submission has been approved and will be added to the public goods news feed!"
     );
+    if (responseTweetId) {
+      db.updateSubmissionStatus(submission.tweetId, "approved", responseTweetId);
+    }
   }
 
   private async processRejection(submission: TwitterSubmission): Promise<void> {
-    await this.replyToTweet(
+    const responseTweetId = await this.replyToTweet(
       submission.tweetId,
       "Your submission has been reviewed and was not accepted for the public goods news feed."
     );
+    if (responseTweetId) {
+      db.updateSubmissionStatus(submission.tweetId, "rejected", responseTweetId);
+    }
   }
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
@@ -323,12 +331,20 @@ export class TwitterService {
     return tweet.text?.toLowerCase().includes("!submit") || false;
   }
 
-  private async replyToTweet(tweetId: string, message: string): Promise<void> {
+  private async replyToTweet(tweetId: string, message: string): Promise<string | null> {
     try {
-      await this.client.sendTweet(message, tweetId); // Second parameter is the tweet to reply to
+      const response = await this.client.sendTweet(message, tweetId);
+      const responseData = await response.json() as any;
+      // Extract tweet ID from response
+      const replyTweetId = responseData?.data?.create_tweet?.tweet_results?.result?.rest_id;
+      return replyTweetId || null;
     } catch (error) {
       logger.error('Error replying to tweet:', error);
-      throw error;
+      return null;
     }
+  }
+
+  private getTweetLink(tweetId: string, username: string = this.twitterUsername): string {
+    return `https://x.com/${username}/status/${tweetId}`;
   }
 }
