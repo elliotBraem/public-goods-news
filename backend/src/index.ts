@@ -1,6 +1,10 @@
 import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import path from "path";
 import { TwitterService } from "./services/twitter/client";
 import { NearService } from "./services/near";
+import { db } from "./services/db";
 import config from "./config/config";
 import { 
   logger, 
@@ -9,6 +13,52 @@ import {
   failSpinner, 
   cleanup 
 } from "./utils/logger";
+
+// Initialize Express
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Serve static frontend files in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+}
+
+// API Routes
+app.get('/api/submissions', (req, res) => {
+  try {
+    const status = req.query.status as "pending" | "approved" | "rejected";
+    const submissions = status ? 
+      db.getSubmissionsByStatus(status) : 
+      db.getAllSubmissions();
+    res.json(submissions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch submissions' });
+  }
+});
+
+app.get('/api/submissions/:tweetId', (req, res) => {
+  try {
+    const submission = db.getSubmission(req.params.tweetId);
+    if (!submission) {
+      res.status(404).json({ error: 'Submission not found' });
+      return;
+    }
+    res.json(submission);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch submission' });
+  }
+});
+
+// Serve frontend for all other routes in production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+  });
+}
 
 async function main() {
   try {
@@ -27,6 +77,12 @@ async function main() {
     const twitterService = new TwitterService(config.twitter);
     await twitterService.initialize();
     succeedSpinner('twitter-init', 'Twitter service initialized');
+
+    // Start Express server
+    startSpinner('express', 'Starting Express server...');
+    app.listen(PORT, () => {
+      succeedSpinner('express', `Express server running on port ${PORT}`);
+    });
 
     // Handle graceful shutdown
     process.on("SIGINT", async () => {
@@ -54,7 +110,7 @@ async function main() {
 
   } catch (error) {
     // Handle any initialization errors
-    ['env', 'near', 'twitter-init', 'twitter-mentions'].forEach(key => {
+    ['env', 'near', 'twitter-init', 'twitter-mentions', 'express'].forEach(key => {
       failSpinner(key, `Failed during ${key}`);
     });
     logger.error('Startup', error);

@@ -209,43 +209,62 @@ export class TwitterService {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return;
 
-    // Get submission count from database instead of memory
-    const dailyCount = db.getDailySubmissionCount(userId);
-
-    if (dailyCount >= this.DAILY_SUBMISSION_LIMIT) {
-      await this.replyToTweet(
-        tweet.id,
-        "You've reached your daily submission limit. Please try again tomorrow."
-      );
-      logger.info(`User ${userId} has reached limit, replied to submission.`);
+    // Get the tweet being replied to
+    const inReplyToId = tweet.inReplyToStatusId;
+    if (!inReplyToId) {
+      logger.error(`Submission tweet ${tweet.id} is not a reply to another tweet`);
       return;
     }
 
-    const submission: TwitterSubmission = {
-      tweetId: tweet.id,
-      userId: userId,
-      content: tweet.text || "",
-      hashtags: tweet.hashtags || [],
-      status: "pending",
-      moderationHistory: [],
-    };
+    try {
+      // Fetch the original tweet that's being submitted
+      const originalTweet = await this.client.getTweet(inReplyToId);
+      if (!originalTweet) {
+        logger.error(`Could not fetch original tweet ${inReplyToId}`);
+        return;
+      }
 
-    // Save submission to database
-    db.saveSubmission(submission);
-    // Increment submission count in database
-    db.incrementDailySubmissionCount(userId);
+      // Get submission count from database
+      const dailyCount = db.getDailySubmissionCount(userId);
 
-    // Send acknowledgment and save its ID
-    const acknowledgmentTweetId = await this.replyToTweet(
-      tweet.id,
-      "Successfully submitted to publicgoods.news!"
-    );
-    
-    if (acknowledgmentTweetId) {
-      db.updateSubmissionAcknowledgment(tweet.id, acknowledgmentTweetId);
-      logger.info(`Successfully submitted. Sent reply: ${this.getTweetLink(acknowledgmentTweetId)}`)
-    } else {
-      logger.error(`Failed to acknowledge submission: ${this.getTweetLink(tweet.id, tweet.username)}`)
+      if (dailyCount >= this.DAILY_SUBMISSION_LIMIT) {
+        await this.replyToTweet(
+          tweet.id,
+          "You've reached your daily submission limit. Please try again tomorrow."
+        );
+        logger.info(`User ${userId} has reached limit, replied to submission.`);
+        return;
+      }
+
+      // Create submission using the original tweet's content
+      const submission: TwitterSubmission = {
+        tweetId: originalTweet.id!, // The tweet being submitted
+        userId: userId, // The user who submitted it
+        content: originalTweet.text || "",
+        hashtags: originalTweet.hashtags || [],
+        status: "pending",
+        moderationHistory: [],
+      };
+
+      // Save submission to database
+      db.saveSubmission(submission);
+      // Increment submission count in database
+      db.incrementDailySubmissionCount(userId);
+
+      // Send acknowledgment and save its ID
+      const acknowledgmentTweetId = await this.replyToTweet(
+        tweet.id, // Reply to the submission tweet
+        "Successfully submitted to publicgoods.news!"
+      );
+      
+      if (acknowledgmentTweetId) {
+        db.updateSubmissionAcknowledgment(originalTweet.id!, acknowledgmentTweetId);
+        logger.info(`Successfully submitted. Sent reply: ${this.getTweetLink(acknowledgmentTweetId)}`)
+      } else {
+        logger.error(`Failed to acknowledge submission: ${this.getTweetLink(tweet.id, tweet.username)}`)
+      }
+    } catch (error) {
+      logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
     }
   }
 
