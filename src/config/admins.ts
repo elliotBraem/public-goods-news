@@ -1,4 +1,5 @@
 export const ADMIN_ACCOUNTS: string[] = [
-  // Add admin Twitter IDs here
-  // Example: "1234567890"
+  "elliot_braem"
+  // Add admin Twitter handles here (without @)
+  // Example: "TwitterDev"
 ];

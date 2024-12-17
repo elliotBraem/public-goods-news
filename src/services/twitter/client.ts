@@ -28,6 +28,7 @@ export class TwitterService {
   private checkInterval: NodeJS.Timeout | null = null;
   private lastCheckedTweetId: string | null = null;
   private cacheDir: string;
+  private adminIdCache: Map<string, string> = new Map();
 
   constructor(config: TwitterConfig) {
     this.client = new Scraper();
@@ -141,6 +142,22 @@ export class TwitterService {
     }
   }
 
+  private async initializeAdminIds() {
+    for (const handle of ADMIN_ACCOUNTS) {
+      try {
+        const userId = await this.client.getUserIdByScreenName(handle);
+        this.adminIdCache.set(handle, userId);
+        logger.info(`Cached admin ID for @${handle}: ${userId}`);
+      } catch (error) {
+        logger.error(`Failed to fetch ID for admin handle @${handle}:`, error);
+      }
+    }
+  }
+
+  private isAdmin(userId: string): boolean {
+    return Array.from(this.adminIdCache.values()).includes(userId);
+  }
+
   async initialize() {
     try {
       // Ensure cache directory exists
@@ -182,6 +199,9 @@ export class TwitterService {
         // Wait before retrying
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
+
+      // Initialize admin IDs after successful login
+      await this.initializeAdminIds();
 
       this.isInitialized = true;
       logger.info('Successfully logged in to Twitter');
@@ -255,8 +275,10 @@ export class TwitterService {
               
               try {
                 if (this.isSubmission(tweet)) {
+                  logger.info("Received new submission.");
                   await this.handleSubmission(tweet);
                 } else if (this.isModeration(tweet)) {
+                  logger.info("Received new moderation.");
                   await this.handleModeration(tweet);
                 }
               } catch (error) {
@@ -299,7 +321,7 @@ export class TwitterService {
         tweet.id,
         "You've reached your daily submission limit. Please try again tomorrow."
       );
-      logger.info(`User ${userId} had reached limit, replied to submission.`);
+      logger.info(`User ${userId} has reached limit, replied to submission.`);
       return;
     }
 
@@ -319,26 +341,32 @@ export class TwitterService {
       tweet.id,
       "Successfully submitted to publicgoods.news!"
     );
-    logger.info(`Received submission, replied to User: ${userId}.`)
+    logger.info(`Successfully submitted. Replied to User: ${userId}.`)
   }
 
   private async handleModeration(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return;
 
-    // Verify admin status
-    if (!ADMIN_ACCOUNTS.includes(userId)) {
+    logger.info(`Handling moderation for ${JSON.stringify(tweet)}`);
+
+    // Verify admin status using cached ID
+    if (!this.isAdmin(userId)) {
+      logger.info(`User ${userId} is not admin.`)
       return; // Silently ignore non-admin moderation attempts
     }
 
     // Get the original submission tweet this is in response to
     const inReplyToId = tweet.inReplyToStatusId;
+    logger.info(`It was a reply to ${tweet.inReplyToStatusId}`);
     if (!inReplyToId) return;
 
     const submission = this.submissions.get(inReplyToId);
+    logger.info(`Got the original submission: ${JSON.stringify(submission)}`);
     if (!submission) return;
 
     const action = this.getModerationAction(tweet);
+    logger.info(`Determined the action: ${action}`);
     if (!action) return;
 
     // Check if this admin has already moderated this submission
