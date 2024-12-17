@@ -2,6 +2,7 @@ import { Scraper, SearchMode, Tweet } from "agent-twitter-client";
 import { TwitterSubmission, Moderation, TwitterConfig } from "../../types/twitter";
 import { ADMIN_ACCOUNTS } from "../../config/admins";
 import { logger } from "../../utils/logger";
+import { db } from "../db";
 
 interface TwitterCookie {
   key: string;
@@ -19,8 +20,6 @@ interface CookieCache {
 
 export class TwitterService {
   private client: Scraper;
-  private submissionCount: Map<string, number> = new Map();
-  private submissions: Map<string, TwitterSubmission> = new Map(); // Key is original submission tweetId
   private readonly DAILY_SUBMISSION_LIMIT = 10;
   private twitterUsername: string;
   private config: TwitterConfig;
@@ -180,10 +179,6 @@ export class TwitterService {
             this.config.username,
             this.config.password,
             this.config.email,
-            // this.config.apiKey,
-            // this.config.apiSecret,
-            // this.config.accessToken,
-            // this.config.accessTokenSecret
           );
 
           if (await this.client.isLoggedIn()) {
@@ -314,7 +309,8 @@ export class TwitterService {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return;
 
-    const dailyCount = this.submissionCount.get(userId) || 0;
+    // Get submission count from database instead of memory
+    const dailyCount = db.getDailySubmissionCount(userId);
 
     if (dailyCount >= this.DAILY_SUBMISSION_LIMIT) {
       await this.replyToTweet(
@@ -334,8 +330,10 @@ export class TwitterService {
       moderationHistory: [],
     };
 
-    this.submissions.set(tweet.id, submission);
-    this.submissionCount.set(userId, dailyCount + 1);
+    // Save submission to database
+    db.saveSubmission(submission);
+    // Increment submission count in database
+    db.incrementDailySubmissionCount(userId);
 
     await this.replyToTweet(
       tweet.id,
@@ -361,7 +359,8 @@ export class TwitterService {
     logger.info(`It was a reply to ${tweet.inReplyToStatusId}`);
     if (!inReplyToId) return;
 
-    const submission = this.submissions.get(inReplyToId);
+    // Get submission from database
+    const submission = db.getSubmission(inReplyToId);
     logger.info(`Got the original submission: ${JSON.stringify(submission)}`);
     if (!submission) return;
 
@@ -375,18 +374,14 @@ export class TwitterService {
     );
     if (hasModerated) return;
 
-    // Add to moderation history
+    // Add moderation to database
     const moderation: Moderation = {
       adminId: userId,
       action: action,
       timestamp: tweet.timeParsed || new Date(),
       tweetId: tweet.id,
     };
-    submission.moderationHistory.push(moderation);
-
-    // Update submission status based on latest moderation
-    submission.status = action === "approve" ? "approved" : "rejected";
-    this.submissions.set(inReplyToId, submission);
+    db.saveModerationAction(moderation);
 
     // Process the moderation action
     if (action === "approve") {
