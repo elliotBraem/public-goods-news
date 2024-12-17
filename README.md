@@ -22,7 +22,14 @@
   - [Running the app](#running-the-app)
   - [Building for production](#building-for-production)
   - [Running tests](#running-tests)
-- [Usage](#usage)
+- [Configuration](#configuration)
+  - [Twitter Setup](#twitter-setup)
+  - [Admin Configuration](#admin-configuration)
+  - [NEAR Network Setup](#near-network-setup)
+- [Bot Functionality](#bot-functionality)
+  - [Submission Process](#submission-process)
+  - [Moderation System](#moderation-system)
+  - [Rate Limiting](#rate-limiting)
 - [Contributing](#contributing)
 
 </details>
@@ -45,9 +52,16 @@ cp .env.example .env
 
 Required environment variables:
 
-- Twitter API credentials for bot functionality
-- NEAR network configuration
-- Environment settings
+```
+# Twitter API Credentials
+TWITTER_USERNAME=your_twitter_username
+TWITTER_PASSWORD=your_twitter_password
+TWITTER_EMAIL=your_twitter_email
+
+# NEAR Configuration
+NEAR_NETWORK_ID=testnet
+NEAR_CONTRACT_NAME=your_contract_name
+```
 
 ### Running the app
 
@@ -71,14 +85,73 @@ bun run test
 
 See the full [testing guide](./playwright-tests/README.md).
 
-## Usage
+## Configuration
 
-The bot provides two main interactions:
+### Twitter Setup
 
-1. **Submit News**: Tweet with `!submit` to submit news content
-2. **Approve Content**: Moderators can approve content using the `#approve` hashtag
+The bot requires a Twitter account to function. Configure the following in your `.env` file:
 
-Each user is limited to 10 submissions per day to maintain quality.
+```env
+TWITTER_USERNAME=your_twitter_username
+TWITTER_PASSWORD=your_twitter_password
+TWITTER_EMAIL=your_twitter_email
+```
+
+It will use these credentials to login and cache cookies via [agent-twitter-client](https://github.com/ai16z/agent-twitter-client).
+
+### Admin Configuration
+
+Admins are Twitter accounts that have moderation privileges. Configure admin accounts in `src/config/admins.ts`:
+
+```typescript
+export const ADMIN_ACCOUNTS: string[] = [
+  "admin_handle_1",
+  "admin_handle_2"
+  // Add admin Twitter handles here (without @)
+]
+```
+
+Admin accounts are automatically tagged in submission acknolwedgements and can:
+
+- Approve submissions using the `#approve` hashtag
+- Reject submissions using the `#reject` hashtag
+
+Only the first moderation will be recorded.
+
+### NEAR Network Setup
+
+Configure NEAR network settings in your `.env` file:
+
+```env
+NEAR_NETWORK_ID=testnet
+NEAR_CONTRACT_NAME=your_contract_name
+```
+
+## Bot Functionality
+
+### Submission Process
+
+1. **Submit News**: Users can submit news by mentioning the bot with `!submit` in their tweet
+2. **Acknowledgment**: The bot responds with a confirmation tweet, tagging the admins for review
+3. **Moderation**: Admins will reply to the bot's acknowledgement with either #approve or #reject
+4. **Notification**: Users receive a tweet notification about their submission's status
+
+### Moderation System
+
+1. **Queue**: All submissions enter a moderation queue
+2. **Admin Review**: Admins can review submissions by replying to the bot's acknowledgment tweet
+3. **Actions**:
+   - Approve: Reply with `#approve` hashtag
+   - Reject: Reply with `#reject` hashtag
+4. **Outcome**: Users receive a notification tweet about the moderation decision
+
+### Rate Limiting
+
+To maintain quality:
+
+- Users are limited to 10 submissions per day
+- Rate limits reset daily
+- Exceeding the limit results in a notification tweet
 
 ## Contributing
 
