@@ -101,6 +101,54 @@ export class TwitterService {
     }
   }
 
+  private async fetchAllNewMentions(): Promise<Tweet[]> {
+    const BATCH_SIZE = 20;
+    let allNewTweets: Tweet[] = [];
+    let foundOldTweet = false;
+    let maxAttempts = 10; // Safety limit to prevent infinite loops
+    let attempts = 0;
+
+    while (!foundOldTweet && attempts < maxAttempts) {
+      try {
+        const batch = (
+          await this.client.fetchSearchTweets(
+            `@${this.twitterUsername}`,
+            BATCH_SIZE,
+            SearchMode.Latest,
+            allNewTweets.length > 0 ? allNewTweets[allNewTweets.length - 1].id : undefined
+          )
+        ).tweets;
+
+        if (batch.length === 0) break; // No more tweets to fetch
+
+        // Check if any tweet in this batch is older than or equal to our last checked ID
+        for (const tweet of batch) {
+          if (!tweet.id) continue;
+          
+          if (!this.lastCheckedTweetId || BigInt(tweet.id) > BigInt(this.lastCheckedTweetId)) {
+            allNewTweets.push(tweet);
+          } else {
+            foundOldTweet = true;
+            break;
+          }
+        }
+
+        if (batch.length < BATCH_SIZE) break; // Last batch was partial, no more to fetch
+        attempts++;
+      } catch (error) {
+        logger.error('Error fetching mentions batch:', error);
+        break;
+      }
+    }
+
+    // Sort all fetched tweets by ID (chronologically)
+    return allNewTweets.sort((a, b) => {
+      const aId = BigInt(a.id || '0');
+      const bId = BigInt(b.id || '0');
+      return aId > bId ? 1 : aId < bId ? -1 : 0;
+    });
+  }
+
   async startMentionsCheck() {
     logger.info('Listening for mentions...');
     
@@ -111,59 +159,36 @@ export class TwitterService {
       try {
         logger.info('Checking mentions...');
         
-        // Check for mentions
-        const mentionCandidates = (
-          await this.client.fetchSearchTweets(
-            `@${this.twitterUsername}`,
-            20,
-            SearchMode.Latest
-          )
-        ).tweets;
+        const newTweets = await this.fetchAllNewMentions();
 
-        if (mentionCandidates.length > 0) {
-          // Sort tweets by ID (chronologically)
-          const sortedTweets = mentionCandidates.sort((a, b) => {
-            const aId = BigInt(a.id || '0');
-            const bId = BigInt(b.id || '0');
-            return aId > bId ? 1 : aId < bId ? -1 : 0;
-          });
+        if (newTweets.length === 0) {
+          logger.info('No new mentions');
+        } else {
+          logger.info(`Found ${newTweets.length} new mentions`);
 
-          // Filter new tweets
-          const newTweets = sortedTweets.filter(tweet => 
-            tweet.id && (!this.lastCheckedTweetId || BigInt(tweet.id) > BigInt(this.lastCheckedTweetId))
-          );
-
-          if (newTweets.length === 0) {
-            logger.info('No new mentions');
-          } else {
-            logger.info(`Found ${newTweets.length} new mentions`);
-
-            // Process only tweets newer than the last checked ID
-            for (const tweet of newTweets) {
-              if (!tweet.id) continue;
-              
-              try {
-                if (this.isSubmission(tweet)) {
-                  logger.info("Received new submission.");
-                  await this.handleSubmission(tweet);
-                } else if (this.isModeration(tweet)) {
-                  logger.info("Received new moderation.");
-                  await this.handleModeration(tweet);
-                }
-              } catch (error) {
-                logger.error('Error processing tweet:', error);
+          // Process new tweets
+          for (const tweet of newTweets) {
+            if (!tweet.id) continue;
+            
+            try {
+              if (this.isSubmission(tweet)) {
+                logger.info("Received new submission.");
+                await this.handleSubmission(tweet);
+              } else if (this.isModeration(tweet)) {
+                logger.info("Received new moderation.");
+                await this.handleModeration(tweet);
               }
-            }
-
-            // Update the last checked tweet ID to the most recent one
-            const latestTweetId = sortedTweets[sortedTweets.length - 1].id;
-            if (latestTweetId) {
-              db.saveLastCheckedTweetId(latestTweetId);
-              this.lastCheckedTweetId = latestTweetId;
+            } catch (error) {
+              logger.error('Error processing tweet:', error);
             }
           }
-        } else {
-          logger.info('No new mentions');
+
+          // Update the last checked tweet ID to the most recent one
+          const latestTweetId = newTweets[newTweets.length - 1].id;
+          if (latestTweetId) {
+            db.saveLastCheckedTweetId(latestTweetId);
+            this.lastCheckedTweetId = latestTweetId;
+          }
         }
       } catch (error) {
         logger.error('Error checking mentions:', error);
