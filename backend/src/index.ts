@@ -3,7 +3,6 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { TwitterService } from "./services/twitter/client";
-import { NearService } from "./services/near";
 import { db } from "./services/db";
 import config from "./config/config";
 import { 
@@ -67,11 +66,6 @@ async function main() {
     dotenv.config();
     succeedSpinner('env', 'Environment variables loaded');
 
-    // Initialize NEAR service
-    startSpinner('near', 'Initializing NEAR service...');
-    const nearService = new NearService(config.near);
-    succeedSpinner('near', 'NEAR service initialized');
-
     // Initialize Twitter service
     startSpinner('twitter-init', 'Initializing Twitter service...');
     const twitterService = new TwitterService(config.twitter);
@@ -110,7 +104,7 @@ async function main() {
 
   } catch (error) {
     // Handle any initialization errors
-    ['env', 'near', 'twitter-init', 'twitter-mentions', 'express'].forEach(key => {
+    ['env', 'twitter-init', 'twitter-mentions', 'express'].forEach(key => {
       failSpinner(key, `Failed during ${key}`);
     });
     logger.error('Startup', error);

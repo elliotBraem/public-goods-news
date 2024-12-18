@@ -21,7 +21,6 @@
   - [Service Architecture](#service-architecture)
 - [Key Components](#key-components)
   - [Database Service](#database-service)
-  - [NEAR Integration](#near-integration)
   - [Twitter Service](#twitter-service)
 - [Development](#development)
   - [Prerequisites](#prerequisites)
@@ -68,14 +67,6 @@ Located in `src/services/db`, handles:
 - Caching layer
 - Query optimization
 
-### NEAR Integration
-
-The NEAR blockchain integration (`src/services/near`) provides:
-
-- Contract interaction
-- Transaction management
-- Network configuration
-
 ### Twitter Service
 
 Twitter integration (`src/services/twitter`) manages:
@@ -92,7 +83,6 @@ Twitter integration (`src/services/twitter`) manages:
 - Bun runtime installed
 - Node.js 18+ (for some dev tools)
 - Twitter API credentials
-- NEAR testnet account
 
 ### Local Setup
 

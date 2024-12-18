@@ -29,7 +29,6 @@
 - [Configuration](#configuration)
   - [Twitter Setup](#twitter-setup)
   - [Admin Configuration](#admin-configuration)
-  - [NEAR Network Setup](#near-network-setup)
 - [Bot Functionality](#bot-functionality)
   - [Submission Process](#submission-process)
   - [Moderation System](#moderation-system)
@@ -64,7 +63,6 @@ public-goods-news/
 
 - **Backend** ([Documentation](./backend/README.md))
   - Bun runtime for high performance
-  - NEAR blockchain integration
   - Twitter bot functionality
   - API endpoints for frontend
 
@@ -95,12 +93,6 @@ Required environment variables:
 TWITTER_USERNAME=your_twitter_username
 TWITTER_PASSWORD=your_twitter_password
 TWITTER_EMAIL=your_twitter_email
-
-# NEAR Configuration
-NEAR_NETWORK_ID=testnet
-NEAR_LIST_CONTRACT=your_list_contract_name
-NEAR_SIGNER_ACCOUNT=your_signer_account
-NEAR_SIGNER_PRIVATE_KEY=your_signer_private_key
 ```
 
 ### Running the app
@@ -207,15 +199,6 @@ Admin accounts are automatically tagged in submission acknowledgements and can:
 - Reject submissions using the `#reject` hashtag
 
 Only the first moderation will be recorded.
-
-### NEAR Network Setup
-
-Configure NEAR network settings in your `.env` file:
-
-```env
-NEAR_NETWORK_ID=testnet
-NEAR_CONTRACT_NAME=your_contract_name
-```
 
 ## Bot Functionality
 

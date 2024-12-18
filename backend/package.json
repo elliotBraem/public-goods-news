@@ -39,7 +39,6 @@
     "@types/cors": "^2.8.17",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "near-api-js": "^2.1.4",
     "ora": "^8.1.1",
     "winston": "^3.17.0",
     "winston-console-format": "^1.0.8"
