@@ -53,7 +53,7 @@ The frontend leverages modern web technologies for optimal performance and devel
 
 ### Application Structure
 
-```
+```bash
 src/
 ├── assets/     # Static assets
 ├── components/ # React components
@@ -66,6 +66,7 @@ src/
 ### Submission Interface
 
 The submission system provides:
+
 - Intuitive submission form
 - Real-time validation
 - Status tracking
@@ -94,11 +95,13 @@ The submission system provides:
 ### Local Setup
 
 1. Install dependencies:
+
 ```bash
 bun install
 ```
 
 2. Start development server:
+
 ```bash
 bun run dev
 ```

@@ -63,6 +63,7 @@ src/
 ### Database Service
 
 Located in `src/services/db`, handles:
+
 - Data persistence
 - Caching layer
 - Query optimization
@@ -70,6 +71,7 @@ Located in `src/services/db`, handles:
 ### NEAR Integration
 
 The NEAR blockchain integration (`src/services/near`) provides:
+
 - Contract interaction
 - Transaction management
 - Network configuration
@@ -77,6 +79,7 @@ The NEAR blockchain integration (`src/services/near`) provides:
 ### Twitter Service
 
 Twitter integration (`src/services/twitter`) manages:
+
 - Authentication
 - Tweet interactions
 - Rate limiting
@@ -94,16 +97,19 @@ Twitter integration (`src/services/twitter`) manages:
 ### Local Setup
 
 1. Install dependencies:
+
 ```bash
 bun install
 ```
 
 2. Configure environment:
+
 ```bash
 cp .env.example .env
 ```
 
 3. Start development server:
+
 ```bash
 bun run dev
 ```

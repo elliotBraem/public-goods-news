@@ -2,13 +2,13 @@ app = "public-goods-news"
 primary_region = "lax"
 
 [build]
-  dockerfile = "backend/Dockerfile"
+  dockerfile = "Dockerfile"
 
 [env]
-  PORT = "8080"
+  PORT = "3000"
 
 [http_service]
-  internal_port = 8080
+  internal_port = 3000
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
