@@ -37,6 +37,14 @@ const SubmissionList = () => {
     return () => clearInterval(interval);
   }, [filter]);
 
+  const getTweetUrl = (tweetId: string, username: string) => {
+    return `https://x.com/${username}/status/${tweetId}`;
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString();
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -87,8 +95,19 @@ const SubmissionList = () => {
             className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
           >
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-gray-600 mb-2">Tweet ID: {submission.tweetId}</p>
+              <div className="flex-grow">
+                <div className="flex items-center gap-2 mb-2">
+                  <a 
+                    href={getTweetUrl(submission.tweetId, submission.username)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline font-medium"
+                  >
+                    @{submission.username}
+                  </a>
+                  <span className="text-gray-500">·</span>
+                  <span className="text-gray-500">{formatDate(submission.createdAt)}</span>
+                </div>
                 <p className="text-lg font-medium mb-2">{submission.content}</p>
                 <div className="flex gap-2 mb-2">
                   {submission.hashtags.map((tag) => (

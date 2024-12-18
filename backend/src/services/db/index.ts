@@ -27,6 +27,7 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS submissions (
         tweet_id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
+        username TEXT NOT NULL,
         content TEXT NOT NULL,
         hashtags TEXT NOT NULL,
         category TEXT,
@@ -34,7 +35,7 @@ export class DatabaseService {
         status TEXT NOT NULL DEFAULT 'pending',
         acknowledgment_tweet_id TEXT,
         moderation_response_tweet_id TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at TEXT NOT NULL
       )
     `);
 
@@ -79,24 +80,34 @@ export class DatabaseService {
       CREATE INDEX IF NOT EXISTS idx_acknowledgment_tweet_id
       ON submissions(acknowledgment_tweet_id)
     `);
+
+    // Add new columns if they don't exist
+    try {
+      this.db.run(`ALTER TABLE submissions ADD COLUMN username TEXT NOT NULL DEFAULT ''`);
+    } catch (e) {
+      // Column might already exist
+    }
   }
 
   saveSubmission(submission: TwitterSubmission): void {
     const stmt = this.db.prepare(`
       INSERT INTO submissions (
-        tweet_id, user_id, content, hashtags, category, description, status, acknowledgment_tweet_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        tweet_id, user_id, username, content, hashtags, category, description, status, 
+        acknowledgment_tweet_id, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
       submission.tweetId,
       submission.userId,
+      submission.username,
       submission.content,
       JSON.stringify(submission.hashtags),
       submission.category || null,
       submission.description || null,
       submission.status,
-      submission.acknowledgmentTweetId || null
+      submission.acknowledgmentTweetId || null,
+      submission.createdAt
     );
   }
 
@@ -145,6 +156,7 @@ export class DatabaseService {
     return {
       tweetId: submission.tweet_id,
       userId: submission.user_id,
+      username: submission.username,
       content: submission.content,
       hashtags: JSON.parse(submission.hashtags),
       category: submission.category,
@@ -152,6 +164,7 @@ export class DatabaseService {
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
+      createdAt: submission.created_at,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
@@ -182,6 +195,7 @@ export class DatabaseService {
     return {
       tweetId: submission.tweet_id,
       userId: submission.user_id,
+      username: submission.username,
       content: submission.content,
       hashtags: JSON.parse(submission.hashtags),
       category: submission.category,
@@ -189,6 +203,7 @@ export class DatabaseService {
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
+      createdAt: submission.created_at,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
@@ -216,6 +231,7 @@ export class DatabaseService {
     return submissions.map(submission => ({
       tweetId: submission.tweet_id,
       userId: submission.user_id,
+      username: submission.username,
       content: submission.content,
       hashtags: JSON.parse(submission.hashtags),
       category: submission.category,
@@ -223,6 +239,7 @@ export class DatabaseService {
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
+      createdAt: submission.created_at,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
@@ -251,6 +268,7 @@ export class DatabaseService {
     return submissions.map(submission => ({
       tweetId: submission.tweet_id,
       userId: submission.user_id,
+      username: submission.username,
       content: submission.content,
       hashtags: JSON.parse(submission.hashtags),
       category: submission.category,
@@ -258,6 +276,7 @@ export class DatabaseService {
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
+      createdAt: submission.created_at,
       moderationHistory: submission.moderation_history 
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,

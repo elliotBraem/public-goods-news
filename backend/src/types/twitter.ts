@@ -1,6 +1,7 @@
 export interface TwitterSubmission {
   tweetId: string;
   userId: string;
+  username: string;
   content: string;
   hashtags: Array<string>;
   category?: string;
@@ -9,6 +10,7 @@ export interface TwitterSubmission {
   moderationHistory: Moderation[];
   acknowledgmentTweetId?: string;
   moderationResponseTweetId?: string;
+  createdAt: string;
 }
 
 export interface Moderation {
@@ -22,8 +24,4 @@ export interface TwitterConfig {
   username: string;
   password: string;
   email: string;
-  apiKey: string;
-  apiSecret: string;
-  accessToken: string;
-  accessTokenSecret: string;
 }

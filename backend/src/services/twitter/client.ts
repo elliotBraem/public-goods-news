@@ -239,11 +239,13 @@ export class TwitterService {
       // Create submission using the original tweet's content
       const submission: TwitterSubmission = {
         tweetId: originalTweet.id!, // The tweet being submitted
-        userId: userId, // The user who submitted it
+        userId: originalTweet.userId!, 
+        username: originalTweet.username!, 
         content: originalTweet.text || "",
         hashtags: originalTweet.hashtags || [],
         status: "pending",
         moderationHistory: [],
+        createdAt: originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
       };
 
       // Save submission to database

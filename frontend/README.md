@@ -1,50 +1,126 @@
-# React + TypeScript + Vite
+<!-- markdownlint-disable MD014 -->
+<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD029 -->
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<div align="center">
 
-Currently, two official plugins are available:
+<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Frontend</h1>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  <p>
+    <strong>React-based frontend application for the Public Goods News Curation platform</strong>
+  </p>
 
-## Expanding the ESLint configuration
+</div>
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+<details>
+  <summary>Table of Contents</summary>
 
-- Configure the top-level `parserOptions` property like this:
+- [Architecture Overview](#architecture-overview)
+  - [Tech Stack](#tech-stack)
+  - [Application Structure](#application-structure)
+- [Key Features](#key-features)
+  - [Submission Interface](#submission-interface)
+  - [Real-time Updates](#real-time-updates)
+  - [Responsive Design](#responsive-design)
+- [Development](#development)
+  - [Prerequisites](#prerequisites)
+  - [Local Setup](#local-setup)
+- [Backend Integration](#backend-integration)
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+</details>
+
+## Architecture Overview
+
+### Tech Stack
+
+The frontend leverages modern web technologies for optimal performance and developer experience:
+
+- **Framework**: [React](https://reactjs.org) + TypeScript
+  - Component-based architecture
+  - Strong type safety
+  - Excellent ecosystem support
+
+- **Build Tool**: [Vite](https://vitejs.dev)
+  - Lightning-fast development server
+  - Optimized production builds
+  - Modern development experience
+
+- **Styling**: [Tailwind CSS](https://tailwindcss.com)
+  - Utility-first CSS framework
+  - Highly customizable
+  - Zero runtime overhead
+
+### Application Structure
+
+```
+src/
+├── assets/     # Static assets
+├── components/ # React components
+├── types/      # TypeScript definitions
+└── App.tsx     # Root component
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Key Features
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+### Submission Interface
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+The submission system provides:
+- Intuitive submission form
+- Real-time validation
+- Status tracking
+- Moderation feedback
+
+### Real-time Updates
+
+- Live submission status updates
+- Dynamic content loading
+- Optimistic UI updates
+
+### Responsive Design
+
+- Mobile-first approach
+- Adaptive layouts
+- Cross-browser compatibility
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- Bun (recommended) or npm
+- Backend service running
+
+### Local Setup
+
+1. Install dependencies:
+```bash
+bun install
 ```
+
+2. Start development server:
+```bash
+bun run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+## Backend Integration
+
+The frontend communicates with the [backend service](../backend/README.md) through a RESTful API:
+
+- Submission handling via `/submit` endpoint
+- Content retrieval through `/submissions`
+- Real-time updates using polling (future: WebSocket support)
+
+See the [Backend README](../backend/README.md) for detailed API documentation.
+
+<div align="right">
+<a href="https://nearbuilders.org" target="_blank">
+<img
+  src="https://builders.mypinata.cloud/ipfs/QmWt1Nm47rypXFEamgeuadkvZendaUvAkcgJ3vtYf1rBFj"
+  alt="Near Builders"
+  height="40"
+/>
+</a>
+</div>
