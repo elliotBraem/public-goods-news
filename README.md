@@ -24,6 +24,7 @@
   - [Environment Setup](#environment-setup)
   - [Running the app](#running-the-app)
   - [Building for production](#building-for-production)
+  - [Deploying to Fly.io](#deploying-to-flyio)
   - [Running tests](#running-tests)
 - [Configuration](#configuration)
   - [Twitter Setup](#twitter-setup)
@@ -46,12 +47,12 @@
 
 This project uses a monorepo structure managed with [Turborepo](https://turbo.build/repo) for efficient build orchestration:
 
-```
+```bash
 public-goods-news/
 ├── frontend/          # React frontend application
-├── backend/           # Bun-powered backend service
-├── package.json       # Root package.json for shared dependencies
-└── turbo.json        # Turborepo configuration
+├── backend/          # Bun-powered backend service
+├── package.json      # Root package.json for shared dependencies
+└── turbo.json       # Turborepo configuration
 ```
 
 ### Key Components
@@ -111,6 +112,7 @@ bun run dev
 ```
 
 This will launch:
+
 - Frontend at http://localhost:5173
 - Backend at http://localhost:3000
 
@@ -121,6 +123,49 @@ Build all packages:
 ```bash
 bun run build
 ```
+
+### Deploying to Fly.io
+
+The backend service can be deployed to Fly.io with SQLite support. First, install the Fly CLI:
+
+```bash
+# macOS
+brew install flyctl
+
+# Windows
+powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
+
+# Linux
+curl -L https://fly.io/install.sh | sh
+```
+
+Then sign up and authenticate:
+
+```bash
+fly auth signup
+# or
+fly auth login
+```
+
+Deploy the application using the provided npm scripts:
+
+```bash
+# Initialize Fly.io app
+bun run deploy:init
+
+# Create persistent volumes for SQLite and cache
+bun run deploy:volumes
+
+# Deploy the application
+bun run deploy
+```
+
+The deployment configuration includes:
+
+- Persistent storage for SQLite database
+- Cache directory support
+- Auto-scaling configuration
+- HTTPS enabled by default
 
 ### Running tests
 

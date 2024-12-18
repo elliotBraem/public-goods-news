@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "bunx turbo run dev",
     "build": "bunx turbo run build",
-    "lint": "bunx turbo run lint"
+    "lint": "bunx turbo run lint",
+    "deploy:init": "fly launch",
+    "deploy:volumes": "fly volumes create sqlite --size 1 --region lax && fly volumes create cache --size 1 --region lax",
+    "deploy": "fly deploy"
   },
   "workspaces": [
     "frontend",
