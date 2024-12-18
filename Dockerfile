@@ -1,24 +1,41 @@
-FROM oven/bun
+FROM oven/bun as deps
 
 WORKDIR /app
 
-# Create directory for mount
-RUN mkdir -p /.data/db /.data/cache
-RUN chown -R bun:bun /.data
-
 # Copy package files for all workspaces
-COPY --chown=bun:bun package.json bun.lockb turbo.json ./
-COPY --chown=bun:bun frontend/package.json ./frontend/
-COPY --chown=bun:bun backend/package.json ./backend/
+COPY package.json bun.lockb turbo.json ./
+COPY frontend/package.json ./frontend/
+COPY backend/package.json ./backend/
 
 # Install dependencies
 RUN bun install
 
-# Copy the rest of the application
-COPY --chown=bun:bun . .
+# Build stage
+FROM oven/bun as builder
+WORKDIR /app
+
+# Copy all files from deps stage including node_modules
+COPY --from=deps /app ./
+
+# Copy source code
+COPY . .
 
 # Build both frontend and backend
 RUN bun run build
+
+# Production stage
+FROM oven/bun as production
+WORKDIR /app
+
+# Create directory for mount with correct permissions
+RUN mkdir -p /.data/db /.data/cache && \
+    chown -R bun:bun /.data
+
+# Copy only necessary files from builder
+COPY --from=builder --chown=bun:bun /app/package.json /app/bun.lockb /app/turbo.json ./
+COPY --from=builder --chown=bun:bun /app/node_modules ./node_modules
+COPY --from=builder --chown=bun:bun /app/frontend/dist ./frontend/dist
+COPY --from=builder --chown=bun:bun /app/backend/dist ./backend/dist
 
 # Set environment variables
 ENV DATABASE_URL="file:/.data/db/sqlite.db"
