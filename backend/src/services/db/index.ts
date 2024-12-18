@@ -1,13 +1,12 @@
 import { Database } from "bun:sqlite";
 import { TwitterSubmission, Moderation } from "../../types";
 import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { existsSync } from "node:fs";
 
 export class DatabaseService {
   private db: Database;
-  private static readonly DB_DIR = ".db";
-  private static readonly DB_PATH = join(DatabaseService.DB_DIR, "submissions.sqlite");
+  private static readonly DB_PATH = process.env.DATABASE_URL?.replace('file:', '') || join('.db', 'submissions.sqlite');
 
   constructor() {
     this.ensureDbDirectory();
@@ -16,8 +15,9 @@ export class DatabaseService {
   }
 
   private ensureDbDirectory() {
-    if (!existsSync(DatabaseService.DB_DIR)) {
-      mkdir(DatabaseService.DB_DIR, { recursive: true });
+    const dbDir = dirname(DatabaseService.DB_PATH);
+    if (!existsSync(dbDir)) {
+      mkdir(dbDir, { recursive: true });
     }
   }
 

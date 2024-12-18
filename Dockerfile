@@ -2,10 +2,9 @@ FROM oven/bun
 
 WORKDIR /app
 
-# Create directories for mounts
-RUN mkdir -p /data
-RUN mkdir -p /app/.cache
-RUN chown bun:bun /data /app/.cache
+# Create directory for mount
+RUN mkdir -p /.data/db /.data/cache
+RUN chown -R bun:bun /.data
 
 # Copy package files for all workspaces
 COPY --chown=bun:bun package.json bun.lockb turbo.json ./
@@ -22,8 +21,8 @@ COPY --chown=bun:bun . .
 RUN bun run build
 
 # Set environment variables
-ENV DATABASE_URL="file:/data/sqlite.db"
-ENV CACHE_DIR="/app/.cache"
+ENV DATABASE_URL="file:/.data/db/sqlite.db"
+ENV CACHE_DIR="/.data/cache"
 ENV NODE_ENV="production"
 
 # Expose the port

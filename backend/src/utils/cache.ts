@@ -16,17 +16,15 @@ interface CookieCache {
   [username: string]: TwitterCookie[];
 }
 
-const CACHE_DIR = '.cache';
+const CACHE_DIR = process.env.CACHE_DIR || '.cache';
 
 export async function ensureCacheDirectory() {
   try {
-    const cacheDir = path.join(process.cwd(), CACHE_DIR);
-    
     try {
-      await fs.access(cacheDir);
+      await fs.access(CACHE_DIR);
     } catch {
       // Directory doesn't exist, create it
-      await fs.mkdir(cacheDir, { recursive: true });
+      await fs.mkdir(CACHE_DIR, { recursive: true });
       logger.info('Created cache directory');
     }
   } catch (error) {
@@ -38,7 +36,7 @@ export async function ensureCacheDirectory() {
 export async function getCachedCookies(username: string): Promise<TwitterCookie[] | null> {
   try {
     // Try to read cookies from a local cache file
-    const cookiePath = path.join(process.cwd(), CACHE_DIR, '.twitter-cookies.json');
+    const cookiePath = path.join(CACHE_DIR, '.twitter-cookies.json');
 
     const data = await fs.readFile(cookiePath, 'utf-8');
     const cache: CookieCache = JSON.parse(data);
@@ -55,7 +53,7 @@ export async function getCachedCookies(username: string): Promise<TwitterCookie[
 
 export async function cacheCookies(username: string, cookies: TwitterCookie[]) {
   try {
-    const cookiePath = path.join(process.cwd(), CACHE_DIR, '.twitter-cookies.json');
+    const cookiePath = path.join(CACHE_DIR, '.twitter-cookies.json');
 
     let cache: CookieCache = {};
     try {
