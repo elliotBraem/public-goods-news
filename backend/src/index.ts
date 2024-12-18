@@ -93,7 +93,6 @@ async function main() {
     });
 
     logger.info('🚀 Bot is running and ready for events', {
-      nearNetwork: config.near.networkId,
       twitterEnabled: true
     });
 

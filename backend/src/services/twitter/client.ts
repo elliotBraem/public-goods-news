@@ -1,6 +1,5 @@
 import { Scraper, SearchMode, Tweet } from "agent-twitter-client";
 import { TwitterSubmission, Moderation, TwitterConfig } from "../../types/twitter";
-import { ADMIN_ACCOUNTS } from "../../config/admins";
 import { logger } from "../../utils/logger";
 import { db } from "../db";
 import { 
@@ -9,6 +8,7 @@ import {
   getCachedCookies,
   cacheCookies,
 } from "../../utils/cache";
+import { ADMIN_ACCOUNTS } from "config/admins";
 
 export class TwitterService {
   private client: Scraper;
@@ -16,7 +16,7 @@ export class TwitterService {
   private twitterUsername: string;
   private config: TwitterConfig;
   private isInitialized = false;
-  private checkInterval: NodeJS.Timeout | null = null;
+  private checkInterval: NodeJS.Timer | null = null;
   private lastCheckedTweetId: string | null = null;
   private adminIdCache: Map<string, string> = new Map();
 
@@ -338,7 +338,7 @@ export class TwitterService {
   }
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
-    const hashtags = tweet.hashtags.map(tag => tag.toLowerCase());
+    const hashtags = tweet.hashtags?.map(tag => tag.toLowerCase()) || [];
     if (hashtags.includes("approve")) return "approve";
     if (hashtags.includes("reject")) return "reject";
     return null;

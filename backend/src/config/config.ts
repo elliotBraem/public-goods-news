@@ -1,20 +1,15 @@
 import { AppConfig } from "../types";
 
+// Validate required Twitter credentials
+if (!process.env.TWITTER_USERNAME || !process.env.TWITTER_PASSWORD || !process.env.TWITTER_EMAIL) {
+  throw new Error('Missing required Twitter credentials. Please ensure TWITTER_USERNAME, TWITTER_PASSWORD, and TWITTER_EMAIL are set in your environment variables.');
+}
+
 const config: AppConfig = {
   twitter: {
     username: process.env.TWITTER_USERNAME!,
     password: process.env.TWITTER_PASSWORD!,
-    email: process.env.TWITTER_EMAIL!,
-    apiKey: process.env.TWITTER_API_KEY || "",
-    apiSecret: process.env.TWITTER_API_SECRET || "",
-    accessToken: process.env.TWITTER_ACCESS_TOKEN || "",
-    accessTokenSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET || "",
-  },
-  near: {
-    networkId: process.env.NEAR_NETWORK_ID || "testnet",
-    nodeUrl: process.env.NEAR_NODE_URL || "https://rpc.testnet.near.org",
-    walletUrl: process.env.NEAR_WALLET_URL || "https://wallet.testnet.near.org",
-    contractName: process.env.NEAR_CONTRACT_NAME || "dev-1234567890-1234567890",
+    email: process.env.TWITTER_EMAIL!
   },
   environment:
     (process.env.NODE_ENV as "development" | "production" | "test") ||
