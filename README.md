@@ -16,31 +16,67 @@
 <details>
   <summary>Table of Contents</summary>
 
+- [Project Structure](#project-structure)
+  - [Monorepo Overview](#monorepo-overview)
+  - [Key Components](#key-components)
 - [Getting Started](#getting-started)
   - [Installing dependencies](#installing-dependencies)
   - [Environment Setup](#environment-setup)
   - [Running the app](#running-the-app)
   - [Building for production](#building-for-production)
+  - [Deploying to Fly.io](#deploying-to-flyio)
   - [Running tests](#running-tests)
 - [Configuration](#configuration)
   - [Twitter Setup](#twitter-setup)
   - [Admin Configuration](#admin-configuration)
-  - [NEAR Network Setup](#near-network-setup)
 - [Bot Functionality](#bot-functionality)
   - [Submission Process](#submission-process)
   - [Moderation System](#moderation-system)
   - [Rate Limiting](#rate-limiting)
+- [Customization](#customization)
+  - [Frontend Customization](#frontend-customization)
+  - [Backend Customization](#backend-customization)
 - [Contributing](#contributing)
 
 </details>
+
+## Project Structure
+
+### Monorepo Overview
+
+This project uses a monorepo structure managed with [Turborepo](https://turbo.build/repo) for efficient build orchestration:
+
+```bash
+public-goods-news/
+├── frontend/          # React frontend application
+├── backend/          # Bun-powered backend service
+├── package.json      # Root package.json for shared dependencies
+└── turbo.json       # Turborepo configuration
+```
+
+### Key Components
+
+- **Frontend** ([Documentation](./frontend/README.md))
+  - React-based web interface
+  - Built with Vite and Tailwind CSS
+  - Handles user interactions and submissions
+
+- **Backend** ([Documentation](./backend/README.md))
+  - Bun runtime for high performance
+  - Twitter bot functionality
+  - API endpoints for frontend
 
 ## Getting Started
 
 ### Installing dependencies
 
+The monorepo uses Bun for package management. Install all dependencies with:
+
 ```bash
 bun install
 ```
+
+This will install dependencies for both frontend and backend packages.
 
 ### Environment Setup
 
@@ -57,27 +93,71 @@ Required environment variables:
 TWITTER_USERNAME=your_twitter_username
 TWITTER_PASSWORD=your_twitter_password
 TWITTER_EMAIL=your_twitter_email
-
-# NEAR Configuration
-NEAR_NETWORK_ID=testnet
-NEAR_LIST_CONTRACT=your_list_contract_name
-NEAR_SIGNER_ACCOUNT=your_signer_account
-NEAR_SIGNER_PRIVATE_KEY=your_signer_private_key
 ```
 
 ### Running the app
 
-First, run the development server:
+Start both frontend and backend development servers:
 
 ```bash
 bun run dev
 ```
 
+This will launch:
+
+- Frontend at http://localhost:5173
+- Backend at http://localhost:3000
+
 ### Building for production
+
+Build all packages:
 
 ```bash
 bun run build
 ```
+
+### Deploying to Fly.io
+
+The backend service can be deployed to Fly.io with SQLite support. First, install the Fly CLI:
+
+```bash
+# macOS
+brew install flyctl
+
+# Windows
+powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
+
+# Linux
+curl -L https://fly.io/install.sh | sh
+```
+
+Then sign up and authenticate:
+
+```bash
+fly auth signup
+# or
+fly auth login
+```
+
+Deploy the application using the provided npm scripts:
+
+```bash
+# Initialize Fly.io app
+bun run deploy:init
+
+# Create persistent volumes for SQLite and cache
+bun run deploy:volumes
+
+# Deploy the application
+bun run deploy
+```
+
+The deployment configuration includes:
+
+- Persistent storage for SQLite database
+- Cache directory support
+- Auto-scaling configuration
+- HTTPS enabled by default
 
 ### Running tests
 
@@ -103,7 +183,7 @@ It will use these credentials to login and cache cookies via [agent-twitter-clie
 
 ### Admin Configuration
 
-Admins are Twitter accounts that have moderation privileges. Configure admin accounts in `src/config/admins.ts`:
+Admins are Twitter accounts that have moderation privileges. Configure admin accounts in `backend/src/config/admins.ts`:
 
 ```typescript
 export const ADMIN_ACCOUNTS: string[] = [
@@ -113,21 +193,12 @@ export const ADMIN_ACCOUNTS: string[] = [
 ]
 ```
 
-Admin accounts are automatically tagged in submission acknolwedgements and can:
+Admin accounts are automatically tagged in submission acknowledgements and can:
 
 - Approve submissions using the `#approve` hashtag
 - Reject submissions using the `#reject` hashtag
 
 Only the first moderation will be recorded.
-
-### NEAR Network Setup
-
-Configure NEAR network settings in your `.env` file:
-
-```env
-NEAR_NETWORK_ID=testnet
-NEAR_CONTRACT_NAME=your_contract_name
-```
 
 ## Bot Functionality
 
@@ -154,6 +225,48 @@ To maintain quality:
 - Users are limited to 10 submissions per day
 - Rate limits reset daily
 - Exceeding the limit results in a notification tweet
+
+## Customization
+
+### Frontend Customization
+
+The frontend can be customized in several ways:
+
+1. **Styling**
+   - Modify `frontend/tailwind.config.js` for theme customization
+   - Update global styles in `frontend/src/index.css`
+   - Component-specific styles in respective component files
+
+2. **Components**
+   - Add new components in `frontend/src/components/`
+   - Modify existing components for different layouts or functionality
+
+3. **Configuration**
+   - Update API endpoints in environment variables
+   - Modify build settings in `vite.config.ts`
+
+See the [Frontend README](./frontend/README.md) for detailed customization options.
+
+### Backend Customization
+
+The backend service can be extended and customized:
+
+1. **Services**
+   - Add new services in `backend/src/services/`
+   - Modify existing services for different functionality
+   - Extend API endpoints as needed
+
+2. **Configuration**
+   - Update environment variables for different integrations
+   - Modify admin settings in `src/config/`
+   - Adjust rate limits and other constraints
+
+3. **Integration**
+   - Add new blockchain integrations
+   - Extend social media support
+   - Implement additional APIs
+
+See the [Backend README](./backend/README.md) for detailed customization options.
 
 ## Contributing
 

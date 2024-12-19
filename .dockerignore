@@ -1,0 +1,81 @@
+# flyctl launch added from .gitignore
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+node_modules
+.pnp
+**/.pnp.js
+**/.yarn/install-state.gz
+.unlighthouse
+
+# testing
+coverage
+
+# next.js
+.next
+out
+
+# production
+build
+**/**/dist
+
+# misc
+**/.DS_Store
+**/*.pem
+
+# debug
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# local env files
+**/.env*.local
+**/.env
+
+# vercel
+**/.vercel
+
+# typescript
+**/*.tsbuildinfo
+**/next-env.d.ts
+test-results
+playwright-report
+blob-report
+playwright/.cache
+
+**/.cache
+**/.db
+**/.turbo
+
+# flyctl launch added from frontend/.gitignore
+# Logs
+frontend/**/logs
+frontend/**/*.log
+frontend/**/npm-debug.log*
+frontend/**/yarn-debug.log*
+frontend/**/yarn-error.log*
+frontend/**/pnpm-debug.log*
+frontend/**/lerna-debug.log*
+
+frontend/node_modules
+frontend/dist
+frontend/**/dist-ssr
+frontend/**/*.local
+
+# Editor directories and files
+frontend/**/.vscode/*
+!frontend/**/.vscode/extensions.json
+frontend/**/.idea
+frontend/**/.DS_Store
+frontend/**/*.suo
+frontend/**/*.ntvs*
+frontend/**/*.njsproj
+frontend/**/*.sln
+frontend/**/*.sw?
+
+# flyctl launch added from frontend/node_modules/tailwindcss/stubs/.gitignore
+!frontend/node_modules/tailwindcss/stubs/**/*
+
+# flyctl launch added from node_modules/tailwindcss/stubs/.gitignore
+!node_modules/tailwindcss/stubs/**/*
+fly.toml

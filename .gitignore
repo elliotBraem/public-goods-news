@@ -16,6 +16,7 @@
 
 # production
 /build
+**/dist
 
 # misc
 .DS_Store
@@ -43,3 +44,4 @@ next-env.d.ts
 
 .cache
 .db
+.turbo
