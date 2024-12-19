@@ -53,6 +53,26 @@ export async function getCachedCookies(
   return null;
 }
 
+export async function getLastCheckedTweetId(): Promise<string | null> {
+  try {
+    const tweetPath = path.join(CACHE_DIR, ".last-tweet-id");
+    const data = await fs.readFile(tweetPath, "utf-8");
+    return data.trim() || null;
+  } catch (error) {
+    // If file doesn't exist or is invalid, return null
+    return null;
+  }
+}
+
+export async function saveLastCheckedTweetId(tweetId: string) {
+  try {
+    const tweetPath = path.join(CACHE_DIR, ".last-tweet-id");
+    await fs.writeFile(tweetPath, tweetId);
+  } catch (error) {
+    logger.error("Failed to cache last tweet ID:", error);
+  }
+}
+
 export async function cacheCookies(username: string, cookies: TwitterCookie[]) {
   try {
     const cookiePath = path.join(CACHE_DIR, ".twitter-cookies.json");

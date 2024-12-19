@@ -12,7 +12,7 @@ import {
   succeedSpinner,
 } from "./utils/logger";
 
-const PORT = Number(process.env.PORT) || 3001; // Use different port for testing
+const PORT = Number(process.env.PORT) || 3000;
 
 // Store active WebSocket connections
 const activeConnections = new Set<ServerWebSocket>();

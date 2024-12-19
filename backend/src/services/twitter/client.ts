@@ -11,6 +11,8 @@ import {
   ensureCacheDirectory,
   getCachedCookies,
   cacheCookies,
+  getLastCheckedTweetId,
+  saveLastCheckedTweetId,
 } from "../../utils/cache";
 import { ADMIN_ACCOUNTS } from "config/admins";
 
@@ -69,8 +71,8 @@ export class TwitterService {
         await this.setCookiesFromArray(cachedCookies);
       }
 
-      // Load last checked tweet ID from database
-      this.lastCheckedTweetId = db.getLastCheckedTweetId();
+      // Load last checked tweet ID from cache
+      this.lastCheckedTweetId = await getLastCheckedTweetId();
 
       // Try to login with retries
       logger.info("Attempting Twitter login...");
@@ -201,7 +203,7 @@ export class TwitterService {
           // Update the last checked tweet ID to the most recent one
           const latestTweetId = newTweets[newTweets.length - 1].id;
           if (latestTweetId) {
-            db.saveLastCheckedTweetId(latestTweetId);
+            await saveLastCheckedTweetId(latestTweetId);
             this.lastCheckedTweetId = latestTweetId;
           }
         }
