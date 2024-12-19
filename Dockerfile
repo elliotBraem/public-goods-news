@@ -14,6 +14,9 @@ RUN bun install
 FROM oven/bun as builder
 WORKDIR /app
 
+# Set NODE_ENV for build process
+ENV NODE_ENV="production"
+
 # Copy all files from deps stage including node_modules
 COPY --from=deps /app ./
 
