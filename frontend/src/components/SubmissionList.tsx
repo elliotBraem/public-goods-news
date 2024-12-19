@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { TwitterSubmission } from '../types/twitter';
-import { useLiveUpdates } from '../contexts/LiveUpdateContext';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { TwitterSubmission } from "../types/twitter";
+import { useLiveUpdates } from "../contexts/LiveUpdateContext";
 
-const StatusBadge = ({ status }: { status: TwitterSubmission['status'] }) => {
+const StatusBadge = ({ status }: { status: TwitterSubmission["status"] }) => {
   const className = `status-badge status-${status}`;
   return <span className={className}>{status}</span>;
 };
@@ -12,21 +12,24 @@ const SubmissionList = () => {
   const [submissions, setSubmissions] = useState<TwitterSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<TwitterSubmission['status'] | 'all'>('all');
+  const [filter, setFilter] = useState<TwitterSubmission["status"] | "all">(
+    "all",
+  );
   const { connected, lastUpdate } = useLiveUpdates();
 
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
-      const url = filter === 'all' 
-        ? '/api/submissions'
-        : `/api/submissions?status=${filter}`;
+      const url =
+        filter === "all"
+          ? "/api/submissions"
+          : `/api/submissions?status=${filter}`;
       const response = await axios.get<TwitterSubmission[]>(url);
       setSubmissions(response.data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch submissions');
-      console.error('Error fetching submissions:', err);
+      setError("Failed to fetch submissions");
+      console.error("Error fetching submissions:", err);
     } finally {
       setLoading(false);
     }
@@ -39,10 +42,11 @@ const SubmissionList = () => {
 
   // Handle live updates
   useEffect(() => {
-    if (lastUpdate?.type === 'update') {
-      const updatedSubmissions = filter === 'all'
-        ? lastUpdate.data
-        : lastUpdate.data.filter(s => s.status === filter);
+    if (lastUpdate?.type === "update") {
+      const updatedSubmissions =
+        filter === "all"
+          ? lastUpdate.data
+          : lastUpdate.data.filter((s) => s.status === filter);
       setSubmissions(updatedSubmissions);
     }
   }, [lastUpdate, filter]);
@@ -67,7 +71,7 @@ const SubmissionList = () => {
     return (
       <div className="text-center text-red-600 p-4">
         <p>{error}</p>
-        <button 
+        <button
           onClick={fetchSubmissions}
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
@@ -83,25 +87,29 @@ const SubmissionList = () => {
         <h1 className="text-2xl font-bold">Public Goods News Submissions</h1>
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
-            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'} mr-2`}></div>
+            <div
+              className={`w-2 h-2 rounded-full ${connected ? "bg-green-500 animate-pulse" : "bg-red-500"} mr-2`}
+            ></div>
             <span className="text-sm text-gray-600">
-              {connected ? 'Live Updates' : 'Connecting...'}
+              {connected ? "Live Updates" : "Connecting..."}
             </span>
           </div>
           <div className="space-x-2">
-            {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setFilter(status)}
-                className={`px-4 py-2 rounded ${
-                  filter === status
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300'
-                }`}
-              >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </button>
-            ))}
+            {(["all", "pending", "approved", "rejected"] as const).map(
+              (status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilter(status)}
+                  className={`px-4 py-2 rounded ${
+                    filter === status
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </button>
+              ),
+            )}
           </div>
         </div>
       </div>
@@ -115,7 +123,7 @@ const SubmissionList = () => {
             <div className="flex justify-between items-start mb-4">
               <div className="flex-grow">
                 <div className="flex items-center gap-2 mb-2">
-                  <a 
+                  <a
                     href={getTweetUrl(submission.tweetId, submission.username)}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -124,12 +132,16 @@ const SubmissionList = () => {
                     @{submission.username}
                   </a>
                   <span className="text-gray-500">·</span>
-                  <span className="text-gray-500">{formatDate(submission.createdAt)}</span>
+                  <span className="text-gray-500">
+                    {formatDate(submission.createdAt)}
+                  </span>
                 </div>
                 <p className="text-lg font-medium mb-2">{submission.content}</p>
                 <div className="flex gap-2 mb-2">
                   {submission.hashtags.map((tag) => (
-                    <span key={tag} className="text-blue-600">#{tag}</span>
+                    <span key={tag} className="text-blue-600">
+                      #{tag}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -138,13 +150,15 @@ const SubmissionList = () => {
 
             {submission.category && (
               <p className="text-gray-700 mb-2">
-                <span className="font-semibold">Category:</span> {submission.category}
+                <span className="font-semibold">Category:</span>{" "}
+                {submission.category}
               </p>
             )}
-            
+
             {submission.description && (
               <p className="text-gray-700 mb-4">
-                <span className="font-semibold">Description:</span> {submission.description}
+                <span className="font-semibold">Description:</span>{" "}
+                {submission.description}
               </p>
             )}
 
@@ -154,7 +168,8 @@ const SubmissionList = () => {
                 <div className="space-y-2">
                   {submission.moderationHistory.map((history, index) => (
                     <div key={index} className="text-sm text-gray-600">
-                      <span className="font-medium">{history.action}</span> by {history.adminId} on{' '}
+                      <span className="font-medium">{history.action}</span> by{" "}
+                      {history.adminId} on{" "}
                       {new Date(history.timestamp).toLocaleString()}
                     </div>
                   ))}

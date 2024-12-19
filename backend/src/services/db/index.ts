@@ -3,12 +3,13 @@ import { TwitterSubmission, Moderation } from "../../types";
 import { mkdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { existsSync } from "node:fs";
-import { WebSocketService } from "../websocket";
+import { broadcastUpdate } from "../../index";
 
 export class DatabaseService {
   private db: Database;
-  private wsService?: WebSocketService;
-  private static readonly DB_PATH = process.env.DATABASE_URL?.replace('file:', '') || join('.db', 'submissions.sqlite');
+  private static readonly DB_PATH =
+    process.env.DATABASE_URL?.replace("file:", "") ||
+    join(".db", "submissions.sqlite");
 
   constructor() {
     this.ensureDbDirectory();
@@ -16,14 +17,12 @@ export class DatabaseService {
     this.initialize();
   }
 
-  setWebSocketService(wsService: WebSocketService) {
-    this.wsService = wsService;
-  }
-
   private notifyUpdate() {
-    if (this.wsService) {
-      this.wsService.broadcastSubmissions(this.getAllSubmissions());
-    }
+    const submissions = this.getAllSubmissions();
+    broadcastUpdate({
+      type: "update",
+      data: submissions,
+    });
   }
 
   private ensureDbDirectory() {
@@ -95,7 +94,9 @@ export class DatabaseService {
 
     // Add new columns if they don't exist
     try {
-      this.db.run(`ALTER TABLE submissions ADD COLUMN username TEXT NOT NULL DEFAULT ''`);
+      this.db.run(
+        `ALTER TABLE submissions ADD COLUMN username TEXT NOT NULL DEFAULT ''`,
+      );
     } catch (e) {
       // Column might already exist
     }
@@ -119,7 +120,7 @@ export class DatabaseService {
       submission.description || null,
       submission.status,
       submission.acknowledgmentTweetId || null,
-      submission.createdAt
+      submission.createdAt,
     );
 
     this.notifyUpdate();
@@ -136,25 +137,35 @@ export class DatabaseService {
       moderation.tweetId,
       moderation.adminId,
       moderation.action,
-      moderation.timestamp.toISOString()
+      moderation.timestamp.toISOString(),
     );
 
     this.notifyUpdate();
   }
 
-  updateSubmissionStatus(tweetId: string, status: TwitterSubmission['status'], moderationResponseTweetId: string): void {
-    this.db.prepare(`
+  updateSubmissionStatus(
+    tweetId: string,
+    status: TwitterSubmission["status"],
+    moderationResponseTweetId: string,
+  ): void {
+    this.db
+      .prepare(
+        `
       UPDATE submissions 
       SET status = ?,
           moderation_response_tweet_id = ?
       WHERE tweet_id = ?
-    `).run(status, moderationResponseTweetId, tweetId);
+    `,
+      )
+      .run(status, moderationResponseTweetId, tweetId);
 
     this.notifyUpdate();
   }
 
   getSubmission(tweetId: string): TwitterSubmission | null {
-    const submission = this.db.prepare(`
+    const submission = this.db
+      .prepare(
+        `
       SELECT s.*, GROUP_CONCAT(
         json_object(
           'adminId', m.admin_id,
@@ -167,7 +178,9 @@ export class DatabaseService {
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
       WHERE s.tweet_id = ?
       GROUP BY s.tweet_id
-    `).get(tweetId) as any;
+    `,
+      )
+      .get(tweetId) as any;
 
     if (!submission) return null;
 
@@ -183,17 +196,21 @@ export class DatabaseService {
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
       createdAt: submission.created_at,
-      moderationHistory: submission.moderation_history 
+      moderationHistory: submission.moderation_history
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
-            timestamp: new Date(m.timestamp)
+            timestamp: new Date(m.timestamp),
           }))
-        : []
+        : [],
     };
   }
 
-  getSubmissionByAcknowledgmentTweetId(acknowledgmentTweetId: string): TwitterSubmission | null {
-    const submission = this.db.prepare(`
+  getSubmissionByAcknowledgmentTweetId(
+    acknowledgmentTweetId: string,
+  ): TwitterSubmission | null {
+    const submission = this.db
+      .prepare(
+        `
       SELECT s.*, GROUP_CONCAT(
         json_object(
           'adminId', m.admin_id,
@@ -206,7 +223,9 @@ export class DatabaseService {
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
       WHERE s.acknowledgment_tweet_id = ?
       GROUP BY s.tweet_id
-    `).get(acknowledgmentTweetId) as any;
+    `,
+      )
+      .get(acknowledgmentTweetId) as any;
 
     if (!submission) return null;
 
@@ -222,17 +241,19 @@ export class DatabaseService {
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
       createdAt: submission.created_at,
-      moderationHistory: submission.moderation_history 
+      moderationHistory: submission.moderation_history
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
-            timestamp: new Date(m.timestamp)
+            timestamp: new Date(m.timestamp),
           }))
-        : []
+        : [],
     };
   }
 
   getAllSubmissions(): TwitterSubmission[] {
-    const submissions = this.db.prepare(`
+    const submissions = this.db
+      .prepare(
+        `
       SELECT s.*, GROUP_CONCAT(
         json_object(
           'adminId', m.admin_id,
@@ -244,9 +265,11 @@ export class DatabaseService {
       FROM submissions s
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
       GROUP BY s.tweet_id
-    `).all() as any[];
+    `,
+      )
+      .all() as any[];
 
-    return submissions.map(submission => ({
+    return submissions.map((submission) => ({
       tweetId: submission.tweet_id,
       userId: submission.user_id,
       username: submission.username,
@@ -258,17 +281,21 @@ export class DatabaseService {
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
       createdAt: submission.created_at,
-      moderationHistory: submission.moderation_history 
+      moderationHistory: submission.moderation_history
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
-            timestamp: new Date(m.timestamp)
+            timestamp: new Date(m.timestamp),
           }))
-        : []
+        : [],
     }));
   }
 
-  getSubmissionsByStatus(status: TwitterSubmission['status']): TwitterSubmission[] {
-    const submissions = this.db.prepare(`
+  getSubmissionsByStatus(
+    status: TwitterSubmission["status"],
+  ): TwitterSubmission[] {
+    const submissions = this.db
+      .prepare(
+        `
       SELECT s.*, GROUP_CONCAT(
         json_object(
           'adminId', m.admin_id,
@@ -281,9 +308,11 @@ export class DatabaseService {
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
       WHERE s.status = ?
       GROUP BY s.tweet_id
-    `).all(status) as any[];
+    `,
+      )
+      .all(status) as any[];
 
-    return submissions.map(submission => ({
+    return submissions.map((submission) => ({
       tweetId: submission.tweet_id,
       userId: submission.user_id,
       username: submission.username,
@@ -295,38 +324,48 @@ export class DatabaseService {
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
       createdAt: submission.created_at,
-      moderationHistory: submission.moderation_history 
+      moderationHistory: submission.moderation_history
         ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
             ...m,
-            timestamp: new Date(m.timestamp)
+            timestamp: new Date(m.timestamp),
           }))
-        : []
+        : [],
     }));
   }
 
   // Rate limiting methods
   getDailySubmissionCount(userId: string): number {
-    const today = new Date().toISOString().split('T')[0];
-    
+    const today = new Date().toISOString().split("T")[0];
+
     // Clean up old entries first
-    this.db.prepare(`
+    this.db
+      .prepare(
+        `
       DELETE FROM submission_counts 
       WHERE last_reset_date < ?
-    `).run(today);
+    `,
+      )
+      .run(today);
 
-    const result = this.db.prepare(`
+    const result = this.db
+      .prepare(
+        `
       SELECT count 
       FROM submission_counts 
       WHERE user_id = ? AND last_reset_date = ?
-    `).get(userId, today) as { count: number } | undefined;
+    `,
+      )
+      .get(userId, today) as { count: number } | undefined;
 
     return result?.count || 0;
   }
 
   incrementDailySubmissionCount(userId: string): void {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
-    this.db.prepare(`
+    this.db
+      .prepare(
+        `
       INSERT INTO submission_counts (user_id, count, last_reset_date)
       VALUES (?, 1, ?)
       ON CONFLICT(user_id) DO UPDATE SET
@@ -335,37 +374,54 @@ export class DatabaseService {
         ELSE count + 1
       END,
       last_reset_date = ?
-    `).run(userId, today, today, today);
+    `,
+      )
+      .run(userId, today, today, today);
   }
 
   // Last checked tweet ID methods
   getLastCheckedTweetId(): string | null {
-    const result = this.db.prepare(`
+    const result = this.db
+      .prepare(
+        `
       SELECT value 
       FROM twitter_state 
       WHERE key = 'last_checked_tweet_id'
-    `).get() as { value: string } | undefined;
+    `,
+      )
+      .get() as { value: string } | undefined;
 
     return result?.value || null;
   }
 
   saveLastCheckedTweetId(tweetId: string): void {
-    this.db.prepare(`
+    this.db
+      .prepare(
+        `
       INSERT INTO twitter_state (key, value, updated_at)
       VALUES ('last_checked_tweet_id', ?, CURRENT_TIMESTAMP)
       ON CONFLICT(key) DO UPDATE SET
       value = ?,
       updated_at = CURRENT_TIMESTAMP
-    `).run(tweetId, tweetId);
+    `,
+      )
+      .run(tweetId, tweetId);
   }
 
-  updateSubmissionAcknowledgment(tweetId: string, acknowledgmentTweetId: string): void {
-    this.db.prepare(`
+  updateSubmissionAcknowledgment(
+    tweetId: string,
+    acknowledgmentTweetId: string,
+  ): void {
+    this.db
+      .prepare(
+        `
       UPDATE submissions 
       SET acknowledgment_tweet_id = ? 
       WHERE tweet_id = ?
-    `).run(acknowledgmentTweetId, tweetId);
-    
+    `,
+      )
+      .run(acknowledgmentTweetId, tweetId);
+
     this.notifyUpdate();
   }
 }

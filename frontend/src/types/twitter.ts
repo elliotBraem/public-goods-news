@@ -1,1 +1,1 @@
-export * from '../../../backend/src/types/twitter';
+export * from "../../../backend/src/types/twitter";

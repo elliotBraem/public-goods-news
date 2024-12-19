@@ -1,10 +1,10 @@
-import winston from 'winston';
-import { consoleFormat } from 'winston-console-format';
-import ora, { Ora } from 'ora';
+import winston from "winston";
+import { consoleFormat } from "winston-console-format";
+import ora, { Ora } from "ora";
 
 // Configure winston logger
 export const logger = winston.createLogger({
-  level: 'info',
+  level: "info",
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.ms(),
@@ -13,7 +13,7 @@ export const logger = winston.createLogger({
     winston.format.json(),
     consoleFormat({
       showMeta: true,
-      metaStrip: ['timestamp', 'service'],
+      metaStrip: ["timestamp", "service"],
       inspectOptions: {
         depth: 4, // Increased depth for better error inspection
         colors: true,
@@ -21,7 +21,7 @@ export const logger = winston.createLogger({
         breakLength: 120,
         compact: Infinity,
       },
-    })
+    }),
   ),
   transports: [
     new winston.transports.Console({
@@ -43,8 +43,8 @@ export const startSpinner = (key: string, text: string): void => {
   }
   spinners[key] = ora({
     text: `${text}\n`,
-    color: 'cyan',
-    spinner: 'dots',
+    color: "cyan",
+    spinner: "dots",
   }).start();
 };
 
@@ -95,8 +95,8 @@ export const cleanup = (): void => {
 };
 
 // Register cleanup on process exit
-process.on('exit', cleanup);
-process.on('SIGINT', () => {
+process.on("exit", cleanup);
+process.on("SIGINT", () => {
   cleanup();
   process.exit(0);
 });

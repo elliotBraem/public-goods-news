@@ -10,13 +10,16 @@
     "lint": "bunx turbo run lint",
     "deploy:init": "fly launch",
     "deploy:volumes": "fly volumes create sqlite --size 1 --region lax && fly volumes create cache --size 1 --region lax",
-    "deploy": "fly deploy"
+    "deploy": "fly deploy",
+    "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
+    "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'"
   },
   "workspaces": [
     "frontend",
     "backend"
   ],
   "devDependencies": {
-    "turbo": "latest"
+    "turbo": "latest",
+    "prettier": "^3.3.3"
   }
 }
