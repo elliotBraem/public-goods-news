@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { TwitterSubmission } from '../types/twitter';
+import { useLiveUpdates } from '../contexts/LiveUpdateContext';
 
 const StatusBadge = ({ status }: { status: TwitterSubmission['status'] }) => {
   const className = `status-badge status-${status}`;
@@ -12,6 +13,7 @@ const SubmissionList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<TwitterSubmission['status'] | 'all'>('all');
+  const { connected, lastUpdate } = useLiveUpdates();
 
   const fetchSubmissions = async () => {
     try {
@@ -30,12 +32,20 @@ const SubmissionList = () => {
     }
   };
 
+  // Initial fetch
   useEffect(() => {
     fetchSubmissions();
-    // Set up auto-refresh every 30 seconds
-    const interval = setInterval(fetchSubmissions, 30000);
-    return () => clearInterval(interval);
   }, [filter]);
+
+  // Handle live updates
+  useEffect(() => {
+    if (lastUpdate?.type === 'update') {
+      const updatedSubmissions = filter === 'all'
+        ? lastUpdate.data
+        : lastUpdate.data.filter(s => s.status === filter);
+      setSubmissions(updatedSubmissions);
+    }
+  }, [lastUpdate, filter]);
 
   const getTweetUrl = (tweetId: string, username: string) => {
     return `https://x.com/${username}/status/${tweetId}`;
@@ -71,20 +81,28 @@ const SubmissionList = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Public Goods News Submissions</h1>
-        <div className="space-x-2">
-          {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-4 py-2 rounded ${
-                filter === status
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'} mr-2`}></div>
+            <span className="text-sm text-gray-600">
+              {connected ? 'Live Updates' : 'Connecting...'}
+            </span>
+          </div>
+          <div className="space-x-2">
+            {(['all', 'pending', 'approved', 'rejected'] as const).map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={`px-4 py-2 rounded ${
+                  filter === status
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 hover:bg-gray-300'
+                }`}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

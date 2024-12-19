@@ -3,15 +3,27 @@ import { TwitterSubmission, Moderation } from "../../types";
 import { mkdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { existsSync } from "node:fs";
+import { WebSocketService } from "../websocket";
 
 export class DatabaseService {
   private db: Database;
+  private wsService?: WebSocketService;
   private static readonly DB_PATH = process.env.DATABASE_URL?.replace('file:', '') || join('.db', 'submissions.sqlite');
 
   constructor() {
     this.ensureDbDirectory();
     this.db = new Database(DatabaseService.DB_PATH);
     this.initialize();
+  }
+
+  setWebSocketService(wsService: WebSocketService) {
+    this.wsService = wsService;
+  }
+
+  private notifyUpdate() {
+    if (this.wsService) {
+      this.wsService.broadcastSubmissions(this.getAllSubmissions());
+    }
   }
 
   private ensureDbDirectory() {
@@ -109,6 +121,8 @@ export class DatabaseService {
       submission.acknowledgmentTweetId || null,
       submission.createdAt
     );
+
+    this.notifyUpdate();
   }
 
   saveModerationAction(moderation: Moderation): void {
@@ -124,6 +138,8 @@ export class DatabaseService {
       moderation.action,
       moderation.timestamp.toISOString()
     );
+
+    this.notifyUpdate();
   }
 
   updateSubmissionStatus(tweetId: string, status: TwitterSubmission['status'], moderationResponseTweetId: string): void {
@@ -133,6 +149,8 @@ export class DatabaseService {
           moderation_response_tweet_id = ?
       WHERE tweet_id = ?
     `).run(status, moderationResponseTweetId, tweetId);
+
+    this.notifyUpdate();
   }
 
   getSubmission(tweetId: string): TwitterSubmission | null {
@@ -347,6 +365,8 @@ export class DatabaseService {
       SET acknowledgment_tweet_id = ? 
       WHERE tweet_id = ?
     `).run(acknowledgmentTweetId, tweetId);
+    
+    this.notifyUpdate();
   }
 }
 

@@ -1,10 +1,9 @@
 import dotenv from "dotenv";
-import express from "express";
-import cors from "cors";
 import path from "path";
 import { TwitterService } from "./services/twitter/client";
 import { db } from "./services/db";
-import config from "./config/config";
+import { WebSocketService } from "./services/websocket";
+import config, { validateEnv } from "./config/config";
 import { 
   logger, 
   startSpinner, 
@@ -13,57 +12,14 @@ import {
   cleanup 
 } from "./utils/logger";
 
-// Initialize Express
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Serve static frontend files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-}
-
-// API Routes
-app.get('/api/submissions', (req, res) => {
-  try {
-    const status = req.query.status as "pending" | "approved" | "rejected";
-    const submissions = status ? 
-      db.getSubmissionsByStatus(status) : 
-      db.getAllSubmissions();
-    res.json(submissions);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch submissions' });
-  }
-});
-
-app.get('/api/submissions/:tweetId', (req, res) => {
-  try {
-    const submission = db.getSubmission(req.params.tweetId);
-    if (!submission) {
-      res.status(404).json({ error: 'Submission not found' });
-      return;
-    }
-    res.json(submission);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch submission' });
-  }
-});
-
-// Serve frontend for all other routes in production
-if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
-  });
-}
+const PORT = Number(process.env.PORT) || 3000;
 
 async function main() {
   try {
     // Load environment variables
     startSpinner('env', 'Loading environment variables...');
     dotenv.config();
+    validateEnv();
     succeedSpinner('env', 'Environment variables loaded');
 
     // Initialize Twitter service
@@ -72,11 +28,65 @@ async function main() {
     await twitterService.initialize();
     succeedSpinner('twitter-init', 'Twitter service initialized');
 
-    // Start Express server
-    startSpinner('express', 'Starting Express server...');
-    app.listen(PORT, () => {
-      succeedSpinner('express', `Express server running on port ${PORT}`);
+    // Initialize services
+    startSpinner('server', 'Starting server...');
+    const wsService = new WebSocketService();
+    db.setWebSocketService(wsService);
+
+    const server = Bun.serve({
+      port: PORT,
+      async fetch(req) {
+        const url = new URL(req.url);
+
+        // WebSocket upgrade
+        if (url.pathname === '/ws') {
+          if (server.upgrade(req)) {
+            return;
+          }
+          return new Response('WebSocket upgrade failed', { status: 500 });
+        }
+
+        // API Routes
+        if (url.pathname.startsWith('/api')) {
+          try {
+            if (url.pathname === '/api/submissions') {
+              const status = url.searchParams.get('status') as "pending" | "approved" | "rejected" | null;
+              const submissions = status ? 
+                db.getSubmissionsByStatus(status) : 
+                db.getAllSubmissions();
+              return Response.json(submissions);
+            }
+
+            const match = url.pathname.match(/^\/api\/submissions\/(.+)$/);
+            if (match) {
+              const tweetId = match[1];
+              const submission = db.getSubmission(tweetId);
+              if (!submission) {
+                return Response.json({ error: 'Submission not found' }, { status: 404 });
+              }
+              return Response.json(submission);
+            }
+          } catch (error) {
+            return Response.json({ error: 'Internal server error' }, { status: 500 });
+          }
+        }
+
+        // Serve static frontend files in production
+        if (process.env.NODE_ENV === 'production') {
+          const filePath = url.pathname === '/' ? '/index.html' : url.pathname;
+          const file = Bun.file(path.join(__dirname, '../../frontend/dist', filePath));
+          if (await file.exists()) {
+            return new Response(file);
+          }
+          // Fallback to index.html for client-side routing
+          return new Response(Bun.file(path.join(__dirname, '../../frontend/dist/index.html')));
+        }
+
+        return new Response('Not found', { status: 404 });
+      },
+      websocket: wsService.getWebSocketConfig(),
     });
+    succeedSpinner('server', `Server running on port ${PORT}`);
 
     // Handle graceful shutdown
     process.on("SIGINT", async () => {
@@ -93,7 +103,8 @@ async function main() {
     });
 
     logger.info('🚀 Bot is running and ready for events', {
-      twitterEnabled: true
+      twitterEnabled: true,
+      websocketEnabled: true
     });
 
     // Start checking for mentions
@@ -103,7 +114,7 @@ async function main() {
 
   } catch (error) {
     // Handle any initialization errors
-    ['env', 'twitter-init', 'twitter-mentions', 'express'].forEach(key => {
+    ['env', 'websocket', 'twitter-init', 'twitter-mentions', 'express'].forEach(key => {
       failSpinner(key, `Failed during ${key}`);
     });
     logger.error('Startup', error);
