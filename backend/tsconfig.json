@@ -16,7 +16,7 @@
     "paths": {
       "*": ["src/*"]
     },
-    "types": ["bun-types"]
+    "types": ["bun-types", "jest", "node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "tests"]

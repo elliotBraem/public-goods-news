@@ -10,6 +10,7 @@ import { TwitterSubmission } from "../types/twitter";
 type LiveUpdateContextType = {
   connected: boolean;
   lastUpdate: { type: string; data: TwitterSubmission[] } | null;
+  lastTweetId: string | null;
 };
 
 const LiveUpdateContext = createContext<LiveUpdateContextType | undefined>(
@@ -22,8 +23,21 @@ export function LiveUpdateProvider({ children }: { children: ReactNode }) {
     type: string;
     data: TwitterSubmission[];
   } | null>(null);
+  const [lastTweetId, setLastTweetId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Fetch initial lastTweetId
+    fetch("/api/last-tweet-id")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.lastTweetId) {
+          setLastTweetId(data.lastTweetId);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching initial lastTweetId:", error);
+      });
+
     let ws: WebSocket;
     let reconnectTimer: number;
 
@@ -59,6 +73,8 @@ export function LiveUpdateProvider({ children }: { children: ReactNode }) {
           const data = JSON.parse(event.data);
           if (data.type === "update") {
             setLastUpdate(data);
+          } else if (data.type === "lastTweetId") {
+            setLastTweetId(data.data);
           }
         } catch (error) {
           console.error("Error processing update:", error);
@@ -76,7 +92,7 @@ export function LiveUpdateProvider({ children }: { children: ReactNode }) {
   }, []); // Empty dependency array - only run once on mount
 
   return (
-    <LiveUpdateContext.Provider value={{ connected, lastUpdate }}>
+    <LiveUpdateContext.Provider value={{ connected, lastUpdate, lastTweetId }}>
       {children}
     </LiveUpdateContext.Provider>
   );

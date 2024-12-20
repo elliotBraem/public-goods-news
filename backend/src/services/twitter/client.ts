@@ -1,18 +1,21 @@
 import { Scraper, SearchMode, Tweet } from "agent-twitter-client";
+import { ADMIN_ACCOUNTS } from "config/admins";
+import { broadcastUpdate } from "index";
 import {
-  TwitterSubmission,
   Moderation,
   TwitterConfig,
+  TwitterSubmission,
 } from "../../types/twitter";
-import { logger } from "../../utils/logger";
-import { db } from "../db";
 import {
   TwitterCookie,
+  cacheCookies,
   ensureCacheDirectory,
   getCachedCookies,
-  cacheCookies,
+  getLastCheckedTweetId,
+  saveLastCheckedTweetId,
 } from "../../utils/cache";
-import { ADMIN_ACCOUNTS } from "config/admins";
+import { logger } from "../../utils/logger";
+import { db } from "../db";
 
 export class TwitterService {
   private client: Scraper;
@@ -22,6 +25,7 @@ export class TwitterService {
   private isInitialized = false;
   private checkInterval: NodeJS.Timer | null = null;
   private lastCheckedTweetId: string | null = null;
+  private configuredTweetId: string | null = null;
   private adminIdCache: Map<string, string> = new Map();
 
   constructor(config: TwitterConfig) {
@@ -69,8 +73,13 @@ export class TwitterService {
         await this.setCookiesFromArray(cachedCookies);
       }
 
-      // Load last checked tweet ID from database
-      this.lastCheckedTweetId = db.getLastCheckedTweetId();
+      // Load last checked tweet ID from cache if no configured ID exists
+      if (!this.configuredTweetId) {
+        this.lastCheckedTweetId = await getLastCheckedTweetId();
+        broadcastUpdate({ type: "lastTweetId", data: this.lastCheckedTweetId });
+      } else {
+        this.lastCheckedTweetId = this.configuredTweetId;
+      }
 
       // Try to login with retries
       logger.info("Attempting Twitter login...");
@@ -133,10 +142,8 @@ export class TwitterService {
         for (const tweet of batch) {
           if (!tweet.id) continue;
 
-          if (
-            !this.lastCheckedTweetId ||
-            BigInt(tweet.id) > BigInt(this.lastCheckedTweetId)
-          ) {
+          const referenceId = this.configuredTweetId || this.lastCheckedTweetId;
+          if (!referenceId || BigInt(tweet.id) > BigInt(referenceId)) {
             allNewTweets.push(tweet);
           } else {
             foundOldTweet = true;
@@ -201,8 +208,7 @@ export class TwitterService {
           // Update the last checked tweet ID to the most recent one
           const latestTweetId = newTweets[newTweets.length - 1].id;
           if (latestTweetId) {
-            db.saveLastCheckedTweetId(latestTweetId);
-            this.lastCheckedTweetId = latestTweetId;
+            await this.setLastCheckedTweetId(latestTweetId);
           }
         }
       } catch (error) {
@@ -314,7 +320,7 @@ export class TwitterService {
     if (!submission) return;
 
     // Check if submission has already been moderated by any admin
-    if (submission.moderationHistory.length > 0) {
+    if (submission.status !== "pending") {
       logger.info(
         `Submission ${submission.tweetId} has already been moderated, ignoring new moderation attempt.`,
       );
@@ -338,19 +344,22 @@ export class TwitterService {
       logger.info(
         `Received review from Admin ${this.adminIdCache.get(userId)}, processing approval.`,
       );
-      await this.processApproval(submission);
+      await this.processApproval(tweet, submission);
     } else {
       logger.info(
         `Received review from Admin ${this.adminIdCache.get(userId)}, processing rejection.`,
       );
-      await this.processRejection(submission);
+      await this.processRejection(tweet, submission);
     }
   }
 
-  private async processApproval(submission: TwitterSubmission): Promise<void> {
+  private async processApproval(
+    tweet: Tweet,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     // TODO: Add NEAR integration here for approved submissions
     const responseTweetId = await this.replyToTweet(
-      submission.tweetId,
+      tweet.id!,
       "Your submission has been approved and will be added to the public goods news feed!",
     );
     if (responseTweetId) {
@@ -362,9 +371,12 @@ export class TwitterService {
     }
   }
 
-  private async processRejection(submission: TwitterSubmission): Promise<void> {
+  private async processRejection(
+    tweet: Tweet,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     const responseTweetId = await this.replyToTweet(
-      submission.tweetId,
+      tweet.id!,
       "Your submission has been reviewed and was not accepted for the public goods news feed.",
     );
     if (responseTweetId) {
@@ -406,6 +418,18 @@ export class TwitterService {
       logger.error("Error replying to tweet:", error);
       return null;
     }
+  }
+
+  async setLastCheckedTweetId(tweetId: string) {
+    this.configuredTweetId = tweetId;
+    this.lastCheckedTweetId = tweetId;
+    await saveLastCheckedTweetId(tweetId);
+    logger.info(`Last checked tweet ID configured to: ${tweetId}`);
+    broadcastUpdate({ type: "lastTweetId", data: tweetId });
+  }
+
+  getLastCheckedTweetId(): string | null {
+    return this.lastCheckedTweetId;
   }
 
   private getTweetLink(

@@ -12,7 +12,7 @@ import {
   succeedSpinner,
 } from "./utils/logger";
 
-const PORT = Number(process.env.PORT) || 3001; // Use different port for testing
+const PORT = Number(process.env.PORT) || 3000;
 
 // Store active WebSocket connections
 const activeConnections = new Set<ServerWebSocket>();
@@ -30,7 +30,7 @@ export function broadcastUpdate(data: unknown) {
   });
 }
 
-async function main() {
+export async function main() {
   try {
     // Load environment variables
     startSpinner("env", "Loading environment variables...");
@@ -48,7 +48,7 @@ async function main() {
 
         // WebSocket upgrade
         if (url.pathname === "/ws") {
-          if (server.upgrade(req)) {
+          if (server?.upgrade(req)) {
             return;
           }
           return new Response("WebSocket upgrade failed", { status: 500 });
@@ -57,6 +57,32 @@ async function main() {
         // API Routes
         if (url.pathname.startsWith("/api")) {
           try {
+            if (url.pathname === "/api/last-tweet-id") {
+              if (req.method === "GET") {
+                const lastTweetId = twitterService.getLastCheckedTweetId();
+                return Response.json({ lastTweetId });
+              }
+
+              if (req.method === "POST") {
+                try {
+                  const body = (await req.json()) as Record<string, unknown>;
+                  if (!body?.tweetId || typeof body.tweetId !== "string") {
+                    return Response.json(
+                      { error: "Invalid tweetId" },
+                      { status: 400 },
+                    );
+                  }
+                  await twitterService.setLastCheckedTweetId(body.tweetId);
+                  return Response.json({ success: true });
+                } catch (error) {
+                  return Response.json(
+                    { error: "Invalid JSON payload" },
+                    { status: 400 },
+                  );
+                }
+              }
+            }
+
             if (url.pathname === "/api/submissions") {
               const status = url.searchParams.get("status") as
                 | "pending"

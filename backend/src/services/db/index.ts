@@ -71,15 +71,6 @@ export class DatabaseService {
       )
     `);
 
-    // Create twitter_state table for storing last checked tweet ID
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS twitter_state (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
     // Add index on last_reset_date for efficient cleanup
     this.db.run(`
       CREATE INDEX IF NOT EXISTS idx_submission_counts_date 
@@ -377,35 +368,6 @@ export class DatabaseService {
     `,
       )
       .run(userId, today, today, today);
-  }
-
-  // Last checked tweet ID methods
-  getLastCheckedTweetId(): string | null {
-    const result = this.db
-      .prepare(
-        `
-      SELECT value 
-      FROM twitter_state 
-      WHERE key = 'last_checked_tweet_id'
-    `,
-      )
-      .get() as { value: string } | undefined;
-
-    return result?.value || null;
-  }
-
-  saveLastCheckedTweetId(tweetId: string): void {
-    this.db
-      .prepare(
-        `
-      INSERT INTO twitter_state (key, value, updated_at)
-      VALUES ('last_checked_tweet_id', ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(key) DO UPDATE SET
-      value = ?,
-      updated_at = CURRENT_TIMESTAMP
-    `,
-      )
-      .run(tweetId, tweetId);
   }
 
   updateSubmissionAcknowledgment(
