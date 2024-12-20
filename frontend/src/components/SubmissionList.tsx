@@ -29,9 +29,14 @@ const SubmissionList = () => {
   >("all");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  // Get unique categories across all submissions
+  // Get unique categories across all submissions and moderation history
   const allCategories = [
-    ...new Set(submissions.flatMap((s) => s.categories || [])),
+    ...new Set([
+      ...submissions.flatMap((s) => s.categories || []),
+      ...submissions.flatMap((s) => 
+        s.moderationHistory?.flatMap((m) => m.categories || []) || []
+      )
+    ]),
   ].sort();
   const { lastUpdate } = useLiveUpdates();
 
@@ -43,14 +48,17 @@ const SubmissionList = () => {
           ? "/api/submissions"
           : `/api/submissions?status=${statusFilter}`;
       const response = await axios.get<TwitterSubmission[]>(url);
-      const data = [...response.data].reverse();
+      const data = [...response.data].sort((a, b) => 
+        Date.parse(b.submittedAt) - Date.parse(a.submittedAt)
+      );
 
       // Filter by selected categories if any are selected
       const filteredData =
         selectedCategories.length > 0
           ? data.filter((submission) =>
               selectedCategories.every((category) =>
-                submission.categories?.includes(category),
+                submission.categories?.includes(category) ||
+                submission.moderationHistory.some((m) => m.categories?.includes(category))
               ),
             )
           : data;
@@ -82,12 +90,15 @@ const SubmissionList = () => {
         selectedCategories.length > 0
           ? filteredByStatus.filter((submission) =>
               selectedCategories.every((category) =>
-                submission.categories?.includes(category),
+                submission.categories?.includes(category) ||
+                submission.moderationHistory.some((m) => m.categories?.includes(category))
               ),
             )
           : filteredByStatus;
 
-      setSubmissions([...filteredByCategories].reverse());
+      setSubmissions([...filteredByCategories].sort((a, b) => 
+        Date.parse(b.submittedAt) - Date.parse(a.submittedAt)
+      ));
     }
   }, [lastUpdate, statusFilter, selectedCategories]);
 
@@ -209,22 +220,42 @@ const SubmissionList = () => {
                     </div>
                     {(submission.status === "approved" ||
                       submission.status === "rejected") &&
-                      submission.moderationHistory.length > 0 && (
-                        <div className="text-sm text-gray-600">
-                          Moderated by{" "}
-                          <a
-                            href={`https://x.com/${submission.moderationHistory[submission.moderationHistory.length - 1].adminId}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-gray-800 hover:text-gray-600 transition-colors"
-                          >
-                            @
-                            {
-                              submission.moderationHistory[
-                                submission.moderationHistory.length - 1
-                              ].adminId
-                            }
-                          </a>
+                      submission.moderationHistory?.length > 0 && (
+                        <div className="text-sm space-y-2">
+                          <div className="text-gray-600">
+                            Moderated by{" "}
+                            <a
+                              href={`https://x.com/${submission.moderationHistory?.[submission.moderationHistory.length - 1]?.adminId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-gray-800 hover:text-gray-600 transition-colors"
+                            >
+                              @
+                              {
+                                submission.moderationHistory?.[
+                                  submission.moderationHistory.length - 1
+                                ]?.adminId
+                              }
+                            </a>
+                          </div>
+                          {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.note && (
+                            <div className="text-gray-700">
+                              <span className="font-semibold">Moderation Note:</span>{" "}
+                              {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.note}
+                            </div>
+                          )}
+                          {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.categories && (
+                            <div className="flex flex-wrap gap-2">
+                              {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.categories?.map((category) => (
+                                <span
+                                  key={category}
+                                  className="px-2 py-1 bg-blue-100 text-sm rounded-full text-blue-600"
+                                >
+                                  {category}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                   </div>

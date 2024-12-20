@@ -294,6 +294,7 @@ export class TwitterService {
         moderationHistory: [],
         createdAt:
           originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
+        submittedAt: new Date().toISOString()
       };
 
       // Save submission to database
@@ -361,11 +362,23 @@ export class TwitterService {
       return;
     }
 
+    // Extract categories from hashtags in moderation tweet (excluding command hashtags)
+    const categories = (tweet.hashtags || []).filter(
+      (tag) => !["submit", "approve", "reject"].includes(tag.toLowerCase()),
+    );
+
+    // Extract note: everything in the tweet that's not a hashtag
+    const note = tweet.text
+      ?.replace(/#\w+/g, "") // Remove hashtags
+      .trim() || undefined;
+
     const moderation: Moderation = {
       adminId: adminUsername,
       action: action,
       timestamp: tweet.timeParsed || new Date(),
       tweetId: submission.tweetId, // Use the original submission's tweetId
+      categories: categories.length > 0 ? categories : undefined,
+      note: note
     };
     db.saveModerationAction(moderation);
 

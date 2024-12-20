@@ -10,6 +10,7 @@ export interface TwitterSubmission {
   acknowledgmentTweetId?: string;
   moderationResponseTweetId?: string;
   createdAt: string;
+  submittedAt: string;
 }
 
 export interface Moderation {
@@ -17,6 +18,8 @@ export interface Moderation {
   action: "approve" | "reject";
   timestamp: Date;
   tweetId: string;
+  note?: string;
+  categories?: string[];
 }
 
 export interface TwitterConfig {
