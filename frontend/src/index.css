@@ -14,19 +14,4 @@
   .card-shadow {
     @apply border-2 border-gray-800 shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5;
   }
-  .status-badge {
-    @apply px-2 py-1 rounded-full text-sm font-semibold;
-  }
-  
-  .status-pending {
-    @apply bg-yellow-100 text-yellow-800;
-  }
-  
-  .status-approved {
-    @apply bg-green-100 text-green-800;
-  }
-  
-  .status-rejected {
-    @apply bg-red-100 text-red-800;
-  }
 }
