@@ -25,7 +25,7 @@ const SubmissionList = () => {
           ? "/api/submissions"
           : `/api/submissions?status=${filter}`;
       const response = await axios.get<TwitterSubmission[]>(url);
-      setSubmissions(response.data);
+      setSubmissions([...response.data].reverse());
       setError(null);
     } catch (err) {
       setError("Failed to fetch submissions");
@@ -47,7 +47,7 @@ const SubmissionList = () => {
         filter === "all"
           ? lastUpdate.data
           : lastUpdate.data.filter((s) => s.status === filter);
-      setSubmissions(updatedSubmissions);
+      setSubmissions([...updatedSubmissions].reverse());
     }
   }, [lastUpdate, filter]);
 

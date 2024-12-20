@@ -33,9 +33,6 @@
   - [Submission Process](#submission-process)
   - [Moderation System](#moderation-system)
   - [Rate Limiting](#rate-limiting)
-- [Customization](#customization)
-  - [Frontend Customization](#frontend-customization)
-  - [Backend Customization](#backend-customization)
 - [Contributing](#contributing)
 
 </details>
@@ -225,48 +222,6 @@ To maintain quality:
 - Users are limited to 10 submissions per day
 - Rate limits reset daily
 - Exceeding the limit results in a notification tweet
-
-## Customization
-
-### Frontend Customization
-
-The frontend can be customized in several ways:
-
-1. **Styling**
-   - Modify `frontend/tailwind.config.js` for theme customization
-   - Update global styles in `frontend/src/index.css`
-   - Component-specific styles in respective component files
-
-2. **Components**
-   - Add new components in `frontend/src/components/`
-   - Modify existing components for different layouts or functionality
-
-3. **Configuration**
-   - Update API endpoints in environment variables
-   - Modify build settings in `vite.config.ts`
-
-See the [Frontend README](./frontend/README.md) for detailed customization options.
-
-### Backend Customization
-
-The backend service can be extended and customized:
-
-1. **Services**
-   - Add new services in `backend/src/services/`
-   - Modify existing services for different functionality
-   - Extend API endpoints as needed
-
-2. **Configuration**
-   - Update environment variables for different integrations
-   - Modify admin settings in `src/config/`
-   - Adjust rate limits and other constraints
-
-3. **Integration**
-   - Add new blockchain integrations
-   - Extend social media support
-   - Implement additional APIs
-
-See the [Backend README](./backend/README.md) for detailed customization options.
 
 ## Contributing
 

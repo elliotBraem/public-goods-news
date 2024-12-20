@@ -1,20 +1,21 @@
 import { Scraper, SearchMode, Tweet } from "agent-twitter-client";
+import { ADMIN_ACCOUNTS } from "config/admins";
+import { broadcastUpdate } from "index";
 import {
-  TwitterSubmission,
   Moderation,
   TwitterConfig,
+  TwitterSubmission,
 } from "../../types/twitter";
-import { logger } from "../../utils/logger";
-import { db } from "../db";
 import {
   TwitterCookie,
+  cacheCookies,
   ensureCacheDirectory,
   getCachedCookies,
-  cacheCookies,
   getLastCheckedTweetId,
   saveLastCheckedTweetId,
 } from "../../utils/cache";
-import { ADMIN_ACCOUNTS } from "config/admins";
+import { logger } from "../../utils/logger";
+import { db } from "../db";
 
 export class TwitterService {
   private client: Scraper;
@@ -24,6 +25,7 @@ export class TwitterService {
   private isInitialized = false;
   private checkInterval: NodeJS.Timer | null = null;
   private lastCheckedTweetId: string | null = null;
+  private configuredTweetId: string | null = null;
   private adminIdCache: Map<string, string> = new Map();
 
   constructor(config: TwitterConfig) {
@@ -35,10 +37,8 @@ export class TwitterService {
   private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
     const cookieStrings = cookiesArray.map(
       (cookie) =>
-        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-          cookie.secure ? "Secure" : ""
-        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-          cookie.sameSite || "Lax"
+        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
         }`,
     );
     await this.client.setCookies(cookieStrings);
@@ -71,8 +71,13 @@ export class TwitterService {
         await this.setCookiesFromArray(cachedCookies);
       }
 
-      // Load last checked tweet ID from cache
-      this.lastCheckedTweetId = await getLastCheckedTweetId();
+      // Load last checked tweet ID from cache if no configured ID exists
+      if (!this.configuredTweetId) {
+        this.lastCheckedTweetId = await getLastCheckedTweetId();
+        broadcastUpdate({ type: "lastTweetId", data: this.lastCheckedTweetId });
+      } else {
+        this.lastCheckedTweetId = this.configuredTweetId;
+      }
 
       // Try to login with retries
       logger.info("Attempting Twitter login...");
@@ -135,9 +140,10 @@ export class TwitterService {
         for (const tweet of batch) {
           if (!tweet.id) continue;
 
+          const referenceId = this.configuredTweetId || this.lastCheckedTweetId;
           if (
-            !this.lastCheckedTweetId ||
-            BigInt(tweet.id) > BigInt(this.lastCheckedTweetId)
+            !referenceId ||
+            BigInt(tweet.id) > BigInt(referenceId)
           ) {
             allNewTweets.push(tweet);
           } else {
@@ -203,8 +209,7 @@ export class TwitterService {
           // Update the last checked tweet ID to the most recent one
           const latestTweetId = newTweets[newTweets.length - 1].id;
           if (latestTweetId) {
-            await saveLastCheckedTweetId(latestTweetId);
-            this.lastCheckedTweetId = latestTweetId;
+            await this.setLastCheckedTweetId(latestTweetId);
           }
         }
       } catch (error) {
@@ -408,6 +413,18 @@ export class TwitterService {
       logger.error("Error replying to tweet:", error);
       return null;
     }
+  }
+
+  async setLastCheckedTweetId(tweetId: string) {
+    this.configuredTweetId = tweetId;
+    this.lastCheckedTweetId = tweetId;
+    await saveLastCheckedTweetId(tweetId);
+    logger.info(`Last checked tweet ID configured to: ${tweetId}`);
+    broadcastUpdate({ type: "lastTweetId", data: tweetId });
+  }
+
+  getLastCheckedTweetId(): string | null {
+    return this.lastCheckedTweetId;
   }
 
   private getTweetLink(
