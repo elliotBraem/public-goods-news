@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { TwitterSubmission } from "../types/twitter";
 import { useLiveUpdates } from "../contexts/LiveUpdateContext";
-import { ExternalLink, Eye } from "lucide-react";
+import { ExternalLink
+  
+ } from "lucide-react";
 
 const BOT_ID = "test_curation";
 
