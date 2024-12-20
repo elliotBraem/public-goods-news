@@ -9,9 +9,11 @@ const StatusBadge = ({ status }: { status: TwitterSubmission["status"] }) => {
   const statusClasses = {
     pending: "bg-yellow-200 text-yellow-900 border-yellow-400",
     approved: "bg-green-200 text-green-900 border-green-400",
-    rejected: "bg-red-200 text-red-900 border-red-400"
+    rejected: "bg-red-200 text-red-900 border-red-400",
   };
-  return <span className={`${baseClasses} ${statusClasses[status]}`}>{status}</span>;
+  return (
+    <span className={`${baseClasses} ${statusClasses[status]}`}>{status}</span>
+  );
 };
 
 const SubmissionList = () => {

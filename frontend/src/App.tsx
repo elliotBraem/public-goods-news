@@ -12,10 +12,7 @@ function App() {
           <nav className="bg-white border-b-2 border-gray-800 p-6">
             <div className="max-w-7xl mx-auto flex justify-between items-center">
               <div className="flex items-center space-x-8">
-                <Link
-                  to="/"
-                  className="hover:text-gray-600 transition-colors"
-                >
+                <Link to="/" className="hover:text-gray-600 transition-colors">
                   <h1 className="text-2xl font-bold">Curation Bot</h1>
                 </Link>
               </div>
