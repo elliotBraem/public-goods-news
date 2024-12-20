@@ -321,7 +321,7 @@ export class TwitterService {
     if (!submission) return;
 
     // Check if submission has already been moderated by any admin
-    if (submission.moderationResponseTweetId) {
+    if (submission.status !== "pending") {
       logger.info(
         `Submission ${submission.tweetId} has already been moderated, ignoring new moderation attempt.`,
       );
