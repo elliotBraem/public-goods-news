@@ -5,10 +5,10 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Frontend</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">Curation Bot Frontend</h1>
 
   <p>
-    <strong>React-based frontend application for the Public Goods News Curation platform</strong>
+    <strong>React-based frontend application for the Curation Bot platform</strong>
   </p>
 
 </div>

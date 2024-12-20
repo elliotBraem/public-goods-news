@@ -5,10 +5,10 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Backend</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">Curation Bot Backend</h1>
 
   <p>
-    <strong>TypeScript-based backend service for the Public Goods News Curation platform</strong>
+    <strong>TypeScript-based backend service for the Curation Bot platform</strong>
   </p>
 
 </div>
@@ -76,6 +76,26 @@ Twitter integration (`src/services/twitter`) manages:
 - Rate limiting
 - User management
 
+### Export Services
+
+Located in `src/services/exports`, manages content distribution to external platforms:
+
+#### RSS Export
+
+- Generates RSS feed of approved submissions
+- Configurable feed title and description
+- Customizable maximum items limit
+- Automatic XML escaping and feed updates
+
+#### Telegram Export
+
+- Posts approved submissions to Telegram channel
+- Formatted messages with submission details
+- Automatic error handling and retries
+- Real-time channel updates
+
+This is extendible by registering a new export type in [exports/types](./src/services/exports/types.ts).
+
 ## Development
 
 ### Prerequisites
@@ -96,6 +116,28 @@ bun install
 
 ```bash
 cp .env.example .env
+```
+
+Required environment variables:
+
+```env
+# Twitter API Credentials
+TWITTER_USERNAME=your_twitter_username
+TWITTER_PASSWORD=your_twitter_password
+TWITTER_EMAIL=your_twitter_email
+
+# Export Services Configuration
+# Telegram
+TELEGRAM_ENABLED=false
+TELEGRAM_BOT_TOKEN=your_bot_token
+TELEGRAM_CHANNEL_ID=your_channel_id
+
+# RSS
+RSS_ENABLED=false
+RSS_TITLE=Curation Bot
+RSS_DESCRIPTION=Latest approved submissions
+RSS_FEED_PATH=public/feed.xml
+RSS_MAX_ITEMS=100
 ```
 
 3. Start development server:

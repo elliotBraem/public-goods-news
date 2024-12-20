@@ -5,10 +5,10 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Curation</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">Curation Bot</h1>
 
   <p>
-    <strong>Bot to curate and to streamline public goods news</strong>
+    <strong>Bot to curate and to streamline curation</strong>
   </p>
 
 </div>
@@ -44,7 +44,7 @@
 This project uses a monorepo structure managed with [Turborepo](https://turbo.build/repo) for efficient build orchestration:
 
 ```bash
-public-goods-news/
+curation-bot/
 ├── frontend/          # React frontend application
 ├── backend/          # Bun-powered backend service
 ├── package.json      # Root package.json for shared dependencies
@@ -62,6 +62,27 @@ public-goods-news/
   - Bun runtime for high performance
   - Twitter bot functionality
   - API endpoints for frontend
+  - Export services for RSS and Telegram
+
+### Export Services
+
+The platform supports multiple channels for content distribution:
+
+#### RSS Feed
+
+- Automatically generates an RSS feed of approved submissions
+- Configurable feed properties (title, description, max items)
+- XML-compliant output with proper escaping
+- Ideal for content aggregators and RSS readers
+
+#### Telegram Channel
+
+- Posts approved submissions to a configured Telegram channel
+- Formatted messages with submission details and source links
+- Real-time updates as content is approved
+- Requires a Telegram bot token and channel ID
+
+The export system is extensible - new export types can be added by implementing the ExportService interface in [backend/src/services/exports/types.ts](./backend/src/services/exports/types.ts).
 
 ## Getting Started
 
@@ -90,6 +111,19 @@ Required environment variables:
 TWITTER_USERNAME=your_twitter_username
 TWITTER_PASSWORD=your_twitter_password
 TWITTER_EMAIL=your_twitter_email
+
+# Export Services Configuration
+# Telegram (Optional)
+TELEGRAM_ENABLED=false        # Set to true to enable Telegram export
+TELEGRAM_BOT_TOKEN=          # Your Telegram bot token
+TELEGRAM_CHANNEL_ID=         # Target channel ID for posts
+
+# RSS Feed (Optional)
+RSS_ENABLED=false           # Set to true to enable RSS feed
+RSS_TITLE=                  # Title of your RSS feed
+RSS_DESCRIPTION=            # Description of your RSS feed
+RSS_FEED_PATH=             # Path where RSS feed will be generated
+RSS_MAX_ITEMS=100          # Maximum number of items to keep in feed
 ```
 
 ### Running the app
