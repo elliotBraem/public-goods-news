@@ -161,21 +161,6 @@ const SubmissionList = () => {
                 {submission.description}
               </p>
             )}
-
-            {submission.moderationHistory.length > 0 && (
-              <div className="mt-4 border-t pt-4">
-                <h3 className="font-semibold mb-2">Moderation History</h3>
-                <div className="space-y-2">
-                  {submission.moderationHistory.map((history, index) => (
-                    <div key={index} className="text-sm text-gray-600">
-                      <span className="font-medium">{history.action}</span> by{" "}
-                      {history.adminId} on{" "}
-                      {new Date(history.timestamp).toLocaleString()}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         ))}
 

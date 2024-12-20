@@ -71,7 +71,6 @@ export function LiveUpdateProvider({ children }: { children: ReactNode }) {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log("received", data);
           if (data.type === "update") {
             setLastUpdate(data);
           } else if (data.type === "lastTweetId") {

@@ -321,7 +321,7 @@ export class TwitterService {
     if (!submission) return;
 
     // Check if submission has already been moderated by any admin
-    if (submission.moderationHistory.length > 0) {
+    if (submission.moderationResponseTweetId) {
       logger.info(
         `Submission ${submission.tweetId} has already been moderated, ignoring new moderation attempt.`,
       );
@@ -345,19 +345,19 @@ export class TwitterService {
       logger.info(
         `Received review from Admin ${this.adminIdCache.get(userId)}, processing approval.`,
       );
-      await this.processApproval(submission);
+      await this.processApproval(tweet, submission);
     } else {
       logger.info(
         `Received review from Admin ${this.adminIdCache.get(userId)}, processing rejection.`,
       );
-      await this.processRejection(submission);
+      await this.processRejection(tweet, submission);
     }
   }
 
-  private async processApproval(submission: TwitterSubmission): Promise<void> {
+  private async processApproval(tweet: Tweet, submission: TwitterSubmission): Promise<void> {
     // TODO: Add NEAR integration here for approved submissions
     const responseTweetId = await this.replyToTweet(
-      submission.tweetId,
+      tweet.id!,
       "Your submission has been approved and will be added to the public goods news feed!",
     );
     if (responseTweetId) {
@@ -369,9 +369,9 @@ export class TwitterService {
     }
   }
 
-  private async processRejection(submission: TwitterSubmission): Promise<void> {
+  private async processRejection(tweet: Tweet, submission: TwitterSubmission): Promise<void> {
     const responseTweetId = await this.replyToTweet(
-      submission.tweetId,
+      tweet.id!,
       "Your submission has been reviewed and was not accepted for the public goods news feed.",
     );
     if (responseTweetId) {

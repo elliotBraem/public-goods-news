@@ -19,7 +19,6 @@ const activeConnections = new Set<ServerWebSocket>();
 
 // Broadcast to all connected clients
 export function broadcastUpdate(data: unknown) {
-  console.log("sending", data);
   const message = JSON.stringify(data);
   activeConnections.forEach((ws) => {
     try {
