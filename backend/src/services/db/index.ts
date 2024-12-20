@@ -4,6 +4,7 @@ import { mkdir } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { existsSync } from "node:fs";
 import { broadcastUpdate } from "../../index";
+import { logger } from "utils/logger";
 
 export class DatabaseService {
   private db: Database;
@@ -40,9 +41,8 @@ export class DatabaseService {
         user_id TEXT NOT NULL,
         username TEXT NOT NULL,
         content TEXT NOT NULL,
-        hashtags TEXT NOT NULL,
-        category TEXT,
         description TEXT,
+        categories TEXT,
         status TEXT NOT NULL DEFAULT 'pending',
         acknowledgment_tweet_id TEXT,
         moderation_response_tweet_id TEXT,
@@ -50,17 +50,49 @@ export class DatabaseService {
       )
     `);
 
-    // Create moderation_history table
-    this.db.run(`
-      CREATE TABLE IF NOT EXISTS moderation_history (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tweet_id TEXT NOT NULL,
-        admin_id TEXT NOT NULL,
-        action TEXT NOT NULL,
-        timestamp DATETIME NOT NULL,
-        FOREIGN KEY (tweet_id) REFERENCES submissions(tweet_id)
-      )
-    `);
+    // Handle moderation_history table migration
+    try {
+      // Backup existing data
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS moderation_history_backup AS
+        SELECT * FROM moderation_history;
+      `);
+
+      // Drop and recreate with correct schema
+      this.db.run(`DROP TABLE IF EXISTS moderation_history`);
+      this.db.run(`
+        CREATE TABLE moderation_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          tweet_id TEXT NOT NULL,
+          admin_id TEXT NOT NULL,
+          action TEXT NOT NULL,
+          timestamp DATETIME NOT NULL,
+          FOREIGN KEY (tweet_id) REFERENCES submissions(tweet_id)
+        )
+      `);
+
+      // Restore data if backup exists
+      this.db.run(`
+        INSERT INTO moderation_history (tweet_id, admin_id, action, timestamp)
+        SELECT tweet_id, admin_id, action, timestamp
+        FROM moderation_history_backup;
+      `);
+
+      // Clean up backup
+      this.db.run(`DROP TABLE IF EXISTS moderation_history_backup`);
+    } catch (e) {
+      // If no existing table, just create new one
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS moderation_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          tweet_id TEXT NOT NULL,
+          admin_id TEXT NOT NULL,
+          action TEXT NOT NULL,
+          timestamp DATETIME NOT NULL,
+          FOREIGN KEY (tweet_id) REFERENCES submissions(tweet_id)
+        )
+      `);
+    }
 
     // Create submission_counts table for rate limiting
     this.db.run(`
@@ -91,14 +123,70 @@ export class DatabaseService {
     } catch (e) {
       // Column might already exist
     }
+
+    try {
+      this.db.run(
+        `ALTER TABLE submissions ADD COLUMN categories TEXT`
+      );
+    } catch (e) {
+      // Column might already exist
+    }
+
+    // Remove old columns
+    try {
+      // SQLite doesn't support DROP COLUMN before version 3.35.0
+      // Instead, we need to recreate the table without those columns
+      this.db.run(`
+        CREATE TABLE IF NOT EXISTS submissions_new (
+          tweet_id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          username TEXT NOT NULL,
+          content TEXT NOT NULL,
+          description TEXT,
+          categories TEXT,
+          status TEXT NOT NULL DEFAULT 'pending',
+          acknowledgment_tweet_id TEXT,
+          moderation_response_tweet_id TEXT,
+          created_at TEXT NOT NULL
+        )
+      `);
+
+      this.db.run(`
+        INSERT OR REPLACE INTO submissions_new 
+        SELECT 
+          tweet_id,
+          user_id,
+          username,
+          content,
+          description,
+          categories,
+          status,
+          acknowledgment_tweet_id,
+          moderation_response_tweet_id,
+          created_at
+        FROM submissions
+      `);
+
+      this.db.run(`DROP TABLE IF EXISTS submissions`);
+      this.db.run(`ALTER TABLE submissions_new RENAME TO submissions`);
+
+      // Recreate indexes
+      this.db.run(`
+        CREATE INDEX IF NOT EXISTS idx_acknowledgment_tweet_id
+        ON submissions(acknowledgment_tweet_id)
+      `);
+    } catch (e) {
+      // Table might not exist or other error
+      logger.error("Error updating table structure:", e);
+    }
   }
 
   saveSubmission(submission: TwitterSubmission): void {
     const stmt = this.db.prepare(`
       INSERT INTO submissions (
-        tweet_id, user_id, username, content, hashtags, category, description, status, 
+        tweet_id, user_id, username, content, description, categories, status, 
         acknowledgment_tweet_id, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -106,9 +194,8 @@ export class DatabaseService {
       submission.userId,
       submission.username,
       submission.content,
-      JSON.stringify(submission.hashtags),
-      submission.category || null,
       submission.description || null,
+      submission.categories ? JSON.stringify(submission.categories) : null,
       submission.status,
       submission.acknowledgmentTweetId || null,
       submission.createdAt,
@@ -157,7 +244,7 @@ export class DatabaseService {
     const submission = this.db
       .prepare(
         `
-      SELECT s.*, GROUP_CONCAT(
+      SELECT s.*, json_group_array(
         json_object(
           'adminId', m.admin_id,
           'action', m.action,
@@ -180,9 +267,8 @@ export class DatabaseService {
       userId: submission.user_id,
       username: submission.username,
       content: submission.content,
-      hashtags: JSON.parse(submission.hashtags),
-      category: submission.category,
       description: submission.description,
+      categories: submission.categories ? JSON.parse(submission.categories) : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
@@ -202,13 +288,16 @@ export class DatabaseService {
     const submission = this.db
       .prepare(
         `
-      SELECT s.*, GROUP_CONCAT(
-        json_object(
-          'adminId', m.admin_id,
-          'action', m.action,
-          'timestamp', m.timestamp,
-          'tweetId', m.tweet_id
-        )
+      SELECT s.*, json_group_array(
+        CASE 
+          WHEN m.admin_id IS NULL THEN NULL
+          ELSE json_object(
+            'adminId', m.admin_id,
+            'action', m.action,
+            'timestamp', m.timestamp,
+            'tweetId', m.tweet_id
+          )
+        END
       ) as moderation_history
       FROM submissions s
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
@@ -225,9 +314,8 @@ export class DatabaseService {
       userId: submission.user_id,
       username: submission.username,
       content: submission.content,
-      hashtags: JSON.parse(submission.hashtags),
-      category: submission.category,
       description: submission.description,
+      categories: submission.categories ? JSON.parse(submission.categories) : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
@@ -245,13 +333,16 @@ export class DatabaseService {
     const submissions = this.db
       .prepare(
         `
-      SELECT s.*, GROUP_CONCAT(
-        json_object(
-          'adminId', m.admin_id,
-          'action', m.action,
-          'timestamp', m.timestamp,
-          'tweetId', m.tweet_id
-        )
+      SELECT s.*, json_group_array(
+        CASE 
+          WHEN m.admin_id IS NULL THEN NULL
+          ELSE json_object(
+            'adminId', m.admin_id,
+            'action', m.action,
+            'timestamp', m.timestamp,
+            'tweetId', m.tweet_id
+          )
+        END
       ) as moderation_history
       FROM submissions s
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
@@ -265,18 +356,19 @@ export class DatabaseService {
       userId: submission.user_id,
       username: submission.username,
       content: submission.content,
-      hashtags: JSON.parse(submission.hashtags),
-      category: submission.category,
       description: submission.description,
+      categories: submission.categories ? JSON.parse(submission.categories) : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
       createdAt: submission.created_at,
       moderationHistory: submission.moderation_history
-        ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        ? JSON.parse(submission.moderation_history)
+            .filter((m: any) => m !== null)
+            .map((m: any) => ({
+              ...m,
+              timestamp: new Date(m.timestamp),
+            }))
         : [],
     }));
   }
@@ -287,13 +379,16 @@ export class DatabaseService {
     const submissions = this.db
       .prepare(
         `
-      SELECT s.*, GROUP_CONCAT(
-        json_object(
-          'adminId', m.admin_id,
-          'action', m.action,
-          'timestamp', m.timestamp,
-          'tweetId', m.tweet_id
-        )
+      SELECT s.*, json_group_array(
+        CASE 
+          WHEN m.admin_id IS NULL THEN NULL
+          ELSE json_object(
+            'adminId', m.admin_id,
+            'action', m.action,
+            'timestamp', m.timestamp,
+            'tweetId', m.tweet_id
+          )
+        END
       ) as moderation_history
       FROM submissions s
       LEFT JOIN moderation_history m ON s.tweet_id = m.tweet_id
@@ -308,18 +403,19 @@ export class DatabaseService {
       userId: submission.user_id,
       username: submission.username,
       content: submission.content,
-      hashtags: JSON.parse(submission.hashtags),
-      category: submission.category,
       description: submission.description,
+      categories: submission.categories ? JSON.parse(submission.categories) : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
       createdAt: submission.created_at,
       moderationHistory: submission.moderation_history
-        ? JSON.parse(`[${submission.moderation_history}]`).map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        ? JSON.parse(submission.moderation_history)
+            .filter((m: any) => m !== null)
+            .map((m: any) => ({
+              ...m,
+              timestamp: new Date(m.timestamp),
+            }))
         : [],
     }));
   }

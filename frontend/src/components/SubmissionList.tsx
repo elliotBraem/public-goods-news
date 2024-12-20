@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { TwitterSubmission } from "../types/twitter";
 import { useLiveUpdates } from "../contexts/LiveUpdateContext";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Eye } from "lucide-react";
+
+const BOT_ID = "test_curation";
 
 const StatusBadge = ({ status }: { status: TwitterSubmission["status"] }) => {
   const baseClasses = "px-2 py-1 rounded-full text-sm font-semibold border";
@@ -20,20 +22,38 @@ const SubmissionList = () => {
   const [submissions, setSubmissions] = useState<TwitterSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<TwitterSubmission["status"] | "all">(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<
+    TwitterSubmission["status"] | "all"
+  >("all");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+  // Get unique categories across all submissions
+  const allCategories = [
+    ...new Set(submissions.flatMap((s) => s.categories || [])),
+  ].sort();
   const { lastUpdate } = useLiveUpdates();
 
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
       const url =
-        filter === "all"
+        statusFilter === "all"
           ? "/api/submissions"
-          : `/api/submissions?status=${filter}`;
+          : `/api/submissions?status=${statusFilter}`;
       const response = await axios.get<TwitterSubmission[]>(url);
-      setSubmissions([...response.data].reverse());
+      const data = [...response.data].reverse();
+
+      // Filter by selected categories if any are selected
+      const filteredData =
+        selectedCategories.length > 0
+          ? data.filter((submission) =>
+              selectedCategories.every((category) =>
+                submission.categories?.includes(category),
+              ),
+            )
+          : data;
+
+      setSubmissions(filteredData);
       setError(null);
     } catch (err) {
       setError("Failed to fetch submissions");
@@ -46,18 +66,28 @@ const SubmissionList = () => {
   // Initial fetch
   useEffect(() => {
     fetchSubmissions();
-  }, [filter]);
+  }, [statusFilter, selectedCategories]);
 
   // Handle live updates
   useEffect(() => {
     if (lastUpdate?.type === "update") {
-      const updatedSubmissions =
-        filter === "all"
+      const filteredByStatus =
+        statusFilter === "all"
           ? lastUpdate.data
-          : lastUpdate.data.filter((s) => s.status === filter);
-      setSubmissions([...updatedSubmissions].reverse());
+          : lastUpdate.data.filter((s) => s.status === statusFilter);
+
+      const filteredByCategories =
+        selectedCategories.length > 0
+          ? filteredByStatus.filter((submission) =>
+              selectedCategories.every((category) =>
+                submission.categories?.includes(category),
+              ),
+            )
+          : filteredByStatus;
+
+      setSubmissions([...filteredByCategories].reverse());
     }
-  }, [lastUpdate, filter]);
+  }, [lastUpdate, statusFilter, selectedCategories]);
 
   const getTweetUrl = (tweetId: string, username: string) => {
     return `https://x.com/${username}/status/${tweetId}`;
@@ -92,15 +122,16 @@ const SubmissionList = () => {
   return (
     <div className="p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="flex flex-col gap-4 mb-8">
+          {/* Status filters */}
           <div className="flex flex-wrap gap-2">
             {(["all", "pending", "approved", "rejected"] as const).map(
               (status) => (
                 <button
                   key={status}
-                  onClick={() => setFilter(status)}
+                  onClick={() => setStatusFilter(status)}
                   className={`px-3 sm:px-4 py-2 border-2 border-gray-800 font-medium transition-all ${
-                    filter === status
+                    statusFilter === status
                       ? "bg-gray-800 text-white"
                       : "bg-white hover:bg-gray-100"
                   }`}
@@ -110,6 +141,36 @@ const SubmissionList = () => {
               ),
             )}
           </div>
+
+          {/* Category filters */}
+          {allCategories.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <h3 className="text-sm font-semibold text-gray-700">
+                Filter by Categories:
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {allCategories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => {
+                      setSelectedCategories((prev) =>
+                        prev.includes(category)
+                          ? prev.filter((c) => c !== category)
+                          : [...prev, category],
+                      );
+                    }}
+                    className={`px-3 py-1 rounded-full text-sm transition-all ${
+                      selectedCategories.includes(category)
+                        ? "bg-blue-500 text-white"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid gap-6">
@@ -168,29 +229,47 @@ const SubmissionList = () => {
                   <p className="text-lg mb-4 leading-relaxed">
                     {submission.content}
                   </p>
-                  <div className="flex gap-2 mb-2">
-                    {submission.hashtags.map((tag) => (
-                      <span key={tag} className="text-gray-600">
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
                 </div>
-                <StatusBadge status={submission.status} />
+                <div className="flex items-end gap-2 flex-col">
+                <a
+                        href={getTweetUrl(
+                          (submission.status === "pending" ?  submission.acknowledgmentTweetId :  submission.moderationResponseTweetId) || "",
+                          BOT_ID
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >
+                  <StatusBadge status={submission.status} />
+                  </a>
+                  
+                </div>
               </div>
 
-              {submission.category && (
-                <p className="text-gray-700 mb-3">
-                  <span className="font-semibold">Category:</span>{" "}
-                  {submission.category}
-                </p>
+              {submission.description && (
+                <div className="mb-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-1">
+                    Curator's Notes:
+                  </h4>
+                  <p className="text-gray-700">{submission.description}</p>
+                </div>
               )}
 
-              {submission.description && (
-                <p className="text-gray-700 mb-4">
-                  <span className="font-semibold">Description:</span>{" "}
-                  {submission.description}
-                </p>
+              {submission.categories && submission.categories.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {submission.categories.map((category) => (
+                    <span
+                      key={category}
+                      className="px-2 py-1 bg-gray-100 text-sm rounded-full text-gray-600 hover:bg-gray-200 cursor-pointer"
+                      onClick={() => {
+                        if (!selectedCategories.includes(category)) {
+                          setSelectedCategories((prev) => [...prev, category]);
+                        }
+                      }}
+                    >
+                      {category}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           ))}

@@ -259,13 +259,32 @@ export class TwitterService {
         return;
       }
 
-      // Create submission using the original tweet's content
+      // Extract curator handle from submission tweet
+      const submissionMatch = tweet.text?.match(/!submit\s+@(\w+)/i);
+      if (!submissionMatch) {
+        logger.error(`Invalid submission format in tweet ${tweet.id}`);
+        return;
+      }
+
+      // Extract categories from hashtags in submission tweet (excluding command hashtags)
+      const categories = (tweet.hashtags || []).filter(tag => 
+        !['submit', 'approve', 'reject'].includes(tag.toLowerCase())
+      );
+
+      // Extract description: everything after !submit @handle that's not a hashtag
+      const description = tweet.text
+        ?.replace(/!submit\s+@\w+/i, '') // Remove command
+        .replace(/#\w+/g, '') // Remove hashtags
+        .trim() || undefined;
+
+      // Create submission using the original tweet's content and submission metadata
       const submission: TwitterSubmission = {
         tweetId: originalTweet.id!, // The tweet being submitted
         userId: originalTweet.userId!,
         username: originalTweet.username!,
         content: originalTweet.text || "",
-        hashtags: originalTweet.hashtags || [],
+        categories: categories,
+        description: description || undefined,
         status: "pending",
         moderationHistory: [],
         createdAt:
@@ -331,11 +350,17 @@ export class TwitterService {
     if (!action) return;
 
     // Add moderation to database
+    const adminUsername = this.adminIdCache.get(userId);
+    if (!adminUsername) {
+      logger.error(`Could not find username for admin ID ${userId}`);
+      return;
+    }
+
     const moderation: Moderation = {
-      adminId: userId,
+      adminId: adminUsername,
       action: action,
       timestamp: tweet.timeParsed || new Date(),
-      tweetId: tweet.id,
+      tweetId: submission.tweetId, // Use the original submission's tweetId
     };
     db.saveModerationAction(moderation);
 
@@ -375,6 +400,7 @@ export class TwitterService {
     tweet: Tweet,
     submission: TwitterSubmission,
   ): Promise<void> {
+    // TODO: Add NEAR integration here for rejected submissions
     const responseTweetId = await this.replyToTweet(
       tweet.id!,
       "Your submission has been reviewed and was not accepted for the public goods news feed.",

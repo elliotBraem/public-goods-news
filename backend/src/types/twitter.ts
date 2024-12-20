@@ -3,9 +3,8 @@ export interface TwitterSubmission {
   userId: string;
   username: string;
   content: string;
-  hashtags: Array<string>;
-  category?: string;
   description?: string;
+  categories?: string[];
   status: "pending" | "approved" | "rejected";
   moderationHistory: Moderation[];
   acknowledgmentTweetId?: string;
