@@ -4,6 +4,7 @@ import path from "path";
 import config, { validateEnv } from "./config/config";
 import { db } from "./services/db";
 import { TwitterService } from "./services/twitter/client";
+import { ExportManager } from "./services/exports/manager";
 import {
   cleanup,
   failSpinner,
@@ -153,9 +154,15 @@ export async function main() {
 
     succeedSpinner("server", `Server running on port ${PORT}`);
 
+    // Initialize export service
+    startSpinner("export-init", "Initializing export service...");
+    const exportManager = new ExportManager();
+    await exportManager.initialize(config.exports);
+    succeedSpinner("export-init", "Export service initialized");
+
     // Initialize Twitter service after server is running
     startSpinner("twitter-init", "Initializing Twitter service...");
-    const twitterService = new TwitterService(config.twitter);
+    const twitterService = new TwitterService(config.twitter, exportManager);
     await twitterService.initialize();
     succeedSpinner("twitter-init", "Twitter service initialized");
 
@@ -163,7 +170,10 @@ export async function main() {
     process.on("SIGINT", async () => {
       startSpinner("shutdown", "Shutting down gracefully...");
       try {
-        await twitterService.stop();
+        await Promise.all([
+          twitterService.stop(),
+          exportManager.shutdown(),
+        ]);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);
       } catch (error) {
@@ -176,6 +186,7 @@ export async function main() {
     logger.info("🚀 Bot is running and ready for events", {
       twitterEnabled: true,
       websocketEnabled: true,
+      exportsEnabled: config.exports.length > 0,
     });
 
     // Start checking for mentions
@@ -184,7 +195,7 @@ export async function main() {
     succeedSpinner("twitter-mentions", "Mentions check started");
   } catch (error) {
     // Handle any initialization errors
-    ["env", "twitter-init", "twitter-mentions", "server"].forEach((key) => {
+    ["env", "twitter-init", "export-init", "twitter-mentions", "server"].forEach((key) => {
       failSpinner(key, `Failed during ${key}`);
     });
     logger.error("Startup", error);

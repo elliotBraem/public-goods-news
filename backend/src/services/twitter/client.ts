@@ -6,6 +6,7 @@ import {
   TwitterConfig,
   TwitterSubmission,
 } from "../../types/twitter";
+import { ExportManager } from "../exports/manager";
 import {
   TwitterCookie,
   cacheCookies,
@@ -28,7 +29,10 @@ export class TwitterService {
   private configuredTweetId: string | null = null;
   private adminIdCache: Map<string, string> = new Map();
 
-  constructor(config: TwitterConfig) {
+  constructor(
+    config: TwitterConfig,
+    private readonly exportManager?: ExportManager
+  ) {
     this.client = new Scraper();
     this.twitterUsername = config.username;
     this.config = config;
@@ -394,6 +398,15 @@ export class TwitterService {
         "approved",
         responseTweetId,
       );
+
+      // Handle exports for approved submission
+      if (this.exportManager) {
+        try {
+          await this.exportManager.handleApprovedSubmission(submission);
+        } catch (error) {
+          logger.error("Failed to handle exports for approved submission:", error);
+        }
+      }
     }
   }
 

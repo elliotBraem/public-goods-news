@@ -4,7 +4,7 @@
   "packageManager": "bun@1.0.27",
   "type": "module",
   "scripts": {
-    "build": "bun build ./src/index.ts --target=bun --outdir=dist --format=esm",
+    "build": "bun build ./src/index.ts --target=bun --outdir=dist --format=esm --external './src/services/exports/external' && cp -r src/services/exports/external dist/external/",
     "start": "bun run dist/index.js",
     "dev": "bun run --watch src/index.ts",
     "test": "jest",
