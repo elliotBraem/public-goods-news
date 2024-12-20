@@ -267,15 +267,16 @@ export class TwitterService {
       }
 
       // Extract categories from hashtags in submission tweet (excluding command hashtags)
-      const categories = (tweet.hashtags || []).filter(tag => 
-        !['submit', 'approve', 'reject'].includes(tag.toLowerCase())
+      const categories = (tweet.hashtags || []).filter(
+        (tag) => !["submit", "approve", "reject"].includes(tag.toLowerCase()),
       );
 
       // Extract description: everything after !submit @handle that's not a hashtag
-      const description = tweet.text
-        ?.replace(/!submit\s+@\w+/i, '') // Remove command
-        .replace(/#\w+/g, '') // Remove hashtags
-        .trim() || undefined;
+      const description =
+        tweet.text
+          ?.replace(/!submit\s+@\w+/i, "") // Remove command
+          .replace(/#\w+/g, "") // Remove hashtags
+          .trim() || undefined;
 
       // Create submission using the original tweet's content and submission metadata
       const submission: TwitterSubmission = {

@@ -231,17 +231,18 @@ const SubmissionList = () => {
                   </p>
                 </div>
                 <div className="flex items-end gap-2 flex-col">
-                <a
-                        href={getTweetUrl(
-                          (submission.status === "pending" ?  submission.acknowledgmentTweetId :  submission.moderationResponseTweetId) || "",
-                          BOT_ID
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        >
-                  <StatusBadge status={submission.status} />
+                  <a
+                    href={getTweetUrl(
+                      (submission.status === "pending"
+                        ? submission.acknowledgmentTweetId
+                        : submission.moderationResponseTweetId) || "",
+                      BOT_ID,
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <StatusBadge status={submission.status} />
                   </a>
-                  
                 </div>
               </div>
 

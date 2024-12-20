@@ -125,9 +125,7 @@ export class DatabaseService {
     }
 
     try {
-      this.db.run(
-        `ALTER TABLE submissions ADD COLUMN categories TEXT`
-      );
+      this.db.run(`ALTER TABLE submissions ADD COLUMN categories TEXT`);
     } catch (e) {
       // Column might already exist
     }
@@ -268,7 +266,9 @@ export class DatabaseService {
       username: submission.username,
       content: submission.content,
       description: submission.description,
-      categories: submission.categories ? JSON.parse(submission.categories) : [],
+      categories: submission.categories
+        ? JSON.parse(submission.categories)
+        : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
@@ -315,7 +315,9 @@ export class DatabaseService {
       username: submission.username,
       content: submission.content,
       description: submission.description,
-      categories: submission.categories ? JSON.parse(submission.categories) : [],
+      categories: submission.categories
+        ? JSON.parse(submission.categories)
+        : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
@@ -357,7 +359,9 @@ export class DatabaseService {
       username: submission.username,
       content: submission.content,
       description: submission.description,
-      categories: submission.categories ? JSON.parse(submission.categories) : [],
+      categories: submission.categories
+        ? JSON.parse(submission.categories)
+        : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
@@ -404,7 +408,9 @@ export class DatabaseService {
       username: submission.username,
       content: submission.content,
       description: submission.description,
-      categories: submission.categories ? JSON.parse(submission.categories) : [],
+      categories: submission.categories
+        ? JSON.parse(submission.categories)
+        : [],
       status: submission.status,
       acknowledgmentTweetId: submission.acknowledgment_tweet_id,
       moderationResponseTweetId: submission.moderation_response_tweet_id,
