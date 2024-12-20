@@ -34,14 +34,14 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Settings</h1>
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-8">Settings</h1>
       
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <div className="bg-white p-6 card-shadow">
         <h2 className="text-lg font-semibold mb-4">Last Checked Tweet ID</h2>
         <div className="mb-4">
           <p className="text-gray-600 mb-2">Current ID:</p>
-          <code className="bg-gray-100 p-2 rounded block">
+          <code className="bg-gray-50 p-2 border-2 border-gray-800 block font-mono">
             {lastTweetId || "Not set"}
           </code>
         </div>
@@ -56,7 +56,7 @@ export default function Settings() {
               id="tweetId"
               value={newTweetId}
               onChange={(e) => setNewTweetId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-3 py-2 border-2 border-gray-800 focus:outline-none transition-colors"
               placeholder="Enter new tweet ID"
             />
           </div>
@@ -71,7 +71,7 @@ export default function Settings() {
 
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full flex justify-center py-2 px-4 border-2 border-gray-800 bg-gray-800 text-white font-medium hover:bg-gray-900 transition-colors"
           >
             Update Tweet ID
           </button>

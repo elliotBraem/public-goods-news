@@ -82,9 +82,9 @@ const SubmissionList = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Public Goods News Submissions</h1>
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Public Goods News</h1>
         <div className="flex items-center space-x-4">
           <div className="flex items-center">
             <div
@@ -100,10 +100,10 @@ const SubmissionList = () => {
                 <button
                   key={status}
                   onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded ${
+                  className={`px-4 py-2 border-2 border-gray-800 font-medium transition-all ${
                     filter === status
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
+                      ? "bg-gray-800 text-white"
+                      : "bg-white hover:bg-gray-100"
                   }`}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -114,32 +114,32 @@ const SubmissionList = () => {
         </div>
       </div>
 
-      <div className="grid gap-6">
+          <div className="grid gap-6">
         {submissions.map((submission) => (
           <div
             key={submission.tweetId}
-            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+            className="bg-white p-6 card-shadow"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex-grow">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <a
                     href={getTweetUrl(submission.tweetId, submission.username)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline font-medium"
+                    className="text-gray-800 hover:text-gray-600 font-medium transition-colors"
                   >
                     @{submission.username}
                   </a>
                   <span className="text-gray-500">·</span>
-                  <span className="text-gray-500">
+                  <span className="text-gray-600 font-serif">
                     {formatDate(submission.createdAt)}
                   </span>
                 </div>
-                <p className="text-lg font-medium mb-2">{submission.content}</p>
+                <p className="text-lg mb-4 leading-relaxed">{submission.content}</p>
                 <div className="flex gap-2 mb-2">
                   {submission.hashtags.map((tag) => (
-                    <span key={tag} className="text-blue-600">
+                    <span key={tag} className="text-gray-600">
                       #{tag}
                     </span>
                   ))}
@@ -149,7 +149,7 @@ const SubmissionList = () => {
             </div>
 
             {submission.category && (
-              <p className="text-gray-700 mb-2">
+              <p className="text-gray-700 mb-3">
                 <span className="font-semibold">Category:</span>{" "}
                 {submission.category}
               </p>
