@@ -37,8 +37,10 @@ export class TwitterService {
   private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
     const cookieStrings = cookiesArray.map(
       (cookie) =>
-        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
-        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
+        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+          cookie.secure ? "Secure" : ""
+        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+          cookie.sameSite || "Lax"
         }`,
     );
     await this.client.setCookies(cookieStrings);
@@ -141,10 +143,7 @@ export class TwitterService {
           if (!tweet.id) continue;
 
           const referenceId = this.configuredTweetId || this.lastCheckedTweetId;
-          if (
-            !referenceId ||
-            BigInt(tweet.id) > BigInt(referenceId)
-          ) {
+          if (!referenceId || BigInt(tweet.id) > BigInt(referenceId)) {
             allNewTweets.push(tweet);
           } else {
             foundOldTweet = true;
@@ -354,7 +353,10 @@ export class TwitterService {
     }
   }
 
-  private async processApproval(tweet: Tweet, submission: TwitterSubmission): Promise<void> {
+  private async processApproval(
+    tweet: Tweet,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     // TODO: Add NEAR integration here for approved submissions
     const responseTweetId = await this.replyToTweet(
       tweet.id!,
@@ -369,7 +371,10 @@ export class TwitterService {
     }
   }
 
-  private async processRejection(tweet: Tweet, submission: TwitterSubmission): Promise<void> {
+  private async processRejection(
+    tweet: Tweet,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     const responseTweetId = await this.replyToTweet(
       tweet.id!,
       "Your submission has been reviewed and was not accepted for the public goods news feed.",

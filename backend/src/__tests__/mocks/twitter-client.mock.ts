@@ -15,7 +15,11 @@ export class MockScraper {
     this.mockTweets = [];
   }
 
-  async login(username: string, password: string, email: string): Promise<void> {
+  async login(
+    username: string,
+    password: string,
+    email: string,
+  ): Promise<void> {
     this._isLoggedIn = true;
   }
 
@@ -43,25 +47,28 @@ export class MockScraper {
     query: string,
     count: number,
     mode: any,
-    cursor?: string
+    cursor?: string,
   ): Promise<{ tweets: Tweet[] }> {
     // If cursor is provided, simulate pagination by returning tweets after that ID
     if (cursor) {
-      const cursorIndex = this.mockTweets.findIndex(t => t.id === cursor);
+      const cursorIndex = this.mockTweets.findIndex((t) => t.id === cursor);
       if (cursorIndex !== -1) {
         return {
-          tweets: this.mockTweets.slice(cursorIndex + 1, cursorIndex + 1 + count)
+          tweets: this.mockTweets.slice(
+            cursorIndex + 1,
+            cursorIndex + 1 + count,
+          ),
         };
       }
     }
-    
+
     return {
-      tweets: this.mockTweets.slice(0, count)
+      tweets: this.mockTweets.slice(0, count),
     };
   }
 
   async getTweet(tweetId: string): Promise<Tweet | null> {
-    return this.mockTweets.find(t => t.id === tweetId) || null;
+    return this.mockTweets.find((t) => t.id === tweetId) || null;
   }
 
   async sendTweet(message: string, replyToId?: string): Promise<Response> {
@@ -71,12 +78,12 @@ export class MockScraper {
           create_tweet: {
             tweet_results: {
               result: {
-                rest_id: `mock-reply-${Date.now()}`
-              }
-            }
-          }
-        }
-      })
+                rest_id: `mock-reply-${Date.now()}`,
+              },
+            },
+          },
+        },
+      }),
     };
     return mockResponse as Response;
   }

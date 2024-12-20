@@ -11,19 +11,33 @@ const mockDb = {
   getDailySubmissionCount: mock<(userId: string) => number>(() => 0),
   saveSubmission: mock<(submission: TwitterSubmission) => void>(() => {}),
   incrementDailySubmissionCount: mock<(userId: string) => void>(() => {}),
-  updateSubmissionAcknowledgment: mock<(tweetId: string, acknowledgmentTweetId: string) => void>(() => {}),
-  getSubmissionByAcknowledgmentTweetId: mock<(acknowledgmentTweetId: string) => TwitterSubmission | null>(() => null),
+  updateSubmissionAcknowledgment: mock<
+    (tweetId: string, acknowledgmentTweetId: string) => void
+  >(() => {}),
+  getSubmissionByAcknowledgmentTweetId: mock<
+    (acknowledgmentTweetId: string) => TwitterSubmission | null
+  >(() => null),
   saveModerationAction: mock<(moderation: any) => void>(() => {}),
-  updateSubmissionStatus: mock<(tweetId: string, status: "approved" | "rejected", responseTweetId: string) => void>(() => {})
+  updateSubmissionStatus: mock<
+    (
+      tweetId: string,
+      status: "approved" | "rejected",
+      responseTweetId: string,
+    ) => void
+  >(() => {}),
 };
 
 // Mock cache functions
 const mockCache = {
   ensureCacheDirectory: mock<() => Promise<void>>(async () => {}),
   getCachedCookies: mock<(username: string) => Promise<any>>(async () => null),
-  cacheCookies: mock<(username: string, cookies: any) => Promise<void>>(async () => {}),
+  cacheCookies: mock<(username: string, cookies: any) => Promise<void>>(
+    async () => {},
+  ),
   getLastCheckedTweetId: mock<() => Promise<string | null>>(async () => null),
-  saveLastCheckedTweetId: mock<(tweetId: string) => Promise<void>>(async () => {})
+  saveLastCheckedTweetId: mock<(tweetId: string) => Promise<void>>(
+    async () => {},
+  ),
 };
 
 // Override imports with mocks
@@ -35,11 +49,11 @@ Object.assign(cache, mockCache);
 describe("TwitterService", () => {
   let twitterService: TwitterService;
   let mockClient: MockScraper;
-  
+
   const mockConfig: TwitterConfig = {
     username: "test_user",
     password: "test_pass",
-    email: "test@example.com"
+    email: "test@example.com",
   };
 
   beforeEach(async () => {
@@ -51,18 +65,18 @@ describe("TwitterService", () => {
     mockDb.getSubmissionByAcknowledgmentTweetId.mockReset();
     mockDb.saveModerationAction.mockReset();
     mockDb.updateSubmissionStatus.mockReset();
-    
+
     mockCache.ensureCacheDirectory.mockReset();
     mockCache.getCachedCookies.mockReset();
     mockCache.cacheCookies.mockReset();
     mockCache.getLastCheckedTweetId.mockReset();
     mockCache.saveLastCheckedTweetId.mockReset();
-    
+
     // Create new service instance
     twitterService = new TwitterService(mockConfig);
     // Get reference to the mock client
     mockClient = (twitterService as any).client;
-    
+
     // Initialize the service
     await twitterService.initialize();
   });
@@ -89,7 +103,7 @@ describe("TwitterService", () => {
           photos: [],
           thread: [],
           urls: [],
-          videos: []
+          videos: [],
         },
         {
           id: "2",
@@ -103,8 +117,8 @@ describe("TwitterService", () => {
           photos: [],
           thread: [],
           urls: [],
-          videos: []
-        }
+          videos: [],
+        },
       ];
 
       // Add original tweets that are being submitted
@@ -120,7 +134,7 @@ describe("TwitterService", () => {
           photos: [],
           thread: [],
           urls: [],
-          videos: []
+          videos: [],
         },
         {
           id: "original2",
@@ -133,19 +147,19 @@ describe("TwitterService", () => {
           photos: [],
           thread: [],
           urls: [],
-          videos: []
-        }
+          videos: [],
+        },
       ];
 
       // Add all tweets to mock client
-      mockTweets.forEach(tweet => mockClient.addMockTweet(tweet));
-      originalTweets.forEach(tweet => mockClient.addMockTweet(tweet));
+      mockTweets.forEach((tweet) => mockClient.addMockTweet(tweet));
+      originalTweets.forEach((tweet) => mockClient.addMockTweet(tweet));
 
       // Start checking mentions
       await twitterService.startMentionsCheck();
 
       // Wait for the first interval check
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify submissions were processed
       expect(mockDb.saveSubmission.mock.calls.length).toBe(2);
@@ -166,7 +180,7 @@ describe("TwitterService", () => {
         photos: [],
         thread: [],
         urls: [],
-        videos: []
+        videos: [],
       };
 
       mockClient.addMockTweet(moderationTweet);
@@ -180,14 +194,14 @@ describe("TwitterService", () => {
         hashtags: [],
         status: "pending",
         moderationHistory: [],
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       }));
 
       // Start checking mentions
       await twitterService.startMentionsCheck();
 
       // Wait for the first interval check
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify moderation was processed
       expect(mockDb.saveModerationAction.mock.calls.length).toBeGreaterThan(0);
@@ -203,18 +217,18 @@ describe("TwitterService", () => {
       mockDb.getDailySubmissionCount.mockImplementation(() => 10);
 
       const mockTweet: Tweet = {
-          id: "1",
-          text: "Hey @test_user !submit",
-          username: "user1",
-          userId: "user1_id",
-          inReplyToStatusId: "original1",
-          timeParsed: new Date(),
-          hashtags: [],
-          mentions: [{ username: "test_user", id: "test_user_id" }],
-          photos: [],
-          thread: [],
-          urls: [],
-          videos: []
+        id: "1",
+        text: "Hey @test_user !submit",
+        username: "user1",
+        userId: "user1_id",
+        inReplyToStatusId: "original1",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [{ username: "test_user", id: "test_user_id" }],
+        photos: [],
+        thread: [],
+        urls: [],
+        videos: [],
       };
 
       mockClient.addMockTweet(mockTweet);
@@ -223,7 +237,7 @@ describe("TwitterService", () => {
       await twitterService.startMentionsCheck();
 
       // Wait for the first interval check
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify submission was not saved
       expect(mockDb.saveSubmission.mock.calls.length).toBe(0);

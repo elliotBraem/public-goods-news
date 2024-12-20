@@ -29,14 +29,16 @@ export default function Settings() {
       setSuccess(true);
       setNewTweetId("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update tweet ID");
+      setError(
+        err instanceof Error ? err.message : "Failed to update tweet ID",
+      );
     }
   };
 
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-8">Settings</h1>
-      
+
       <div className="bg-white p-6 card-shadow">
         <h2 className="text-lg font-semibold mb-4">Last Checked Tweet ID</h2>
         <div className="mb-4">
@@ -48,7 +50,10 @@ export default function Settings() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="tweetId" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="tweetId"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               New Tweet ID
             </label>
             <input
@@ -61,12 +66,12 @@ export default function Settings() {
             />
           </div>
 
-          {error && (
-            <div className="text-red-600 text-sm">{error}</div>
-          )}
+          {error && <div className="text-red-600 text-sm">{error}</div>}
 
           {success && (
-            <div className="text-green-600 text-sm">Successfully updated tweet ID!</div>
+            <div className="text-green-600 text-sm">
+              Successfully updated tweet ID!
+            </div>
           )}
 
           <button

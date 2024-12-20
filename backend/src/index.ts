@@ -62,14 +62,14 @@ export async function main() {
                 const lastTweetId = twitterService.getLastCheckedTweetId();
                 return Response.json({ lastTweetId });
               }
-              
+
               if (req.method === "POST") {
                 try {
-                  const body = await req.json() as Record<string, unknown>;
+                  const body = (await req.json()) as Record<string, unknown>;
                   if (!body?.tweetId || typeof body.tweetId !== "string") {
                     return Response.json(
                       { error: "Invalid tweetId" },
-                      { status: 400 }
+                      { status: 400 },
                     );
                   }
                   await twitterService.setLastCheckedTweetId(body.tweetId);
@@ -77,7 +77,7 @@ export async function main() {
                 } catch (error) {
                   return Response.json(
                     { error: "Invalid JSON payload" },
-                    { status: 400 }
+                    { status: 400 },
                   );
                 }
               }

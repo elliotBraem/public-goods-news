@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import SubmissionList from "./components/SubmissionList";
 import Settings from "./components/Settings";
 import { LiveUpdateProvider } from "./contexts/LiveUpdateContext";
+import LiveStatus from "./components/LiveStatus";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
               <div className="flex items-center space-x-8">
                 <h1 className="text-2xl font-bold">Curation Bot</h1>
               </div>
-              <div className="flex gap-4">
+              <div className="flex items-center gap-4">
+                <LiveStatus />
                 <Link
                   to="/"
                   className="hover:text-gray-600 font-medium transition-colors"
