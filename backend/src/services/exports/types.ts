@@ -20,7 +20,16 @@ export interface RssConfig extends BaseExportConfig {
   maxItems?: number;
 }
 
-export type ExportConfig = TelegramConfig | RssConfig;
+export interface NearConfig extends BaseExportConfig {
+  type: 'near';
+  networkId: string; // e.g., 'mainnet' or 'testnet'
+  nodeUrl: string;
+  contractId: string;
+  accountId: string;
+  privateKey: string;
+}
+
+export type ExportConfig = TelegramConfig | RssConfig | NearConfig;
 
 export interface ExportService {
   name: string;

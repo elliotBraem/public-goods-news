@@ -28,6 +28,20 @@ if (process.env.RSS_ENABLED === "true") {
   });
 }
 
+// Add NEAR export if configured
+if (process.env.NEAR_ENABLED === "true") {
+  exports.push({
+    type: "near",
+    enabled: true,
+    module: "near",
+    networkId: process.env.NEAR_NETWORK_ID!,
+    nodeUrl: process.env.NEAR_NODE_URL || "https://rpc.testnet.near.org",
+    contractId: process.env.NEAR_CONTRACT_ID!,
+    accountId: process.env.NEAR_ACCOUNT_ID!,
+    privateKey: process.env.NEAR_PRIVATE_KEY!
+  });
+}
+
 const config: AppConfig = {
   twitter: {
     username: process.env.TWITTER_USERNAME!,
@@ -64,6 +78,24 @@ export function validateEnv() {
   // Validate RSS config if enabled
   if (process.env.RSS_ENABLED === "true") {
     // RSS has reasonable defaults, so no validation needed
+  }
+
+  // Validate NEAR config if enabled
+  if (process.env.NEAR_ENABLED === "true") {
+    const requiredVars = [
+      "NEAR_NETWORK_ID",
+      "NEAR_CONTRACT_ID",
+      "NEAR_ACCOUNT_ID",
+      "NEAR_PRIVATE_KEY"
+    ];
+    
+    const missingVars = requiredVars.filter(varName => !process.env[varName]);
+    
+    if (missingVars.length > 0) {
+      throw new Error(
+        `NEAR export is enabled but missing required configuration. Please ensure ${missingVars.join(", ")} are set in your environment variables.`
+      );
+    }
   }
 }
 
