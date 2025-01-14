@@ -1,7 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import { moderationHistory, submissionCounts, submissions } from "./schema";
-import { Moderation, TwitterSubmission } from "../../types";
+import { Moderation, TwitterSubmission } from "types/twitter";
 
 export function saveSubmission(
   db: BunSQLiteDatabase,

@@ -2,7 +2,7 @@ import { AppConfig, PluginConfig, PluginsConfig } from "../../types/config";
 import { Plugin, PluginModule } from "./types";
 import { logger } from "../../utils/logger";
 
-export class ExportManager {
+export class DistributionService {
   private plugins: Map<string, Plugin> = new Map();
 
   async initialize(config: PluginsConfig): Promise<void> {
@@ -121,7 +121,7 @@ export class ExportManager {
   }
 
   private async getConfig(): Promise<AppConfig> {
-    const { ConfigService } = await import('../../services/config');
+    const { ConfigService } = await import('../config');
     return ConfigService.getInstance().getConfig();
   }
 

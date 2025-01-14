@@ -1,11 +1,11 @@
 import { ServerWebSocket } from "bun";
 import dotenv from "dotenv";
 import path from "path";
+import { DistributionService } from "services/distribution/distribution.service";
 import configService, { validateEnv } from "./config/config";
 import { db } from "./services/db";
-import { TwitterService } from "./services/twitter/client";
-import { ExportManager } from "./services/exports/manager";
 import { SubmissionService } from "./services/submissions/submission.service";
+import { TwitterService } from "./services/twitter/client";
 import {
   cleanup,
   failSpinner,
@@ -166,18 +166,18 @@ export async function main() {
     await twitterService.initialize();
     succeedSpinner("twitter-init", "Twitter service initialized");
 
-    // Initialize export service
-    startSpinner("export-init", "Initializing export service...");
-    const exportManager = new ExportManager();
+    // Initialize distribution service
+    startSpinner("distribution-init", "Initializing distribution service...");
+    const distributionService = new DistributionService();
     const config = configService.getConfig();
-    await exportManager.initialize(config.plugins);
-    succeedSpinner("export-init", "Export service initialized");
+    await distributionService.initialize(config.plugins);
+    succeedSpinner("distribution-init", "distribution service initialized");
 
     // Initialize submission service
     startSpinner("submission-init", "Initializing submission service...");
     const submissionService = new SubmissionService(
       twitterService,
-      exportManager,
+      distributionService,
       config
     );
     await submissionService.initialize();
@@ -190,7 +190,7 @@ export async function main() {
         await Promise.all([
           twitterService.stop(),
           submissionService.stop(),
-          exportManager.shutdown()
+          distributionService.shutdown()
         ]);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);
@@ -204,7 +204,7 @@ export async function main() {
     logger.info("🚀 Bot is running and ready for events", {
       twitterEnabled: true,
       websocketEnabled: true,
-      exportsEnabled: Object.keys(config.plugins).length > 0,
+      distributionsEnabled: Object.keys(config.plugins).length > 0,
     });
 
     // Start checking for mentions
@@ -216,7 +216,7 @@ export async function main() {
     [
       "env",
       "twitter-init",
-      "export-init",
+      "distribution-init",
       "twitter-mentions",
       "server",
     ].forEach((key) => {

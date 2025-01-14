@@ -1,7 +1,7 @@
+import { DistributionService } from './../distribution/distribution.service';
 import { Tweet } from "agent-twitter-client";
 import { AppConfig } from "../../types/config";
 import { TwitterService } from "../twitter/client";
-import { ExportManager } from "../exports/manager";
 import { db } from "../db";
 import { logger } from "../../utils/logger";
 import { Moderation, TwitterSubmission } from "../../types/twitter";
@@ -14,7 +14,7 @@ export class SubmissionService {
 
   constructor(
     private readonly twitterService: TwitterService,
-    private readonly exportManager: ExportManager,
+    private readonly DistributionService: DistributionService,
     private readonly config: AppConfig
   ) {}
 
@@ -211,7 +211,7 @@ export class SubmissionService {
         );
         
         if (feed) {
-          await this.exportManager.processStreamOutput(feed.id, submission.content);
+          await this.DistributionService.processStreamOutput(feed.id, submission.content);
         }
       } catch (error) {
         logger.error("Failed to process approved submission:", error);
