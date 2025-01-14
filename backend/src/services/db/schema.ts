@@ -11,7 +11,7 @@ export const submissions = table("submissions", {
   acknowledgmentTweetId: text("acknowledgment_tweet_id"),
   moderationResponseTweetId: text("moderation_response_tweet_id"),
   createdAt: text("created_at").notNull(),
-  submittedAt: text("submitted_at")
+  submittedAt: text("submitted_at"),
 });
 
 export const moderationHistory = table("moderation_history", {
@@ -23,20 +23,20 @@ export const moderationHistory = table("moderation_history", {
   action: text("action").notNull(),
   timestamp: text("timestamp").notNull(),
   note: text("note"),
-  categories: text("categories")
+  categories: text("categories"),
 });
 
 export const submissionCounts = table("submission_counts", {
   userId: text("user_id").primaryKey(),
   count: integer("count").notNull().default(0),
-  lastResetDate: text("last_reset_date").notNull()
+  lastResetDate: text("last_reset_date").notNull(),
 });
 
 // Indexes
 export const submissionCountsDateIndex = table("idx_submission_counts_date", {
-  lastResetDate: text("last_reset_date")
+  lastResetDate: text("last_reset_date"),
 });
 
 export const submissionAckIndex = table("idx_acknowledgment_tweet_id", {
-  acknowledgmentTweetId: text("acknowledgment_tweet_id")
+  acknowledgmentTweetId: text("acknowledgment_tweet_id"),
 });

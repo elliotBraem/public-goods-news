@@ -3,29 +3,39 @@ import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import { moderationHistory, submissionCounts, submissions } from "./schema";
 import { Moderation, TwitterSubmission } from "../../types";
 
-export function saveSubmission(db: BunSQLiteDatabase, submission: TwitterSubmission) {
+export function saveSubmission(
+  db: BunSQLiteDatabase,
+  submission: TwitterSubmission,
+) {
   return db.insert(submissions).values({
     tweetId: submission.tweetId,
     userId: submission.userId,
     username: submission.username,
     content: submission.content,
     description: submission.description,
-    categories: submission.categories ? JSON.stringify(submission.categories) : null,
+    categories: submission.categories
+      ? JSON.stringify(submission.categories)
+      : null,
     status: submission.status,
     acknowledgmentTweetId: submission.acknowledgmentTweetId,
     createdAt: submission.createdAt,
-    submittedAt: submission.submittedAt
+    submittedAt: submission.submittedAt,
   });
 }
 
-export function saveModerationAction(db: BunSQLiteDatabase, moderation: Moderation) {
+export function saveModerationAction(
+  db: BunSQLiteDatabase,
+  moderation: Moderation,
+) {
   return db.insert(moderationHistory).values({
     tweetId: moderation.tweetId,
     adminId: moderation.adminId,
     action: moderation.action,
     timestamp: moderation.timestamp.toISOString(),
     note: moderation.note,
-    categories: moderation.categories ? JSON.stringify(moderation.categories) : null
+    categories: moderation.categories
+      ? JSON.stringify(moderation.categories)
+      : null,
   });
 }
 
@@ -33,13 +43,13 @@ export function updateSubmissionStatus(
   db: BunSQLiteDatabase,
   tweetId: string,
   status: TwitterSubmission["status"],
-  moderationResponseTweetId: string
+  moderationResponseTweetId: string,
 ) {
   return db
     .update(submissions)
     .set({
       status,
-      moderationResponseTweetId
+      moderationResponseTweetId,
     })
     .where(eq(submissions.tweetId, tweetId));
 }
@@ -59,7 +69,10 @@ type DbSubmission = {
   moderationHistory: string;
 };
 
-export function getSubmission(db: BunSQLiteDatabase, tweetId: string): TwitterSubmission | null {
+export function getSubmission(
+  db: BunSQLiteDatabase,
+  tweetId: string,
+): TwitterSubmission | null {
   const result = db
     .select({
       tweetId: submissions.tweetId,
@@ -82,10 +95,13 @@ export function getSubmission(db: BunSQLiteDatabase, tweetId: string): TwitterSu
           'note', ${moderationHistory.note},
           'categories', ${moderationHistory.categories}
         )
-      )`
+      )`,
     })
     .from(submissions)
-    .leftJoin(moderationHistory, eq(submissions.tweetId, moderationHistory.tweetId))
+    .leftJoin(
+      moderationHistory,
+      eq(submissions.tweetId, moderationHistory.tweetId),
+    )
     .where(eq(submissions.tweetId, tweetId))
     .groupBy(submissions.tweetId)
     .get();
@@ -116,7 +132,7 @@ export function getSubmission(db: BunSQLiteDatabase, tweetId: string): TwitterSu
 
 export function getSubmissionByAcknowledgmentTweetId(
   db: BunSQLiteDatabase,
-  acknowledgmentTweetId: string
+  acknowledgmentTweetId: string,
 ): TwitterSubmission | null {
   const result = db
     .select({
@@ -143,10 +159,13 @@ export function getSubmissionByAcknowledgmentTweetId(
             'categories', ${moderationHistory.categories}
           )
         END
-      )`
+      )`,
     })
     .from(submissions)
-    .leftJoin(moderationHistory, eq(submissions.tweetId, moderationHistory.tweetId))
+    .leftJoin(
+      moderationHistory,
+      eq(submissions.tweetId, moderationHistory.tweetId),
+    )
     .where(eq(submissions.acknowledgmentTweetId, acknowledgmentTweetId))
     .groupBy(submissions.tweetId)
     .get();
@@ -201,14 +220,17 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
             'categories', ${moderationHistory.categories}
           )
         END
-      )`
+      )`,
     })
     .from(submissions)
-    .leftJoin(moderationHistory, eq(submissions.tweetId, moderationHistory.tweetId))
+    .leftJoin(
+      moderationHistory,
+      eq(submissions.tweetId, moderationHistory.tweetId),
+    )
     .groupBy(submissions.tweetId)
     .all();
 
-  return results.map(result => ({
+  return results.map((result) => ({
     tweetId: result.tweetId,
     userId: result.userId,
     username: result.username,
@@ -234,7 +256,7 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
 
 export function getSubmissionsByStatus(
   db: BunSQLiteDatabase,
-  status: TwitterSubmission["status"]
+  status: TwitterSubmission["status"],
 ): TwitterSubmission[] {
   const results = db
     .select({
@@ -261,15 +283,18 @@ export function getSubmissionsByStatus(
             'categories', ${moderationHistory.categories}
           )
         END
-      )`
+      )`,
     })
     .from(submissions)
-    .leftJoin(moderationHistory, eq(submissions.tweetId, moderationHistory.tweetId))
+    .leftJoin(
+      moderationHistory,
+      eq(submissions.tweetId, moderationHistory.tweetId),
+    )
     .where(eq(submissions.status, status))
     .groupBy(submissions.tweetId)
     .all();
 
-  return results.map(result => ({
+  return results.map((result) => ({
     tweetId: result.tweetId,
     userId: result.userId,
     username: result.username,
@@ -293,12 +318,16 @@ export function getSubmissionsByStatus(
   }));
 }
 
-export function getDailySubmissionCount(db: BunSQLiteDatabase, userId: string): number {
+export function getDailySubmissionCount(
+  db: BunSQLiteDatabase,
+  userId: string,
+): number {
   const today = new Date().toISOString().split("T")[0];
 
   // Clean up old entries first
-  db.delete(submissionCounts)
-    .where(sql`${submissionCounts.lastResetDate} < ${today}`);
+  db.delete(submissionCounts).where(
+    sql`${submissionCounts.lastResetDate} < ${today}`,
+  );
 
   const result = db
     .select({ count: submissionCounts.count })
@@ -306,22 +335,25 @@ export function getDailySubmissionCount(db: BunSQLiteDatabase, userId: string): 
     .where(
       and(
         eq(submissionCounts.userId, userId),
-        eq(submissionCounts.lastResetDate, today)
-      )
+        eq(submissionCounts.lastResetDate, today),
+      ),
     )
     .get();
 
   return result?.count ?? 0;
 }
 
-export function incrementDailySubmissionCount(db: BunSQLiteDatabase, userId: string): void {
+export function incrementDailySubmissionCount(
+  db: BunSQLiteDatabase,
+  userId: string,
+): void {
   const today = new Date().toISOString().split("T")[0];
 
   db.insert(submissionCounts)
     .values({
       userId,
       count: 1,
-      lastResetDate: today
+      lastResetDate: today,
     })
     .onConflictDoUpdate({
       target: submissionCounts.userId,
@@ -330,8 +362,8 @@ export function incrementDailySubmissionCount(db: BunSQLiteDatabase, userId: str
           WHEN ${submissionCounts.lastResetDate} < ${today} THEN 1
           ELSE ${submissionCounts.count} + 1
         END`,
-        lastResetDate: today
-      }
+        lastResetDate: today,
+      },
     })
     .run();
 }
@@ -339,7 +371,7 @@ export function incrementDailySubmissionCount(db: BunSQLiteDatabase, userId: str
 export function updateSubmissionAcknowledgment(
   db: BunSQLiteDatabase,
   tweetId: string,
-  acknowledgmentTweetId: string
+  acknowledgmentTweetId: string,
 ): void {
   db.update(submissions)
     .set({ acknowledgmentTweetId })

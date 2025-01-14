@@ -31,7 +31,7 @@ export class TwitterService {
 
   constructor(
     config: TwitterConfig,
-    private readonly exportManager?: ExportManager
+    private readonly exportManager?: ExportManager,
   ) {
     this.client = new Scraper();
     this.twitterUsername = config.username;
@@ -294,7 +294,7 @@ export class TwitterService {
         moderationHistory: [],
         createdAt:
           originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
       };
 
       // Save submission to database
@@ -368,9 +368,10 @@ export class TwitterService {
     );
 
     // Extract note: everything in the tweet that's not a hashtag
-    const note = tweet.text
-      ?.replace(/#\w+/g, "") // Remove hashtags
-      .trim() || undefined;
+    const note =
+      tweet.text
+        ?.replace(/#\w+/g, "") // Remove hashtags
+        .trim() || undefined;
 
     const moderation: Moderation = {
       adminId: adminUsername,
@@ -378,7 +379,7 @@ export class TwitterService {
       timestamp: tweet.timeParsed || new Date(),
       tweetId: submission.tweetId, // Use the original submission's tweetId
       categories: categories.length > 0 ? categories : undefined,
-      note: note
+      note: note,
     };
     db.saveModerationAction(moderation);
 
@@ -417,7 +418,10 @@ export class TwitterService {
         try {
           await this.exportManager.handleApprovedSubmission(submission);
         } catch (error) {
-          logger.error("Failed to handle exports for approved submission:", error);
+          logger.error(
+            "Failed to handle exports for approved submission:",
+            error,
+          );
         }
       }
     }

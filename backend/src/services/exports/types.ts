@@ -7,13 +7,13 @@ export interface BaseExportConfig {
 }
 
 export interface TelegramConfig extends BaseExportConfig {
-  type: 'telegram';
+  type: "telegram";
   botToken: string;
   channelId: string;
 }
 
 export interface RssConfig extends BaseExportConfig {
-  type: 'rss';
+  type: "rss";
   title: string;
   description: string;
   feedPath: string;

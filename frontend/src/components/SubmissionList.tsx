@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { TwitterSubmission } from "../types/twitter";
 import { useLiveUpdates } from "../contexts/LiveUpdateContext";
-import { ExternalLink
-  
- } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 const BOT_ID = "test_curation";
 
@@ -33,9 +31,9 @@ const SubmissionList = () => {
   const allCategories = [
     ...new Set([
       ...submissions.flatMap((s) => s.categories || []),
-      ...submissions.flatMap((s) => 
-        s.moderationHistory?.flatMap((m) => m.categories || []) || []
-      )
+      ...submissions.flatMap(
+        (s) => s.moderationHistory?.flatMap((m) => m.categories || []) || [],
+      ),
     ]),
   ].sort();
   const { lastUpdate } = useLiveUpdates();
@@ -48,17 +46,20 @@ const SubmissionList = () => {
           ? "/api/submissions"
           : `/api/submissions?status=${statusFilter}`;
       const response = await axios.get<TwitterSubmission[]>(url);
-      const data = [...response.data].sort((a, b) => 
-        Date.parse(b.submittedAt) - Date.parse(a.submittedAt)
+      const data = [...response.data].sort(
+        (a, b) => Date.parse(b.submittedAt) - Date.parse(a.submittedAt),
       );
 
       // Filter by selected categories if any are selected
       const filteredData =
         selectedCategories.length > 0
           ? data.filter((submission) =>
-              selectedCategories.every((category) =>
-                submission.categories?.includes(category) ||
-                submission.moderationHistory.some((m) => m.categories?.includes(category))
+              selectedCategories.every(
+                (category) =>
+                  submission.categories?.includes(category) ||
+                  submission.moderationHistory.some((m) =>
+                    m.categories?.includes(category),
+                  ),
               ),
             )
           : data;
@@ -89,16 +90,21 @@ const SubmissionList = () => {
       const filteredByCategories =
         selectedCategories.length > 0
           ? filteredByStatus.filter((submission) =>
-              selectedCategories.every((category) =>
-                submission.categories?.includes(category) ||
-                submission.moderationHistory.some((m) => m.categories?.includes(category))
+              selectedCategories.every(
+                (category) =>
+                  submission.categories?.includes(category) ||
+                  submission.moderationHistory.some((m) =>
+                    m.categories?.includes(category),
+                  ),
               ),
             )
           : filteredByStatus;
 
-      setSubmissions([...filteredByCategories].sort((a, b) => 
-        Date.parse(b.submittedAt) - Date.parse(a.submittedAt)
-      ));
+      setSubmissions(
+        [...filteredByCategories].sort(
+          (a, b) => Date.parse(b.submittedAt) - Date.parse(a.submittedAt),
+        ),
+      );
     }
   }, [lastUpdate, statusFilter, selectedCategories]);
 
@@ -238,15 +244,27 @@ const SubmissionList = () => {
                               }
                             </a>
                           </div>
-                          {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.note && (
+                          {submission.moderationHistory?.[
+                            submission.moderationHistory.length - 1
+                          ]?.note && (
                             <div className="text-gray-700">
-                              <span className="font-semibold">Moderation Note:</span>{" "}
-                              {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.note}
+                              <span className="font-semibold">
+                                Moderation Note:
+                              </span>{" "}
+                              {
+                                submission.moderationHistory?.[
+                                  submission.moderationHistory.length - 1
+                                ]?.note
+                              }
                             </div>
                           )}
-                          {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.categories && (
+                          {submission.moderationHistory?.[
+                            submission.moderationHistory.length - 1
+                          ]?.categories && (
                             <div className="flex flex-wrap gap-2">
-                              {submission.moderationHistory?.[submission.moderationHistory.length - 1]?.categories?.map((category) => (
+                              {submission.moderationHistory?.[
+                                submission.moderationHistory.length - 1
+                              ]?.categories?.map((category) => (
                                 <span
                                   key={category}
                                   className="px-2 py-1 bg-blue-100 text-sm rounded-full text-blue-600"
