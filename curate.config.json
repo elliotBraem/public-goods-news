@@ -14,7 +14,7 @@
     },
     "@curatedotfun/gpt-transform": {
       "type": "transformer",
-      "url": "./external/gpt-transofrm"
+      "url": "./external/gpt-transform"
     }
   },
   "feeds": [

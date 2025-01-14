@@ -1,4 +1,4 @@
-import { DistributorPlugin } from "../types";
+import { DistributorPlugin } from "../types/plugin";
 
 export class TelegramPlugin implements DistributorPlugin {
   name = "telegram";

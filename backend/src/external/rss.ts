@@ -1,7 +1,7 @@
-import { DistributorPlugin } from "../types";
 import { writeFile, readFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
+import { DistributorPlugin } from "types/plugin";
 
 export class RssPlugin implements DistributorPlugin {
   name = "rss";

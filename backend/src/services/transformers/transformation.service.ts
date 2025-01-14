@@ -1,5 +1,5 @@
+import { PluginModule, Plugin } from "types/plugin";
 import { AppConfig, PluginConfig, PluginsConfig } from "../../types/config";
-import { Plugin, PluginModule } from "../../types/plugin";
 import { logger } from "../../utils/logger";
 
 export class DistributionService {
