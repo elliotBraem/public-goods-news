@@ -1,0 +1,6 @@
+Next steps:
+
+- [ ] clean up sql, have it be an initial load only and then set up migrations
+- [ ] configure categories to have their own admins
+- [ ] move the config file to the root
+- [ ] get data structure right

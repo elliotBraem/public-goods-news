@@ -22,9 +22,14 @@ if (process.env.RSS_ENABLED === "true") {
     enabled: true,
     module: "rss",
     title: process.env.RSS_TITLE || "Public Goods News",
-    description: process.env.RSS_DESCRIPTION || "Latest approved public goods submissions",
-    feedPath: process.env.RSS_FEED_PATH || path.join(process.cwd(), "public", "feed.xml"),
-    maxItems: process.env.RSS_MAX_ITEMS ? parseInt(process.env.RSS_MAX_ITEMS) : 100,
+    description:
+      process.env.RSS_DESCRIPTION || "Latest approved public goods submissions",
+    feedPath:
+      process.env.RSS_FEED_PATH ||
+      path.join(process.cwd(), "public", "feed.xml"),
+    maxItems: process.env.RSS_MAX_ITEMS
+      ? parseInt(process.env.RSS_MAX_ITEMS)
+      : 100,
   });
 }
 
