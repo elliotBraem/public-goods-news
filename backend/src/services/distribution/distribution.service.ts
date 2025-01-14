@@ -1,6 +1,7 @@
 import { AppConfig, PluginConfig, PluginsConfig } from "../../types/config";
 import { Plugin, PluginModule } from "../../types/plugin";
 import { logger } from "../../utils/logger";
+import { db } from "../db";
 
 export class DistributionService {
   private plugins: Map<string, Plugin> = new Map();
@@ -62,7 +63,7 @@ export class DistributionService {
     }
   }
 
-  async processStreamOutput(feedId: string, content: string): Promise<void> {
+  async processStreamOutput(feedId: string, submissionId: string, content: string): Promise<void> {
     const config = await this.getConfig();
     const feed = config.feeds.find(f => f.id === feedId);
     if (!feed?.outputs.stream?.enabled) {
@@ -71,6 +72,11 @@ export class DistributionService {
 
     const { transform, distribute } = feed.outputs.stream;
 
+    // Stream must have at least one distribution configured
+    if (!distribute?.length) {
+      throw new Error(`Stream output for feed ${feedId} requires at least one distribution configuration`);
+    }
+
     // Transform content if configured
     let processedContent = content;
     if (transform) {
@@ -89,9 +95,17 @@ export class DistributionService {
         dist.config
       );
     }
+    if (!feed?.outputs.recap?.enabled) {
+      // Remove from submission feed after successful distribution if no recap
+      db.removeFromSubmissionFeed(submissionId, feedId);
+    }
   }
 
-  async processRecapOutput(feedId: string, content: string): Promise<void> {
+  // TODO: adjust recap, needs to be called from cron job.
+  // It should take feedId, grab all of the contents currently in queue,
+  // Transform & Distribute
+  // Then clear queue
+  async processRecapOutput(feedId: string): Promise<void> {
     const config = await this.getConfig();
     const feed = config.feeds.find(f => f.id === feedId);
     if (!feed?.outputs.recap?.enabled) {
@@ -100,15 +114,27 @@ export class DistributionService {
 
     const { transform, distribute } = feed.outputs.recap;
 
-    // Transform content if configured
-    let processedContent = content;
-    if (transform) {
-      processedContent = await this.transformContent(
-        transform.plugin,
-        content,
-        transform.config
-      );
+    if (!distribute?.length) {
+      throw new Error(`Recap output for feed ${feedId} requires distribution configuration`);
     }
+
+    if (!transform) {
+      throw new Error(`Recap output for feed ${feedId} requires transform configuration`);
+    }
+
+    // TODO: adjust recap, needs to be called from cron job.
+    // It should take feedId, grab all of the contents currently in queue,
+    // Transform & Distribute
+    // Then remove
+
+    const content = "";
+
+    // Transform content (required for recap)
+    const processedContent = await this.transformContent(
+      transform.plugin,
+      content,
+      transform.config
+    );
 
     // Distribute to all configured outputs
     for (const dist of distribute) {
@@ -118,6 +144,9 @@ export class DistributionService {
         dist.config
       );
     }
+
+    // Remove from submission feed after successful recap
+    // db.removeFromSubmissionFeed(submissionId, feedId);
   }
 
   private async getConfig(): Promise<AppConfig> {

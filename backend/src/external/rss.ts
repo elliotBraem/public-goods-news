@@ -3,7 +3,7 @@ import { existsSync } from "fs";
 import path from "path";
 import { DistributorPlugin } from "types/plugin";
 
-export class RssPlugin implements DistributorPlugin {
+export default class RssPlugin implements DistributorPlugin {
   name = "rss";
   private title: string | null = null;
   private path: string | null = null;
@@ -44,7 +44,6 @@ export class RssPlugin implements DistributorPlugin {
           });
         }
       }
-      console.info("RSS plugin initialized");
     } catch (error) {
       console.error("Failed to initialize RSS plugin:", error);
       throw error;

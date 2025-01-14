@@ -4,7 +4,6 @@ export interface TwitterSubmission {
   username: string;
   content: string;
   description?: string;
-  categories?: string[];
   status: "pending" | "approved" | "rejected";
   moderationHistory: Moderation[];
   acknowledgmentTweetId?: string;
@@ -19,7 +18,6 @@ export interface Moderation {
   timestamp: Date;
   tweetId: string;
   note?: string;
-  categories?: string[];
 }
 
 export interface TwitterConfig {

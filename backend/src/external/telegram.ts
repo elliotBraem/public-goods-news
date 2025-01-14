@@ -1,6 +1,6 @@
 import { DistributorPlugin } from "../types/plugin";
 
-export class TelegramPlugin implements DistributorPlugin {
+export default class TelegramPlugin implements DistributorPlugin {
   name = "telegram";
   private botToken: string | null = null;
   private channelId: string | null = null;
@@ -22,7 +22,6 @@ export class TelegramPlugin implements DistributorPlugin {
       if (!response.ok) {
         throw new Error("Failed to validate Telegram credentials");
       }
-      console.info("Telegram plugin initialized");
     } catch (error) {
       console.error("Failed to initialize Telegram plugin:", error);
       throw error;

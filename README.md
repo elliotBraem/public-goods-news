@@ -219,9 +219,18 @@ TWITTER_EMAIL=your_twitter_email
 
 It will use these credentials to login and cache cookies via [agent-twitter-client](https://github.com/ai16z/agent-twitter-client).
 
+### Configuration
+
+See the [Configuration Documentation](./docs/docs/developers/configuration.md) for detailed information about:
+
+- Feed configuration and structure
+- Stream and recap behavior
+- Plugin system
+- Message queue handling
+
 ### Admin Configuration
 
-Admins are Twitter accounts that have moderation privileges. Configure admin accounts in `backend/src/config/admins.ts`:
+Admins are Twitter accounts that have moderation privileges (Twitter handles without @). Configure admin accounts in `backend/src/config/admins.ts`:
 
 ```typescript
 export const ADMIN_ACCOUNTS: string[] = [

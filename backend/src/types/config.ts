@@ -1,4 +1,5 @@
 export interface GlobalConfig {
+  botId: string;
   defaultStatus: string;
   maxSubmissionsPerUser: number;
 }
@@ -12,10 +13,10 @@ export interface ModerationConfig {
   approvers: {
     twitter: string[];
   };
-  templates: {
-    approve: string;
-    reject: string;
-    acknowledge: string;
+  templates?: {
+    approve?: string;
+    reject?: string;
+    acknowledge?: string;
   };
 }
 
@@ -30,11 +31,16 @@ export interface DistributorConfig {
   plugin: string;
   config: Record<string, string>;
 }
-
-export interface OutputConfig {
+export interface StreamConfig {
   enabled: boolean;
-  schedule?: string;
   transform?: TransformConfig;
+  distribute?: DistributorConfig[];
+}
+
+export interface RecapConfig {
+  enabled: boolean;
+  schedule: string;
+  transform: TransformConfig;
   distribute: DistributorConfig[];
 }
 
@@ -46,8 +52,8 @@ export interface FeedConfig {
   description: string;
   moderation: ModerationConfig;
   outputs: {
-    stream?: OutputConfig;
-    recap?: OutputConfig;
+    stream?: StreamConfig;
+    recap?: RecapConfig;
   };
 }
 

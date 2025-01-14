@@ -10,7 +10,7 @@ export class ConfigService {
 
   private constructor() {
     // Default to local config file path
-    this.configPath = path.resolve(process.cwd(), '../../curate.config.json');
+    this.configPath = path.resolve(process.cwd(), '../curate.config.json');
   }
 
   public static getInstance(): ConfigService {
