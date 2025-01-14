@@ -1,5 +1,6 @@
 {
   "global": {
+    "botId": "{TWITTER_USERNAME}",
     "defaultStatus": "pending",
     "maxSubmissionsPerUser": 5
   },
@@ -30,12 +31,6 @@
       "outputs": {
         "stream": {
           "enabled": true,
-          "transform": {
-            "plugin": "@curatedotfun/gpt-transform",
-            "config": {
-              "prompt": "Format this grant announcement..."
-            }
-          },
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -54,7 +49,7 @@
           ]
         },
         "recap": {
-          "enabled": true,
+          "enabled": false,
           "schedule": "0 0 * * *",
           "transform": {
             "plugin": "@curatedotfun/gpt-transform",
@@ -66,8 +61,8 @@
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
-                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
-                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_CHANNEL_ID}"
               }
             }
           ]
@@ -85,48 +80,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": true,
-          "transform": {
-            "plugin": "@curatedotfun/gpt-transform",
-            "config": {
-              "prompt": "Format this Ethereum update..."
-            }
-          },
-          "distribute": [
-            {
-              "plugin": "@curatedotfun/telegram",
-              "config": {
-                "botToken": "{TELEGRAM_BOT_TOKEN}",
-                "channelId": "{TELEGRAM_CHANNEL_ID}"
-              }
-            },
-            {
-              "plugin": "@curatedotfun/rss",
-              "config": {
-                "title": "This Week in Ethereum",
-                "path": "./public/ethereum.xml"
-              }
-            }
-          ]
-        },
-        "recap": {
-          "enabled": true,
-          "schedule": "0 0 * * 0",
-          "transform": {
-            "plugin": "@curatedotfun/gpt-transform",
-            "config": {
-              "prompt": "./prompts/ethereum_weekly.txt"
-            }
-          },
-          "distribute": [
-            {
-              "plugin": "@curatedotfun/telegram",
-              "config": {
-                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
-                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
-              }
-            }
-          ]
+          "enabled": false
         }
       }
     },
@@ -141,48 +95,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": true,
-          "transform": {
-            "plugin": "@curatedotfun/gpt-transform",
-            "config": {
-              "prompt": "Format this NEAR update..."
-            }
-          },
-          "distribute": [
-            {
-              "plugin": "@curatedotfun/telegram",
-              "config": {
-                "botToken": "{TELEGRAM_BOT_TOKEN}",
-                "channelId": "{TELEGRAM_CHANNEL_ID}"
-              }
-            },
-            {
-              "plugin": "@curatedotfun/rss",
-              "config": {
-                "title": "NEARWEEK",
-                "path": "./public/near.xml"
-              }
-            }
-          ]
-        },
-        "recap": {
-          "enabled": true,
-          "schedule": "0 0 * * 0",
-          "transform": {
-            "plugin": "@curatedotfun/gpt-transform",
-            "config": {
-              "prompt": "./prompts/near_weekly.txt"
-            }
-          },
-          "distribute": [
-            {
-              "plugin": "@curatedotfun/telegram",
-              "config": {
-                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
-                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
-              }
-            }
-          ]
+          "enabled": false
         }
       }
     },
