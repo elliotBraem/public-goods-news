@@ -5,10 +5,10 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Curation Bot</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">curate.fun</h1>
 
   <p>
-    <strong>Bot to curate and to streamline public goods news</strong>
+    <strong>Bot to curate and to streamline to different news feeds</strong>
   </p>
 
 </div>
@@ -81,6 +81,13 @@ The platform supports multiple channels for content distribution:
 - Formatted messages with submission details and source links
 - Real-time updates as content is approved
 - Requires a Telegram bot token and channel ID
+
+
+
+# Futre Features
+- Regular posting of information on regular intervals
+- Creation of content from these feeds, example blogs, articiles
+- Integrating to different channels to post
 
 The export system is extensible - new export types can be added by implementing the ExportService interface in [backend/src/services/exports/types.ts](./backend/src/services/exports/types.ts).
 
