@@ -133,7 +133,6 @@ export class SubmissionService {
         this.config.feeds.some(feed => feed.id === tag.toLowerCase())
       );
 
-
       // If no feeds specified, reject submission
       if (feedIds.length === 0) {
         await this.twitterService.replyToTweet(
@@ -150,7 +149,6 @@ export class SubmissionService {
         userId: originalTweet.userId!,
         username: originalTweet.username!,
         content: originalTweet.text || "",
-        categories: tweet.hashtags || [],
         description: this.extractDescription(tweet),
         status: this.config.global.defaultStatus as "pending" | "approved" | "rejected",
         moderationHistory: [],
@@ -182,7 +180,10 @@ export class SubmissionService {
 
   private async handleModeration(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
-    if (!userId || !tweet.id) return;
+    if (!userId || !tweet.id) {
+      logger.info(`User ${userId} is not admin.`);
+      return;
+    }
 
     if (!this.isAdmin(userId)) {
       logger.info(`User ${userId} is not admin.`);
@@ -210,7 +211,6 @@ export class SubmissionService {
       action,
       timestamp: tweet.timeParsed || new Date(),
       tweetId: submission.tweetId,
-      categories: tweet.hashtags,
       note: this.extractNote(tweet),
     };
 
@@ -235,7 +235,7 @@ export class SubmissionService {
 
       // Process through distribution service for each associated feed
       try {
-        const submissionFeeds = db.getSubmissionFeeds(submission.tweetId);
+        const submissionFeeds = db.getFeedsBySubmission(submission.tweetId);
 
         for (const { feedId } of submissionFeeds) {
           const feed = this.config.feeds.find(f => f.id === feedId);
@@ -284,6 +284,7 @@ export class SubmissionService {
   private extractDescription(tweet: Tweet): string | undefined {
     return tweet.text
       ?.replace(/!submit\s+@\w+/i, "")
+      .replace(new RegExp(`@${tweet.username}`, 'i'), "")
       .replace(/#\w+/g, "")
       .trim() || undefined;
   }
@@ -291,6 +292,8 @@ export class SubmissionService {
   private extractNote(tweet: Tweet): string | undefined {
     return tweet.text
       ?.replace(/#\w+/g, "")
+      .replace(new RegExp(`@${this.config.global.botId}`, 'i'), "")
+      .replace(new RegExp(`@${tweet.username}`, 'i'), "")
       .trim() || undefined;
   }
 

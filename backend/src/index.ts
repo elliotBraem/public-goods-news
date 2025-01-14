@@ -1,6 +1,8 @@
-import { ServerWebSocket } from "bun";
 import dotenv from "dotenv";
 import path from "path";
+import { Elysia } from "elysia";
+import { cors } from "@elysiajs/cors";
+import { swagger } from "@elysiajs/swagger";
 import { DistributionService } from "services/distribution/distribution.service";
 import configService, { validateEnv } from "./config/config";
 import { db } from "./services/db";
@@ -13,18 +15,19 @@ import {
   startSpinner,
   succeedSpinner,
 } from "./utils/logger";
+import { ServerWebSocket } from "bun";
 
 const PORT = Number(process.env.PORT) || 3000;
 
 // Store active WebSocket connections
-const activeConnections = new Set<ServerWebSocket>();
+const activeConnections = new Set();
 
 // Broadcast to all connected clients
 export function broadcastUpdate(data: unknown) {
   const message = JSON.stringify(data);
   activeConnections.forEach((ws) => {
     try {
-      ws.send(message);
+      (ws as ServerWebSocket).send(message);
     } catch (error) {
       logger.error("Error broadcasting to WebSocket client:", error);
       activeConnections.delete(ws);
@@ -40,121 +43,6 @@ export async function main() {
     validateEnv();
     await configService.loadConfig();
     succeedSpinner("env", "Environment variables and config loaded");
-
-    // Initialize services
-    startSpinner("server", "Starting server...");
-
-    const server = Bun.serve({
-      port: PORT,
-      async fetch(req) {
-        const url = new URL(req.url);
-
-        // WebSocket upgrade
-        if (url.pathname === "/ws") {
-          if (server?.upgrade(req)) {
-            return;
-          }
-          return new Response("WebSocket upgrade failed", { status: 500 });
-        }
-
-        // API Routes
-        if (url.pathname.startsWith("/api")) {
-          try {
-            if (url.pathname === "/api/last-tweet-id") {
-              if (req.method === "GET") {
-                const lastTweetId = twitterService.getLastCheckedTweetId();
-                return Response.json({ lastTweetId });
-              }
-
-              if (req.method === "POST") {
-                try {
-                  const body = (await req.json()) as Record<string, unknown>;
-                  if (!body?.tweetId || typeof body.tweetId !== "string") {
-                    return Response.json(
-                      { error: "Invalid tweetId" },
-                      { status: 400 },
-                    );
-                  }
-                  await twitterService.setLastCheckedTweetId(body.tweetId);
-                  return Response.json({ success: true });
-                } catch (error) {
-                  return Response.json(
-                    { error: "Invalid JSON payload" },
-                    { status: 400 },
-                  );
-                }
-              }
-            }
-
-            if (url.pathname === "/api/submissions") {
-              const status = url.searchParams.get("status") as
-                | "pending"
-                | "approved"
-                | "rejected"
-                | null;
-              const submissions = status
-                ? db.getSubmissionsByStatus(status)
-                : db.getAllSubmissions();
-              return Response.json(submissions);
-            }
-
-            const match = url.pathname.match(/^\/api\/submissions\/(.+)$/);
-            if (match) {
-              const tweetId = match[1];
-              const submission = db.getSubmission(tweetId);
-              if (!submission) {
-                return Response.json(
-                  { error: "Submission not found" },
-                  { status: 404 },
-                );
-              }
-              return Response.json(submission);
-            }
-          } catch (error) {
-            return Response.json(
-              { error: "Internal server error" },
-              { status: 500 },
-            );
-          }
-        }
-
-        // Serve static frontend files in production only
-        if (process.env.NODE_ENV === "production") {
-          const filePath = url.pathname === "/" ? "/index.html" : url.pathname;
-          const file = Bun.file(
-            path.join(__dirname, "../../frontend/dist", filePath),
-          );
-          if (await file.exists()) {
-            return new Response(file);
-          }
-          // Fallback to index.html for client-side routing
-          return new Response(
-            Bun.file(path.join(__dirname, "../../frontend/dist/index.html")),
-          );
-        }
-
-        return new Response("Not found", { status: 404 });
-      },
-      websocket: {
-        open: (ws: ServerWebSocket) => {
-          activeConnections.add(ws);
-          logger.debug(
-            `WebSocket client connected. Total connections: ${activeConnections.size}`,
-          );
-        },
-        close: (ws: ServerWebSocket) => {
-          activeConnections.delete(ws);
-          logger.debug(
-            `WebSocket client disconnected. Total connections: ${activeConnections.size}`,
-          );
-        },
-        message: (ws: ServerWebSocket, message: string | Buffer) => {
-          // we don't care about two-way connection yet
-        },
-      },
-    });
-
-    succeedSpinner("server", `Server running on port ${PORT}`);
 
     // Initialize Twitter service
     startSpinner("twitter-init", "Initializing Twitter service...");
@@ -183,6 +71,147 @@ export async function main() {
     await submissionService.initialize();
     succeedSpinner("submission-init", "Submission service initialized");
 
+    // Initialize server
+    startSpinner("server", "Starting server...");
+
+    const app = new Elysia()
+      .use(cors())
+      .use(swagger())
+      // WebSocket handling
+      .ws("/ws", {
+        open: (ws) => {
+          activeConnections.add(ws);
+          logger.debug(
+            `WebSocket client connected. Total connections: ${activeConnections.size}`
+          );
+        },
+        close: (ws) => {
+          activeConnections.delete(ws);
+          logger.debug(
+            `WebSocket client disconnected. Total connections: ${activeConnections.size}`
+          );
+        },
+        message: () => {
+          // we don't care about two-way connection yet
+        },
+      })
+      // API Routes
+      .get("/api/last-tweet-id", () => {
+        const lastTweetId = twitterService.getLastCheckedTweetId();
+        return { lastTweetId };
+      })
+      .post("/api/last-tweet-id", async ({ body }) => {
+        const data = body as Record<string, unknown>;
+        if (!data?.tweetId || typeof data.tweetId !== "string") {
+          throw new Error("Invalid tweetId");
+        }
+        await twitterService.setLastCheckedTweetId(data.tweetId);
+        return { success: true };
+      })
+      .get("/api/submissions", ({ query }) => {
+        const status = query?.status as "pending" | "approved" | "rejected" | null;
+        return status
+          ? db.getSubmissionsByStatus(status)
+          : db.getAllSubmissions();
+      })
+      .get("/api/feed/:hashtagId", ({ params: { hashtagId } }) => {
+        const config = configService.getConfig();
+        const feed = config.feeds.find(f => f.id === hashtagId);
+        if (!feed) {
+          throw new Error(`Feed not found: ${hashtagId}`);
+        }
+
+        return db.getSubmissionsByFeed(hashtagId)
+      })
+      .get("/api/submissions/:hashtagId", ({ params: { hashtagId } }) => {
+        const config = configService.getConfig();
+        const feed = config.feeds.find(f => f.id === hashtagId);
+        if (!feed) {
+          throw new Error(`Feed not found: ${hashtagId}`);
+        }
+        // this should be pending submissions
+        return db.getSubmissionsByFeed(hashtagId);
+      })
+      .get("/api/approved", () => {
+        return db.getSubmissionsByStatus("approved");
+      })
+      .get("/api/content/:contentId", ({ params: { contentId } }) => {
+        const content = db.getContent(contentId);
+        if (!content) {
+          throw new Error(`Content not found: ${contentId}`);
+        }
+        return content;
+      })
+      .get("/api/config/:feedId", ({ params: { feedId } }) => {
+        const config = configService.getConfig();
+        const feed = config.feeds.find(f => f.id === feedId);
+        if (!feed) {
+          throw new Error(`Feed not found: ${feedId}`);
+        }
+        return feed;
+      })
+      .post("/api/feeds/:feedId/process", async ({ params: { feedId } }) => {
+        // Get feed config
+        const config = configService.getConfig();
+        const feed = config.feeds.find(f => f.id === feedId);
+        if (!feed) {
+          throw new Error(`Feed not found: ${feedId}`);
+        }
+
+        // Get approved submissions for this feed
+        const submissions = db.getSubmissionsByFeed(feedId).filter(sub => sub.status === "approved");
+        
+        if (submissions.length === 0) {
+          return { processed: 0 };
+        }
+
+        // Process each submission through stream output
+        let processed = 0;
+        for (const submission of submissions) {
+          try {
+            await distributionService.processStreamOutput(feedId, submission.tweetId, submission.content);
+            processed++;
+          } catch (error) {
+            logger.error(`Error processing submission ${submission.tweetId}:`, error);
+          }
+        }
+
+        return { processed };
+      })
+      // Static file serving in production
+      .get("/*", async ({ request }) => {
+        if (process.env.NODE_ENV === "production") {
+          const url = new URL(request.url);
+          const filePath = url.pathname === "/" ? "/index.html" : url.pathname;
+          const file = Bun.file(
+            path.join(__dirname, "../../frontend/dist", filePath)
+          );
+          if (await file.exists()) {
+            return new Response(file);
+          }
+          // Fallback to index.html for client-side routing
+          return new Response(
+            Bun.file(path.join(__dirname, "../../frontend/dist/index.html"))
+          );
+        }
+        throw new Error("Not found");
+      })
+      .onError(({ error }) => {
+        logger.error("Request error:", error);
+        return new Response(
+          JSON.stringify({ 
+            error: error instanceof Error ? error.message : "Internal server error" 
+          }), 
+          { 
+            status: error instanceof Error && error.message === "Not found" ? 404 : 500,
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      })
+      .listen(PORT);
+
+    succeedSpinner("server", `Server running on port ${PORT}`);
+
     // Handle graceful shutdown
     process.on("SIGINT", async () => {
       startSpinner("shutdown", "Shutting down gracefully...");
@@ -201,11 +230,7 @@ export async function main() {
       }
     });
 
-    logger.info("🚀 Bot is running and ready for events", {
-      twitterEnabled: true,
-      websocketEnabled: true,
-      distributionsEnabled: Object.keys(config.plugins).length > 0,
-    });
+    logger.info("🚀 Bot is running and ready for events");
 
     // Start checking for mentions
     startSpinner("submission-monitor", "Starting submission monitoring...");

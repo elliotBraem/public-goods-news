@@ -1,4 +1,5 @@
 export interface GlobalConfig {
+  botId: string;
   defaultStatus: string;
   maxSubmissionsPerUser: number;
 }

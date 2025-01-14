@@ -1,60 +1,99 @@
-import { integer, sqliteTable as table, text, primaryKey } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, sqliteTable as table, text } from "drizzle-orm/sqlite-core";
 
+// Reusable timestamp columns
+const timestamps = {
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
+};
+
+export const SubmissionStatus = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+} as const;
+
+export type SubmissionStatus = typeof SubmissionStatus[keyof typeof SubmissionStatus];
+
+// Feeds Table
+// Builds according to feeds in curate.config.json
 export const feeds = table("feeds", {
-  id: text("id").primaryKey(),
+  id: text("id").primaryKey(), // (hashtag)
   name: text("name").notNull(),
   description: text("description"),
-  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  ...timestamps,
 });
 
-export const submissions = table("submissions", {
-  tweetId: text("tweet_id").primaryKey(),
-  userId: text("user_id").notNull(),
-  username: text("username").notNull(),
-  content: text("content").notNull(),
-  description: text("description"),
-  categories: text("categories"),
-  status: text("status").notNull().default("pending"),
-  acknowledgmentTweetId: text("acknowledgment_tweet_id"),
-  moderationResponseTweetId: text("moderation_response_tweet_id"),
-  createdAt: text("created_at").notNull(),
-  submittedAt: text("submitted_at"),
-});
+export const submissions = table(
+  "submissions",
+  {
+    tweetId: text("tweet_id").primaryKey(),
+    userId: text("user_id").notNull(),
+    username: text("username").notNull(),
+    content: text("content").notNull(),
+    description: text("description"),
+    status: text("status")
+      .notNull()
+      .$type<SubmissionStatus>()
+      .default(SubmissionStatus.PENDING),
+    acknowledgmentTweetId: text("acknowledgment_tweet_id").unique(),
+    moderationResponseTweetId: text("moderation_response_tweet_id"),
+    submittedAt: text("submitted_at"),
+    ...timestamps,
+  },
+  (submissions) => ([
+    index("submissions_user_id_idx").on(submissions.userId),
+    index("submissions_status_idx").on(submissions.status),
+    index("submissions_acknowledgment_idx").on(
+      submissions.acknowledgmentTweetId
+    ),
+    index("submissions_submitted_at_idx").on(submissions.submittedAt),
+  ])
+);
 
-export const moderationHistory = table("moderation_history", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  tweetId: text("tweet_id")
-    .notNull()
-    .references(() => submissions.tweetId),
-  adminId: text("admin_id").notNull(),
-  action: text("action").notNull(),
-  timestamp: text("timestamp").notNull(),
-  note: text("note"),
-  categories: text("categories"),
-});
+export const submissionFeeds = table(
+  "submission_feeds",
+  {
+    submissionId: text("submission_id")
+      .notNull()
+      .references(() => submissions.tweetId, { onDelete: "cascade" }),
+    feedId: text("feed_id")
+      .notNull()
+      .references(() => feeds.id, { onDelete: "cascade" }),
+    ...timestamps,
+  },
+  (table) => ([
+    primaryKey({ columns: [table.submissionId, table.feedId] }),
+    index("submission_feeds_feed_idx").on(table.feedId)
+  ])
+);
 
-export const submissionCounts = table("submission_counts", {
-  userId: text("user_id").primaryKey(),
-  count: integer("count").notNull().default(0),
-  lastResetDate: text("last_reset_date").notNull(),
-});
+export const moderationHistory = table(
+  "moderation_history",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    tweetId: text("tweet_id")
+      .notNull()
+      .references(() => submissions.tweetId, { onDelete: "cascade" }),
+    adminId: text("admin_id").notNull(),
+    action: text("action").notNull(),
+    note: text("note"),
+    ...timestamps,
+  },
+  (table) => ([
+    index("moderation_history_tweet_idx").on(table.tweetId),
+    index("moderation_history_admin_idx").on(table.adminId),
+  ])
+);
 
-// Indexes
-export const submissionCountsDateIndex = table("idx_submission_counts_date", {
-  lastResetDate: text("last_reset_date"),
-});
-
-export const submissionAckIndex = table("idx_acknowledgment_tweet_id", {
-  acknowledgmentTweetId: text("acknowledgment_tweet_id"),
-});
-
-export const submissionFeeds = table("submission_feeds", {
-  submissionId: text("submission_id")
-    .notNull()
-    .references(() => submissions.tweetId),
-  feedId: text("feed_id")
-    .notNull()
-    .references(() => feeds.id),
-}, (t) => ({
-  pk: primaryKey(t.submissionId, t.feedId),
-}));
+export const submissionCounts = table(
+  "submission_counts",
+  {
+    userId: text("user_id").primaryKey(),
+    count: integer("count").notNull().default(0),
+    lastResetDate: text("last_reset_date").notNull(),
+    ...timestamps,
+  },
+  (table) => ([
+    index("submission_counts_date_idx").on(table.lastResetDate),
+  ])
+);
