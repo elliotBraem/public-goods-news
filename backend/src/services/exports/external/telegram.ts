@@ -1,54 +1,46 @@
-import { ExportService, TelegramConfig } from "../types";
-import { TwitterSubmission } from "../../../types";
+import { DistributorPlugin } from "../types";
 
-export class TelegramExportService implements ExportService {
+export class TelegramPlugin implements DistributorPlugin {
   name = "telegram";
-  private botToken: string;
-  private channelId: string;
+  private botToken: string | null = null;
+  private channelId: string | null = null;
 
-  constructor(config: TelegramConfig) {
-    if (!config.enabled) {
-      throw new Error("Telegram export service is not enabled");
+  async initialize(config: Record<string, string>): Promise<void> {
+    // Validate required config
+    if (!config.botToken || !config.channelId) {
+      throw new Error("Telegram plugin requires botToken and channelId");
     }
+
     this.botToken = config.botToken;
     this.channelId = config.channelId;
-  }
 
-  async initialize(): Promise<void> {
     try {
-      // Validate bot token and channel ID by making a test API call
+      // Validate credentials
       const response = await fetch(
         `https://api.telegram.org/bot${this.botToken}/getChat?chat_id=${this.channelId}`,
       );
       if (!response.ok) {
         throw new Error("Failed to validate Telegram credentials");
       }
-      console.info("Telegram export service initialized");
+      console.info("Telegram plugin initialized");
     } catch (error) {
-      console.error("Failed to initialize Telegram export service:", error);
+      console.error("Failed to initialize Telegram plugin:", error);
       throw error;
     }
   }
 
-  async handleApprovedSubmission(submission: TwitterSubmission): Promise<void> {
-    try {
-      const message = this.formatSubmission(submission);
-      await this.sendMessage(message);
-      console.info(`Exported submission ${submission.tweetId} to Telegram`);
-    } catch (error) {
-      console.error("Failed to export submission to Telegram:", error);
-      throw error;
+  async distribute(content: string): Promise<void> {
+    if (!this.botToken || !this.channelId) {
+      throw new Error("Telegram plugin not initialized");
     }
+
+    const message = this.formatMessage(content);
+    await this.sendMessage(message);
   }
 
-  private formatSubmission(submission: TwitterSubmission): string {
-    const categories = submission.categories?.length
-      ? `\nCategories: ${submission.categories.join(", ")}`
-      : "";
-
-    return `🆕 New Curation\n\n${submission.content}${categories}\n\nBy @${
-      submission.username
-    }\nSource: https://twitter.com/user/status/${submission.tweetId}`;
+  private formatMessage(content: string): string {
+    // TODO
+    return content;
   }
 
   private async sendMessage(text: string): Promise<void> {

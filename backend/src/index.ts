@@ -1,10 +1,11 @@
 import { ServerWebSocket } from "bun";
 import dotenv from "dotenv";
 import path from "path";
-import config, { validateEnv } from "./config/config";
+import configService, { validateEnv } from "./config/config";
 import { db } from "./services/db";
 import { TwitterService } from "./services/twitter/client";
 import { ExportManager } from "./services/exports/manager";
+import { SubmissionService } from "./services/submissions/submission.service";
 import {
   cleanup,
   failSpinner,
@@ -33,11 +34,12 @@ export function broadcastUpdate(data: unknown) {
 
 export async function main() {
   try {
-    // Load environment variables
-    startSpinner("env", "Loading environment variables...");
+    // Load environment variables and config
+    startSpinner("env", "Loading environment variables and config...");
     dotenv.config();
     validateEnv();
-    succeedSpinner("env", "Environment variables loaded");
+    await configService.loadConfig();
+    succeedSpinner("env", "Environment variables and config loaded");
 
     // Initialize services
     startSpinner("server", "Starting server...");
@@ -154,23 +156,42 @@ export async function main() {
 
     succeedSpinner("server", `Server running on port ${PORT}`);
 
+    // Initialize Twitter service
+    startSpinner("twitter-init", "Initializing Twitter service...");
+    const twitterService = new TwitterService({
+      username: process.env.TWITTER_USERNAME!,
+      password: process.env.TWITTER_PASSWORD!,
+      email: process.env.TWITTER_EMAIL!
+    });
+    await twitterService.initialize();
+    succeedSpinner("twitter-init", "Twitter service initialized");
+
     // Initialize export service
     startSpinner("export-init", "Initializing export service...");
     const exportManager = new ExportManager();
-    await exportManager.initialize(config.exports);
+    const config = configService.getConfig();
+    await exportManager.initialize(config.plugins);
     succeedSpinner("export-init", "Export service initialized");
 
-    // Initialize Twitter service after server is running
-    startSpinner("twitter-init", "Initializing Twitter service...");
-    const twitterService = new TwitterService(config.twitter, exportManager);
-    await twitterService.initialize();
-    succeedSpinner("twitter-init", "Twitter service initialized");
+    // Initialize submission service
+    startSpinner("submission-init", "Initializing submission service...");
+    const submissionService = new SubmissionService(
+      twitterService,
+      exportManager,
+      config
+    );
+    await submissionService.initialize();
+    succeedSpinner("submission-init", "Submission service initialized");
 
     // Handle graceful shutdown
     process.on("SIGINT", async () => {
       startSpinner("shutdown", "Shutting down gracefully...");
       try {
-        await Promise.all([twitterService.stop(), exportManager.shutdown()]);
+        await Promise.all([
+          twitterService.stop(),
+          submissionService.stop(),
+          exportManager.shutdown()
+        ]);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);
       } catch (error) {
@@ -183,13 +204,13 @@ export async function main() {
     logger.info("🚀 Bot is running and ready for events", {
       twitterEnabled: true,
       websocketEnabled: true,
-      exportsEnabled: config.exports.length > 0,
+      exportsEnabled: Object.keys(config.plugins).length > 0,
     });
 
     // Start checking for mentions
-    startSpinner("twitter-mentions", "Starting mentions check...");
-    await twitterService.startMentionsCheck();
-    succeedSpinner("twitter-mentions", "Mentions check started");
+    startSpinner("submission-monitor", "Starting submission monitoring...");
+    await submissionService.startMentionsCheck();
+    succeedSpinner("submission-monitor", "Submission monitoring started");
   } catch (error) {
     // Handle any initialization errors
     [

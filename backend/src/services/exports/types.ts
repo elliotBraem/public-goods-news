@@ -1,30 +1,19 @@
-import { TwitterSubmission } from "../../types";
-
-export interface BaseExportConfig {
-  enabled: boolean;
-  type: string;
-  module: string; // Module name (e.g., 'telegram', 'rss')
-}
-
-export interface TelegramConfig extends BaseExportConfig {
-  type: "telegram";
-  botToken: string;
-  channelId: string;
-}
-
-export interface RssConfig extends BaseExportConfig {
-  type: "rss";
-  title: string;
-  description: string;
-  feedPath: string;
-  maxItems?: number;
-}
-
-export type ExportConfig = TelegramConfig | RssConfig;
-
-export interface ExportService {
+export interface DistributorPlugin {
   name: string;
-  initialize(): Promise<void>;
-  handleApprovedSubmission(submission: TwitterSubmission): Promise<void>;
+  initialize(config: Record<string, string>): Promise<void>;
+  distribute(content: string): Promise<void>;
   shutdown?(): Promise<void>;
+}
+
+export interface TransformerPlugin {
+  name: string;
+  initialize(config: Record<string, string>): Promise<void>;
+  transform(content: string): Promise<string>;
+  shutdown?(): Promise<void>;
+}
+
+export type Plugin = DistributorPlugin | TransformerPlugin;
+
+export interface PluginModule {
+  default: new () => Plugin;
 }

@@ -1,0 +1,205 @@
+{
+  "global": {
+    "defaultStatus": "pending",
+    "maxSubmissionsPerUser": 5
+  },
+  "plugins": {
+    "@curatedotfun/telegram": {
+      "type": "distributor",
+      "url": "./external/telegram"
+    },
+    "@curatedotfun/rss": {
+      "type": "distributor",
+      "url": "./external/rss"
+    },
+    "@curatedotfun/gpt-transform": {
+      "type": "transformer",
+      "url": "./external/gpt-transofrm"
+    }
+  },
+  "feeds": [
+    {
+      "id": "grants",
+      "name": "Crypto Grant Wire",
+      "description": "Blockchain grant updates",
+      "moderation": {
+        "approvers": {
+          "twitter": ["plugrel", "sejal_rekhan", "arlery", "karmahq_"]
+        },
+        "templates": {
+          "approve": "Approved grant update: {content}",
+          "reject": "Rejected grant update: {reason}",
+          "acknowledge": ""
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "Format this grant announcement..."
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_CHANNEL_ID}"
+              }
+            },
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "Crypto Grant Wire",
+                "path": "./public/grants.xml"
+              }
+            }
+          ]
+        },
+        "recap": {
+          "enabled": true,
+          "schedule": "0 0 * * *",
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "./prompts/grants_recap.txt"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ethereum",
+      "name": "This Week in Ethereum",
+      "description": "Ethereum ecosystem updates",
+      "moderation": {
+        "approvers": {
+          "twitter": ["owoki"]
+        },
+        "templates": {
+          "approve": "Approved Ethereum update: {content}",
+          "reject": "Rejected Ethereum update: {reason}",
+          "acknowledge": ""
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "Format this Ethereum update..."
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_CHANNEL_ID}"
+              }
+            },
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "This Week in Ethereum",
+                "path": "./public/ethereum.xml"
+              }
+            }
+          ]
+        },
+        "recap": {
+          "enabled": true,
+          "schedule": "0 0 * * 0",
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "./prompts/ethereum_weekly.txt"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "near",
+      "name": "NEARWEEK",
+      "description": "NEAR Protocol updates",
+      "moderation": {
+        "approvers": {
+          "twitter": ["peter", "plugrel", "jarednotjerry1"]
+        },
+        "templates": {
+          "approve": "Approved NEAR update: {content}",
+          "reject": "Rejected NEAR update: {reason}",
+          "acknowledge": ""
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "Format this NEAR update..."
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_CHANNEL_ID}"
+              }
+            },
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "NEARWEEK",
+                "path": "./public/near.xml"
+              }
+            }
+          ]
+        },
+        "recap": {
+          "enabled": true,
+          "schedule": "0 0 * * 0",
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "./prompts/near_weekly.txt"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
