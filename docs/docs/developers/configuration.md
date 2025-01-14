@@ -13,6 +13,7 @@ The application is configured through a `curate.config.json` file that defines g
 ```json
 {
   "global": {
+    "botId": "curation_bot", // handle for twitter bot
     "defaultStatus": "pending",
     "maxSubmissionsPerUser": 5
   }
@@ -46,7 +47,7 @@ Each feed represents a distinct content stream with its own configuration:
 {
   "feeds": [
     {
-      "id": "example",
+      "id": "example", // hashtag
       "name": "Example Feed",
       "description": "Example feed description",
       "moderation": {
@@ -63,7 +64,7 @@ Each feed represents a distinct content stream with its own configuration:
               "prompt": "Format this update..."
             }
           },
-          "distribute": [  // Optional
+          "distribute": [  // Optional (can be processed later, with /api/feed/{feedId}/process)
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
@@ -76,18 +77,18 @@ Each feed represents a distinct content stream with its own configuration:
         "recap": {
           "enabled": true,
           "schedule": "0 0 * * *",
-          "transform": {  // Required for recap
+          "transform": { // Required to summarize
             "plugin": "@curatedotfun/gpt-transform",
             "config": {
               "prompt": "./prompts/recap.txt"
             }
           },
-          "distribute": [
+          "distribute": [ // Required
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
-                "botToken": "{TELEGRAM_RECAP_BOT_TOKEN}",
-                "channelId": "{TELEGRAM_RECAP_CHANNEL_ID}"
+                "botToken": "{TELEGRAM_BOT_TOKEN}", // gets injected by .env
+                "channelId": "{TELEGRAM_CHANNEL_ID}"
               }
             }
           ]
