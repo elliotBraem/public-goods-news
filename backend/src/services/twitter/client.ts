@@ -19,7 +19,7 @@ export class TwitterService {
       username: string;
       password: string;
       email: string;
-    }
+    },
   ) {
     this.client = new Scraper();
     this.twitterUsername = config.username;

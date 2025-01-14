@@ -1,5 +1,5 @@
-import { ConfigService } from '../services/config';
-import { AppConfig } from '../types/config';
+import { ConfigService } from "../services/config";
+import { AppConfig } from "../types/config";
 
 export function validateEnv() {
   // Validate required Twitter credentials

@@ -10,12 +10,12 @@ describe("SubmissionService", () => {
   let submissionService: SubmissionService;
   let mockTwitterService: MockTwitterService;
   let mockDistributionService: MockDistributionService;
-  
+
   const mockConfig: AppConfig = {
     global: {
       botId: "test_bot",
       maxSubmissionsPerUser: 5,
-      defaultStatus: "pending"
+      defaultStatus: "pending",
     },
     feeds: [
       {
@@ -24,15 +24,15 @@ describe("SubmissionService", () => {
         description: "Test feed for unit tests",
         moderation: {
           approvers: {
-            twitter: ["admin1"]
-          }
+            twitter: ["admin1"],
+          },
         },
         outputs: {
           stream: {
             enabled: true,
-            distribute: []
-          }
-        }
+            distribute: [],
+          },
+        },
       },
       {
         id: "test2",
@@ -40,31 +40,31 @@ describe("SubmissionService", () => {
         description: "Second test feed",
         moderation: {
           approvers: {
-            twitter: ["admin1"]
-          }
+            twitter: ["admin1"],
+          },
         },
         outputs: {
           stream: {
             enabled: true,
-            distribute: []
-          }
-        }
-      }
+            distribute: [],
+          },
+        },
+      },
     ],
-    plugins: {} as PluginsConfig
+    plugins: {} as PluginsConfig,
   };
 
   beforeEach(async () => {
     // Reset drizzle mock
-    Object.values(drizzleMock).forEach(mockFn => mockFn.mockReset());
-    
+    Object.values(drizzleMock).forEach((mockFn) => mockFn.mockReset());
+
     // Create fresh instances
     mockTwitterService = new MockTwitterService();
     mockDistributionService = new MockDistributionService();
     submissionService = new SubmissionService(
       mockTwitterService as any,
       mockDistributionService as any,
-      mockConfig
+      mockConfig,
     );
 
     // Setup admin user ID
@@ -92,7 +92,7 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       const submissionTweet: Tweet = {
@@ -107,7 +107,7 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       mockTwitterService.addMockTweet(originalTweet);
@@ -117,12 +117,12 @@ describe("SubmissionService", () => {
       await submissionService.startMentionsCheck();
 
       // Wait for processing
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify submission was saved
       expect(drizzleMock.saveSubmission).toHaveBeenCalledTimes(1);
       expect(drizzleMock.saveSubmissionToFeed).toHaveBeenCalledTimes(1);
-      
+
       const savedSubmissionCall = drizzleMock.saveSubmission.mock.calls[0];
       expect(savedSubmissionCall[0].tweetId).toBe("original1");
       expect(savedSubmissionCall[0].status).toBe("pending");
@@ -141,7 +141,7 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       const submissionTweet: Tweet = {
@@ -156,14 +156,14 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       // First process the submission
       mockTwitterService.addMockTweet(originalTweet);
       mockTwitterService.addMockTweet(submissionTweet);
       await submissionService.startMentionsCheck();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Clear tweets and add moderation tweet
       mockTwitterService.clearMockTweets();
@@ -179,7 +179,7 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       // Setup mocks for moderation
@@ -191,22 +191,24 @@ describe("SubmissionService", () => {
         status: "pending",
         moderationHistory: [],
         createdAt: new Date().toISOString(),
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
       });
 
-      drizzleMock.getFeedsBySubmission.mockResolvedValue([
-        { feedId: "test" }
-      ]);
+      drizzleMock.getFeedsBySubmission.mockResolvedValue([{ feedId: "test" }]);
 
       // Process moderation
       mockTwitterService.addMockTweet(moderationTweet);
       await submissionService.startMentionsCheck();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify first distribution
       expect(mockDistributionService.processedSubmissions.length).toBe(1);
-      expect(mockDistributionService.processedSubmissions[0].submissionId).toBe("original1");
-      expect(mockDistributionService.processedSubmissions[0].feedId).toBe("test");
+      expect(mockDistributionService.processedSubmissions[0].submissionId).toBe(
+        "original1",
+      );
+      expect(mockDistributionService.processedSubmissions[0].feedId).toBe(
+        "test",
+      );
 
       // Now simulate moving back lastCheckedId and reprocessing
       mockTwitterService.clearMockTweets();
@@ -218,7 +220,7 @@ describe("SubmissionService", () => {
       mockTwitterService.addMockTweet(submissionTweet);
       mockTwitterService.addMockTweet(moderationTweet);
       await submissionService.startMentionsCheck();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify no new distributions occurred
       expect(mockDistributionService.processedSubmissions.length).toBe(0);
@@ -237,7 +239,7 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       const submissionTweet: Tweet = {
@@ -252,7 +254,7 @@ describe("SubmissionService", () => {
         photos: [],
         urls: [],
         videos: [],
-        thread: []
+        thread: [],
       };
 
       mockTwitterService.addMockTweet(originalTweet);
@@ -260,7 +262,7 @@ describe("SubmissionService", () => {
 
       // Process submission
       await submissionService.startMentionsCheck();
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Verify submission was saved to both feeds
       expect(drizzleMock.saveSubmissionToFeed).toHaveBeenCalledTimes(2);

@@ -1,13 +1,20 @@
 import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
-import { moderationHistory, submissionCounts, submissions, feeds, submissionFeeds } from "./schema";
+import {
+  moderationHistory,
+  submissionCounts,
+  submissions,
+  feeds,
+  submissionFeeds,
+} from "./schema";
 import { Moderation, TwitterSubmission } from "types/twitter";
 
 export function upsertFeed(
   db: BunSQLiteDatabase,
-  feed: { id: string; name: string; description?: string }
+  feed: { id: string; name: string; description?: string },
 ) {
-  return db.insert(feeds)
+  return db
+    .insert(feeds)
     .values({
       id: feed.id,
       name: feed.name,
@@ -26,9 +33,10 @@ export function upsertFeed(
 export function saveSubmissionToFeed(
   db: BunSQLiteDatabase,
   submissionId: string,
-  feedId: string
+  feedId: string,
 ) {
-  return db.insert(submissionFeeds)
+  return db
+    .insert(submissionFeeds)
     .values({
       submissionId,
       feedId,
@@ -38,14 +46,15 @@ export function saveSubmissionToFeed(
 
 export function getFeedsBySubmission(
   db: BunSQLiteDatabase,
-  submissionId: string
+  submissionId: string,
 ) {
-  return db.select({
-    feedId: submissionFeeds.feedId,
-  })
-  .from(submissionFeeds)
-  .where(eq(submissionFeeds.submissionId, submissionId))
-  .all();
+  return db
+    .select({
+      feedId: submissionFeeds.feedId,
+    })
+    .from(submissionFeeds)
+    .where(eq(submissionFeeds.submissionId, submissionId))
+    .all();
 }
 
 export function saveSubmission(
@@ -321,9 +330,9 @@ export function cleanupOldSubmissionCounts(
   db: BunSQLiteDatabase,
   date: string,
 ) {
-  return db.delete(submissionCounts).where(
-    sql`${submissionCounts.lastResetDate} < ${date}`,
-  );
+  return db
+    .delete(submissionCounts)
+    .where(sql`${submissionCounts.lastResetDate} < ${date}`);
 }
 
 export function getDailySubmissionCount(
@@ -351,7 +360,8 @@ export function incrementDailySubmissionCount(
 ) {
   const today = new Date().toISOString().split("T")[0];
 
-  return db.insert(submissionCounts)
+  return db
+    .insert(submissionCounts)
     .values({
       userId,
       count: 1,
@@ -374,8 +384,9 @@ export function updateSubmissionAcknowledgment(
   tweetId: string,
   acknowledgmentTweetId: string,
 ) {
-  return db.update(submissions)
-    .set({ 
+  return db
+    .update(submissions)
+    .set({
       acknowledgmentTweetId,
       updatedAt: new Date().toISOString(),
     })
@@ -387,12 +398,13 @@ export function removeFromSubmissionFeed(
   submissionId: string,
   feedId: string,
 ) {
-  return db.delete(submissionFeeds)
+  return db
+    .delete(submissionFeeds)
     .where(
       and(
         eq(submissionFeeds.submissionId, submissionId),
-        eq(submissionFeeds.feedId, feedId)
-      )
+        eq(submissionFeeds.feedId, feedId),
+      ),
     );
 }
 
@@ -417,7 +429,7 @@ export function getSubmissionsByFeed(
     .from(submissions)
     .innerJoin(
       submissionFeeds,
-      eq(submissions.tweetId, submissionFeeds.submissionId)
+      eq(submissions.tweetId, submissionFeeds.submissionId),
     )
     .leftJoin(
       moderationHistory,

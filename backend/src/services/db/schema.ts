@@ -1,8 +1,16 @@
-import { index, integer, primaryKey, sqliteTable as table, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  primaryKey,
+  sqliteTable as table,
+  text,
+} from "drizzle-orm/sqlite-core";
 
 // Reusable timestamp columns
 const timestamps = {
-  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
   updatedAt: text("updated_at").$defaultFn(() => new Date().toISOString()),
 };
 
@@ -12,7 +20,8 @@ export const SubmissionStatus = {
   REJECTED: "rejected",
 } as const;
 
-export type SubmissionStatus = typeof SubmissionStatus[keyof typeof SubmissionStatus];
+export type SubmissionStatus =
+  (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
 
 // Feeds Table
 // Builds according to feeds in curate.config.json
@@ -40,14 +49,14 @@ export const submissions = table(
     submittedAt: text("submitted_at"),
     ...timestamps,
   },
-  (submissions) => ([
+  (submissions) => [
     index("submissions_user_id_idx").on(submissions.userId),
     index("submissions_status_idx").on(submissions.status),
     index("submissions_acknowledgment_idx").on(
-      submissions.acknowledgmentTweetId
+      submissions.acknowledgmentTweetId,
     ),
     index("submissions_submitted_at_idx").on(submissions.submittedAt),
-  ])
+  ],
 );
 
 export const submissionFeeds = table(
@@ -61,10 +70,10 @@ export const submissionFeeds = table(
       .references(() => feeds.id, { onDelete: "cascade" }),
     ...timestamps,
   },
-  (table) => ([
+  (table) => [
     primaryKey({ columns: [table.submissionId, table.feedId] }),
-    index("submission_feeds_feed_idx").on(table.feedId)
-  ])
+    index("submission_feeds_feed_idx").on(table.feedId),
+  ],
 );
 
 export const moderationHistory = table(
@@ -79,10 +88,10 @@ export const moderationHistory = table(
     note: text("note"),
     ...timestamps,
   },
-  (table) => ([
+  (table) => [
     index("moderation_history_tweet_idx").on(table.tweetId),
     index("moderation_history_admin_idx").on(table.adminId),
-  ])
+  ],
 );
 
 export const submissionCounts = table(
@@ -93,7 +102,5 @@ export const submissionCounts = table(
     lastResetDate: text("last_reset_date").notNull(),
     ...timestamps,
   },
-  (table) => ([
-    index("submission_counts_date_idx").on(table.lastResetDate),
-  ])
+  (table) => [index("submission_counts_date_idx").on(table.lastResetDate)],
 );

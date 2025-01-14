@@ -19,7 +19,7 @@ export class DistributionService {
   private async loadPlugin(name: string, config: PluginConfig): Promise<void> {
     try {
       // Dynamic import of plugin from URL
-      const module = await import(config.url) as PluginModule;
+      const module = (await import(config.url)) as PluginModule;
       const plugin = new module.default();
 
       // Store the plugin instance
@@ -32,9 +32,13 @@ export class DistributionService {
     }
   }
 
-  async transformContent(pluginName: string, content: string, config: { prompt: string }): Promise<string> {
+  async transformContent(
+    pluginName: string,
+    content: string,
+    config: { prompt: string },
+  ): Promise<string> {
     const plugin = this.plugins.get(pluginName);
-    if (!plugin || !('transform' in plugin)) {
+    if (!plugin || !("transform" in plugin)) {
       throw new Error(`Transformer plugin ${pluginName} not found or invalid`);
     }
 
@@ -42,7 +46,10 @@ export class DistributionService {
       await plugin.initialize(config);
       return await plugin.transform(content);
     } catch (error) {
-      logger.error(`Error transforming content with plugin ${pluginName}:`, error);
+      logger.error(
+        `Error transforming content with plugin ${pluginName}:`,
+        error,
+      );
       throw error;
     }
   }

@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { AppConfig } from '../../types/config';
-import { hydrateConfigValues } from '../../utils/config';
+import fs from "fs/promises";
+import path from "path";
+import { AppConfig } from "../../types/config";
+import { hydrateConfigValues } from "../../utils/config";
 
 export class ConfigService {
   private static instance: ConfigService;
@@ -10,7 +10,7 @@ export class ConfigService {
 
   private constructor() {
     // Default to local config file path
-    this.configPath = path.resolve(process.cwd(), '../curate.config.json');
+    this.configPath = path.resolve(process.cwd(), "../curate.config.json");
   }
 
   public static getInstance(): ConfigService {
@@ -23,7 +23,7 @@ export class ConfigService {
   public async loadConfig(): Promise<AppConfig> {
     try {
       // This could be replaced with an API call in the future
-      const configFile = await fs.readFile(this.configPath, 'utf-8');
+      const configFile = await fs.readFile(this.configPath, "utf-8");
       const parsedConfig = JSON.parse(configFile) as AppConfig;
       const hydratedConfig = hydrateConfigValues(parsedConfig);
       this.config = hydratedConfig;
@@ -36,7 +36,7 @@ export class ConfigService {
 
   public getConfig(): AppConfig {
     if (!this.config) {
-      throw new Error('Config not loaded. Call loadConfig() first.');
+      throw new Error("Config not loaded. Call loadConfig() first.");
     }
     return this.config;
   }
@@ -45,7 +45,7 @@ export class ConfigService {
     this.configPath = path;
   }
 
-   // Switch to a different config (if saving locally, wouldn't work in fly.io container)
+  // Switch to a different config (if saving locally, wouldn't work in fly.io container)
   public async updateConfig(newConfig: AppConfig): Promise<void> {
     // saving this for later
     try {
