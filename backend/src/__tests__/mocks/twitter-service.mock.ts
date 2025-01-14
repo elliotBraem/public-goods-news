@@ -42,12 +42,12 @@ export class MockTwitterService {
   }
 
   async getTweet(tweetId: string): Promise<Tweet | null> {
-    return this.mockTweets.find(t => t.id === tweetId) || null;
+    return this.mockTweets.find((t) => t.id === tweetId) || null;
   }
 
   async fetchAllNewMentions(lastCheckedId: string | null): Promise<Tweet[]> {
     if (!lastCheckedId) return this.mockTweets;
-    const index = this.mockTweets.findIndex(t => t.id === lastCheckedId);
+    const index = this.mockTweets.findIndex((t) => t.id === lastCheckedId);
     if (index === -1) return this.mockTweets;
     return this.mockTweets.slice(index + 1);
   }

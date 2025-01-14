@@ -1,1 +1,1 @@
-export { ConfigService } from './config.service';
+export { ConfigService } from "./config.service";

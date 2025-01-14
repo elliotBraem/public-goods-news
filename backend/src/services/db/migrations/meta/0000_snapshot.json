@@ -105,16 +105,12 @@
       "indexes": {
         "moderation_history_tweet_idx": {
           "name": "moderation_history_tweet_idx",
-          "columns": [
-            "tweet_id"
-          ],
+          "columns": ["tweet_id"],
           "isUnique": false
         },
         "moderation_history_admin_idx": {
           "name": "moderation_history_admin_idx",
-          "columns": [
-            "admin_id"
-          ],
+          "columns": ["admin_id"],
           "isUnique": false
         }
       },
@@ -123,12 +119,8 @@
           "name": "moderation_history_tweet_id_submissions_tweet_id_fk",
           "tableFrom": "moderation_history",
           "tableTo": "submissions",
-          "columnsFrom": [
-            "tweet_id"
-          ],
-          "columnsTo": [
-            "tweet_id"
-          ],
+          "columnsFrom": ["tweet_id"],
+          "columnsTo": ["tweet_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -180,9 +172,7 @@
       "indexes": {
         "submission_counts_date_idx": {
           "name": "submission_counts_date_idx",
-          "columns": [
-            "last_reset_date"
-          ],
+          "columns": ["last_reset_date"],
           "isUnique": false
         }
       },
@@ -226,9 +216,7 @@
       "indexes": {
         "submission_feeds_feed_idx": {
           "name": "submission_feeds_feed_idx",
-          "columns": [
-            "feed_id"
-          ],
+          "columns": ["feed_id"],
           "isUnique": false
         }
       },
@@ -237,12 +225,8 @@
           "name": "submission_feeds_submission_id_submissions_tweet_id_fk",
           "tableFrom": "submission_feeds",
           "tableTo": "submissions",
-          "columnsFrom": [
-            "submission_id"
-          ],
-          "columnsTo": [
-            "tweet_id"
-          ],
+          "columnsFrom": ["submission_id"],
+          "columnsTo": ["tweet_id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -250,22 +234,15 @@
           "name": "submission_feeds_feed_id_feeds_id_fk",
           "tableFrom": "submission_feeds",
           "tableTo": "feeds",
-          "columnsFrom": [
-            "feed_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["feed_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
         "submission_feeds_submission_id_feed_id_pk": {
-          "columns": [
-            "submission_id",
-            "feed_id"
-          ],
+          "columns": ["submission_id", "feed_id"],
           "name": "submission_feeds_submission_id_feed_id_pk"
         }
       },
@@ -357,37 +334,27 @@
       "indexes": {
         "submissions_acknowledgment_tweet_id_unique": {
           "name": "submissions_acknowledgment_tweet_id_unique",
-          "columns": [
-            "acknowledgment_tweet_id"
-          ],
+          "columns": ["acknowledgment_tweet_id"],
           "isUnique": true
         },
         "submissions_user_id_idx": {
           "name": "submissions_user_id_idx",
-          "columns": [
-            "user_id"
-          ],
+          "columns": ["user_id"],
           "isUnique": false
         },
         "submissions_status_idx": {
           "name": "submissions_status_idx",
-          "columns": [
-            "status"
-          ],
+          "columns": ["status"],
           "isUnique": false
         },
         "submissions_acknowledgment_idx": {
           "name": "submissions_acknowledgment_idx",
-          "columns": [
-            "acknowledgment_tweet_id"
-          ],
+          "columns": ["acknowledgment_tweet_id"],
           "isUnique": false
         },
         "submissions_submitted_at_idx": {
           "name": "submissions_submitted_at_idx",
-          "columns": [
-            "submitted_at"
-          ],
+          "columns": ["submitted_at"],
           "isUnique": false
         }
       },

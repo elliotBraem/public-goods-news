@@ -5,7 +5,7 @@ export interface GlobalConfig {
 }
 
 export interface PluginConfig {
-  type: 'distributor' | 'transformer';
+  type: "distributor" | "transformer";
   url: string;
 }
 

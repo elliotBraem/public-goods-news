@@ -49,7 +49,7 @@ export async function main() {
     const twitterService = new TwitterService({
       username: process.env.TWITTER_USERNAME!,
       password: process.env.TWITTER_PASSWORD!,
-      email: process.env.TWITTER_EMAIL!
+      email: process.env.TWITTER_EMAIL!,
     });
     await twitterService.initialize();
     succeedSpinner("twitter-init", "Twitter service initialized");
@@ -66,7 +66,7 @@ export async function main() {
     const submissionService = new SubmissionService(
       twitterService,
       distributionService,
-      config
+      config,
     );
     await submissionService.initialize();
     succeedSpinner("submission-init", "Submission service initialized");
@@ -82,13 +82,13 @@ export async function main() {
         open: (ws) => {
           activeConnections.add(ws);
           logger.debug(
-            `WebSocket client connected. Total connections: ${activeConnections.size}`
+            `WebSocket client connected. Total connections: ${activeConnections.size}`,
           );
         },
         close: (ws) => {
           activeConnections.delete(ws);
           logger.debug(
-            `WebSocket client disconnected. Total connections: ${activeConnections.size}`
+            `WebSocket client disconnected. Total connections: ${activeConnections.size}`,
           );
         },
         message: () => {
@@ -109,23 +109,27 @@ export async function main() {
         return { success: true };
       })
       .get("/api/submissions", ({ query }) => {
-        const status = query?.status as "pending" | "approved" | "rejected" | null;
+        const status = query?.status as
+          | "pending"
+          | "approved"
+          | "rejected"
+          | null;
         return status
           ? db.getSubmissionsByStatus(status)
           : db.getAllSubmissions();
       })
       .get("/api/feed/:hashtagId", ({ params: { hashtagId } }) => {
         const config = configService.getConfig();
-        const feed = config.feeds.find(f => f.id === hashtagId);
+        const feed = config.feeds.find((f) => f.id === hashtagId);
         if (!feed) {
           throw new Error(`Feed not found: ${hashtagId}`);
         }
 
-        return db.getSubmissionsByFeed(hashtagId)
+        return db.getSubmissionsByFeed(hashtagId);
       })
       .get("/api/submissions/:hashtagId", ({ params: { hashtagId } }) => {
         const config = configService.getConfig();
-        const feed = config.feeds.find(f => f.id === hashtagId);
+        const feed = config.feeds.find((f) => f.id === hashtagId);
         if (!feed) {
           throw new Error(`Feed not found: ${hashtagId}`);
         }
@@ -144,7 +148,7 @@ export async function main() {
       })
       .get("/api/config/:feedId", ({ params: { feedId } }) => {
         const config = configService.getConfig();
-        const feed = config.feeds.find(f => f.id === feedId);
+        const feed = config.feeds.find((f) => f.id === feedId);
         if (!feed) {
           throw new Error(`Feed not found: ${feedId}`);
         }
@@ -153,14 +157,16 @@ export async function main() {
       .post("/api/feeds/:feedId/process", async ({ params: { feedId } }) => {
         // Get feed config
         const config = configService.getConfig();
-        const feed = config.feeds.find(f => f.id === feedId);
+        const feed = config.feeds.find((f) => f.id === feedId);
         if (!feed) {
           throw new Error(`Feed not found: ${feedId}`);
         }
 
         // Get approved submissions for this feed
-        const submissions = db.getSubmissionsByFeed(feedId).filter(sub => sub.status === "approved");
-        
+        const submissions = db
+          .getSubmissionsByFeed(feedId)
+          .filter((sub) => sub.status === "approved");
+
         if (submissions.length === 0) {
           return { processed: 0 };
         }
@@ -169,10 +175,17 @@ export async function main() {
         let processed = 0;
         for (const submission of submissions) {
           try {
-            await distributionService.processStreamOutput(feedId, submission.tweetId, submission.content);
+            await distributionService.processStreamOutput(
+              feedId,
+              submission.tweetId,
+              submission.content,
+            );
             processed++;
           } catch (error) {
-            logger.error(`Error processing submission ${submission.tweetId}:`, error);
+            logger.error(
+              `Error processing submission ${submission.tweetId}:`,
+              error,
+            );
           }
         }
 
@@ -184,14 +197,14 @@ export async function main() {
           const url = new URL(request.url);
           const filePath = url.pathname === "/" ? "/index.html" : url.pathname;
           const file = Bun.file(
-            path.join(__dirname, "../../frontend/dist", filePath)
+            path.join(__dirname, "../../frontend/dist", filePath),
           );
           if (await file.exists()) {
             return new Response(file);
           }
           // Fallback to index.html for client-side routing
           return new Response(
-            Bun.file(path.join(__dirname, "../../frontend/dist/index.html"))
+            Bun.file(path.join(__dirname, "../../frontend/dist/index.html")),
           );
         }
         throw new Error("Not found");
@@ -199,13 +212,17 @@ export async function main() {
       .onError(({ error }) => {
         logger.error("Request error:", error);
         return new Response(
-          JSON.stringify({ 
-            error: error instanceof Error ? error.message : "Internal server error" 
-          }), 
-          { 
-            status: error instanceof Error && error.message === "Not found" ? 404 : 500,
-            headers: { "Content-Type": "application/json" }
-          }
+          JSON.stringify({
+            error:
+              error instanceof Error ? error.message : "Internal server error",
+          }),
+          {
+            status:
+              error instanceof Error && error.message === "Not found"
+                ? 404
+                : 500,
+            headers: { "Content-Type": "application/json" },
+          },
         );
       })
       .listen(PORT);
@@ -219,7 +236,7 @@ export async function main() {
         await Promise.all([
           twitterService.stop(),
           submissionService.stop(),
-          distributionService.shutdown()
+          distributionService.shutdown(),
         ]);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);

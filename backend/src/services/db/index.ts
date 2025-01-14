@@ -40,12 +40,14 @@ export class DatabaseService {
     status: TwitterSubmission["status"],
     moderationResponseTweetId: string,
   ): void {
-    queries.updateSubmissionStatus(
-      this.db,
-      tweetId,
-      status,
-      moderationResponseTweetId,
-    ).run();
+    queries
+      .updateSubmissionStatus(
+        this.db,
+        tweetId,
+        status,
+        moderationResponseTweetId,
+      )
+      .run();
     this.notifyUpdate();
   }
 
@@ -87,11 +89,9 @@ export class DatabaseService {
     tweetId: string,
     acknowledgmentTweetId: string,
   ): void {
-    queries.updateSubmissionAcknowledgment(
-      this.db,
-      tweetId,
-      acknowledgmentTweetId,
-    ).run();
+    queries
+      .updateSubmissionAcknowledgment(this.db, tweetId, acknowledgmentTweetId)
+      .run();
     this.notifyUpdate();
   }
 

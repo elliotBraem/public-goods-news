@@ -1,4 +1,4 @@
-import { DistributionService } from './../distribution/distribution.service';
+import { DistributionService } from "./../distribution/distribution.service";
 import { Tweet } from "agent-twitter-client";
 import { AppConfig } from "../../types/config";
 import { TwitterService } from "../twitter/client";
@@ -15,8 +15,8 @@ export class SubmissionService {
   constructor(
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
-    private readonly config: AppConfig
-  ) { }
+    private readonly config: AppConfig,
+  ) {}
 
   async initialize(): Promise<void> {
     // Initialize feeds and admin cache from config
@@ -31,11 +31,15 @@ export class SubmissionService {
       // Cache admin IDs
       for (const handle of feed.moderation.approvers.twitter) {
         try {
-          const userId = await this.twitterService.getUserIdByScreenName(handle);
+          const userId =
+            await this.twitterService.getUserIdByScreenName(handle);
           this.adminIdCache.set(userId, handle);
           logger.info(`Cached admin ID for @${handle}: ${userId}`);
         } catch (error) {
-          logger.error(`Failed to fetch ID for admin handle @${handle}:`, error);
+          logger.error(
+            `Failed to fetch ID for admin handle @${handle}:`,
+            error,
+          );
         }
       }
     }
@@ -60,7 +64,9 @@ export class SubmissionService {
   private async checkMentions(): Promise<void> {
     try {
       logger.info("Checking mentions...");
-      const newTweets = await this.twitterService.fetchAllNewMentions(this.lastCheckedTweetId);
+      const newTweets = await this.twitterService.fetchAllNewMentions(
+        this.lastCheckedTweetId,
+      );
 
       if (newTweets.length === 0) {
         logger.info("No new mentions");
@@ -111,7 +117,9 @@ export class SubmissionService {
     // this could be determined by a flag (using it for feature or bug requests)
     const inReplyToId = tweet.inReplyToStatusId;
     if (!inReplyToId) {
-      logger.error(`Submission tweet ${tweet.id} is not a reply to another tweet`);
+      logger.error(
+        `Submission tweet ${tweet.id} is not a reply to another tweet`,
+      );
       return;
     }
 
@@ -123,7 +131,7 @@ export class SubmissionService {
       if (dailyCount >= maxSubmissions) {
         await this.twitterService.replyToTweet(
           tweet.id,
-          "You've reached your daily submission limit. Please try again tomorrow."
+          "You've reached your daily submission limit. Please try again tomorrow.",
         );
         logger.info(`User ${userId} has reached limit, replied to submission.`);
         return;
@@ -137,15 +145,15 @@ export class SubmissionService {
       }
 
       // Extract feed IDs from hashtags
-      const feedIds = (tweet.hashtags || []).filter(tag =>
-        this.config.feeds.some(feed => feed.id === tag.toLowerCase())
+      const feedIds = (tweet.hashtags || []).filter((tag) =>
+        this.config.feeds.some((feed) => feed.id === tag.toLowerCase()),
       );
 
       // If no feeds specified, reject submission
       if (feedIds.length === 0) {
         await this.twitterService.replyToTweet(
           tweet.id,
-          "Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)"
+          "Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)",
         );
         // ${this.config.feeds.map((it) => `#{it.id}`).join(", ")}
         return;
@@ -158,9 +166,13 @@ export class SubmissionService {
         username: originalTweet.username!,
         content: originalTweet.text || "",
         description: this.extractDescription(tweet),
-        status: this.config.global.defaultStatus as "pending" | "approved" | "rejected",
+        status: this.config.global.defaultStatus as
+          | "pending"
+          | "approved"
+          | "rejected",
         moderationHistory: [],
-        createdAt: originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
+        createdAt:
+          originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
         submittedAt: new Date().toISOString(),
       };
 
@@ -174,12 +186,17 @@ export class SubmissionService {
       // Send acknowledgment
       const acknowledgmentTweetId = await this.twitterService.replyToTweet(
         tweet.id,
-        "Successfully submitted!"
+        "Successfully submitted!",
       );
 
       if (acknowledgmentTweetId) {
-        db.updateSubmissionAcknowledgment(originalTweet.id!, acknowledgmentTweetId);
-        logger.info(`Successfully submitted. Sent reply: ${acknowledgmentTweetId}`);
+        db.updateSubmissionAcknowledgment(
+          originalTweet.id!,
+          acknowledgmentTweetId,
+        );
+        logger.info(
+          `Successfully submitted. Sent reply: ${acknowledgmentTweetId}`,
+        );
       }
     } catch (error) {
       logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
@@ -202,7 +219,8 @@ export class SubmissionService {
     if (!inReplyToId) return;
 
     const submission = db.getSubmissionByAcknowledgmentTweetId(inReplyToId);
-    if (!submission || submission.status !== this.config.global.defaultStatus) return;
+    if (!submission || submission.status !== this.config.global.defaultStatus)
+      return;
 
     const action = this.getModerationAction(tweet);
     if (!action) return;
@@ -232,24 +250,40 @@ export class SubmissionService {
     }
   }
 
-  private async processApproval(tweet: Tweet, submission: TwitterSubmission): Promise<void> {
+  private async processApproval(
+    tweet: Tweet,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     const responseTweetId = await this.twitterService.replyToTweet(
       tweet.id!,
-      "Your submission has been approved!"
+      "Your submission has been approved!",
     );
 
     if (responseTweetId) {
-      db.updateSubmissionStatus(submission.tweetId, "approved", responseTweetId);
+      db.updateSubmissionStatus(
+        submission.tweetId,
+        "approved",
+        responseTweetId,
+      );
 
       // Process through distribution service for each associated feed
       try {
         const submissionFeeds = db.getFeedsBySubmission(submission.tweetId);
 
         for (const { feedId } of submissionFeeds) {
-          const feed = this.config.feeds.find(f => f.id === feedId);
-          if (feed && feed.moderation.approvers.twitter.includes(this.adminIdCache.get(tweet.userId!) || '')) {
+          const feed = this.config.feeds.find((f) => f.id === feedId);
+          if (
+            feed &&
+            feed.moderation.approvers.twitter.includes(
+              this.adminIdCache.get(tweet.userId!) || "",
+            )
+          ) {
             if (feed?.outputs.stream?.enabled) {
-              await this.DistributionService.processStreamOutput(feedId, submission.tweetId, submission.content);
+              await this.DistributionService.processStreamOutput(
+                feedId,
+                submission.tweetId,
+                submission.content,
+              );
             }
           }
         }
@@ -259,14 +293,21 @@ export class SubmissionService {
     }
   }
 
-  private async processRejection(tweet: Tweet, submission: TwitterSubmission): Promise<void> {
+  private async processRejection(
+    tweet: Tweet,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     const responseTweetId = await this.twitterService.replyToTweet(
       tweet.id!,
-      "Your submission has been reviewed and was not accepted."
+      "Your submission has been reviewed and was not accepted.",
     );
 
     if (responseTweetId) {
-      db.updateSubmissionStatus(submission.tweetId, "rejected", responseTweetId);
+      db.updateSubmissionStatus(
+        submission.tweetId,
+        "rejected",
+        responseTweetId,
+      );
     }
   }
 
@@ -275,7 +316,7 @@ export class SubmissionService {
   }
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
-    const hashtags = tweet.hashtags?.map(tag => tag.toLowerCase()) || [];
+    const hashtags = tweet.hashtags?.map((tag) => tag.toLowerCase()) || [];
     if (hashtags.includes("approve")) return "approve";
     if (hashtags.includes("reject")) return "reject";
     return null;
@@ -290,19 +331,23 @@ export class SubmissionService {
   }
 
   private extractDescription(tweet: Tweet): string | undefined {
-    return tweet.text
-      ?.replace(/!submit\s+@\w+/i, "")
-      .replace(new RegExp(`@${tweet.username}`, 'i'), "")
-      .replace(/#\w+/g, "")
-      .trim() || undefined;
+    return (
+      tweet.text
+        ?.replace(/!submit\s+@\w+/i, "")
+        .replace(new RegExp(`@${tweet.username}`, "i"), "")
+        .replace(/#\w+/g, "")
+        .trim() || undefined
+    );
   }
 
   private extractNote(tweet: Tweet): string | undefined {
-    return tweet.text
-      ?.replace(/#\w+/g, "")
-      .replace(new RegExp(`@${this.config.global.botId}`, 'i'), "")
-      .replace(new RegExp(`@${tweet.username}`, 'i'), "")
-      .trim() || undefined;
+    return (
+      tweet.text
+        ?.replace(/#\w+/g, "")
+        .replace(new RegExp(`@${this.config.global.botId}`, "i"), "")
+        .replace(new RegExp(`@${tweet.username}`, "i"), "")
+        .trim() || undefined
+    );
   }
 
   private async setLastCheckedTweetId(tweetId: string) {
