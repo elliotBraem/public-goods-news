@@ -42,7 +42,6 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@libsql/client": "^0.14.0",
     "@types/cors": "^2.8.17",
     "agent-twitter-client": "^0.0.16",
     "cors": "^2.8.5",
