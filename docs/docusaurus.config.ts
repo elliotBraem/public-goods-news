@@ -8,7 +8,7 @@ const config: Config = {
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
-  url: "https://docs.curate.fun",
+  url: "https://docs.curate.press",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -77,7 +77,7 @@ const config: Config = {
           label: "Tutorial",
         },
         {
-          href: "https://curate.fun",
+          href: "https://curate.press",
           label: "Website",
           position: "right",
         },

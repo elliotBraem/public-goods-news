@@ -1,6 +1,6 @@
 # 🎮 curate.fun Landing Page
 
-Welcome to the curate.FUN landing page repository! This is the official website for curate.fun a platform that allow you anyone to create feeds with set approvers that creaste feeds that turn into different content soruces. 
+Welcome to the curate.FUN landing page repository! This is the official website for curate.fun a platform that allow you anyone to create feeds with set approvers that create feeds that turn into different content sources.
 
 ## ✨ Features
 
@@ -54,12 +54,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- [Website](https://curate.fun)
-- [Documentation](https://docs.curate.fun)
+- [Website](https://curate.press)
+- [Documentation](https://docs.curate.press)
 - [Twitter](https://twitter.com/potlock_)
 - [GitHub](https://github.com/potlock/curatedotfun)
 
 ## 🏗 Built by Potlock Protocol
 
 curate.fun is built and maintained by [Potlock Protocol](https://potlock.org).
-
