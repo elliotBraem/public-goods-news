@@ -1,12 +1,13 @@
-import { ExportService, RssConfig } from "../types";
-import { TwitterSubmission } from "../../../types";
 import { writeFile, readFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import path from "path";
+import { DistributorPlugin } from "types/plugin";
 
-export class RssExportService implements ExportService {
+export class RssPlugin implements DistributorPlugin {
   name = "rss";
-  private config: RssConfig;
+  private title: string | null = null;
+  private path: string | null = null;
+  private maxItems: number = 100;
   private items: Array<{
     title: string;
     description: string;
@@ -15,18 +16,21 @@ export class RssExportService implements ExportService {
     guid: string;
   }> = [];
 
-  constructor(config: RssConfig) {
-    if (!config.enabled) {
-      throw new Error("RSS export service is not enabled");
+  async initialize(config: Record<string, string>): Promise<void> {
+    if (!config.title || !config.path) {
+      throw new Error("RSS plugin requires title and path");
     }
-    this.config = config;
-  }
 
-  async initialize(): Promise<void> {
+    this.title = config.title;
+    this.path = config.path;
+    if (config.maxItems) {
+      this.maxItems = parseInt(config.maxItems);
+    }
+
     try {
       // Load existing RSS items if file exists
-      if (existsSync(this.config.feedPath)) {
-        const content = await readFile(this.config.feedPath, "utf-8");
+      if (existsSync(this.path)) {
+        const content = await readFile(this.path, "utf-8");
         const match = content.match(/<item>[\s\S]*?<\/item>/g);
         if (match) {
           this.items = match.map((item) => {
@@ -40,49 +44,39 @@ export class RssExportService implements ExportService {
           });
         }
       }
-      console.info("RSS export service initialized");
+      console.info("RSS plugin initialized");
     } catch (error) {
-      console.error("Failed to initialize RSS export service:", error);
+      console.error("Failed to initialize RSS plugin:", error);
       throw error;
     }
   }
 
-  async handleApprovedSubmission(submission: TwitterSubmission): Promise<void> {
-    try {
-      const item = {
-        title: this.formatTitle(submission),
-        description: submission.content,
-        link: `https://twitter.com/user/status/${submission.tweetId}`,
-        pubDate: new Date(submission.createdAt).toUTCString(),
-        guid: submission.tweetId,
-      };
-
-      this.items.unshift(item);
-      if (this.config.maxItems) {
-        this.items = this.items.slice(0, this.config.maxItems);
-      }
-
-      await this.updateFeed();
-      console.info(`Exported submission ${submission.tweetId} to RSS`);
-    } catch (error) {
-      console.error("Failed to export submission to RSS:", error);
-      throw error;
+  async distribute(content: string): Promise<void> {
+    if (!this.title || !this.path) {
+      throw new Error("RSS plugin not initialized");
     }
-  }
 
-  private formatTitle(submission: TwitterSubmission): string {
-    const categories = submission.categories?.length
-      ? ` [${submission.categories.join(", ")}]`
-      : "";
-    return `New Public Good by @${submission.username}${categories}`;
+    const item = {
+      title: "New Update",
+      description: content,
+      link: "https://twitter.com/", // TODO: Update with actual link
+      pubDate: new Date().toUTCString(),
+      guid: Date.now().toString(),
+    };
+
+    this.items.unshift(item);
+    this.items = this.items.slice(0, this.maxItems);
+
+    await this.updateFeed();
   }
 
   private async updateFeed(): Promise<void> {
+    if (!this.title || !this.path) return;
+
     const feed = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
   <channel>
-    <title>${this.config.title}</title>
-    <description>${this.config.description}</description>
+    <title>${this.title}</title>
     <link>https://twitter.com/</link>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${this.items
@@ -101,9 +95,9 @@ export class RssExportService implements ExportService {
 </rss>`;
 
     // Ensure directory exists
-    const dir = path.dirname(this.config.feedPath);
+    const dir = path.dirname(this.path);
     await mkdir(dir, { recursive: true });
-    await writeFile(this.config.feedPath, feed, "utf-8");
+    await writeFile(this.path, feed, "utf-8");
   }
 
   private escapeXml(unsafe: string): string {

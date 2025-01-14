@@ -1,8 +1,8 @@
 import { Database } from "bun:sqlite";
 import { BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
 import { join } from "node:path";
+import { Moderation, TwitterSubmission } from "types/twitter";
 import { broadcastUpdate } from "../../index";
-import { Moderation, TwitterSubmission } from "../../types";
 import * as queries from "./queries";
 
 export class DatabaseService {

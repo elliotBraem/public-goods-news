@@ -1,10 +1,11 @@
 import { ServerWebSocket } from "bun";
 import dotenv from "dotenv";
 import path from "path";
-import config, { validateEnv } from "./config/config";
+import { DistributionService } from "services/distribution/distribution.service";
+import configService, { validateEnv } from "./config/config";
 import { db } from "./services/db";
+import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
-import { ExportManager } from "./services/exports/manager";
 import {
   cleanup,
   failSpinner,
@@ -33,11 +34,12 @@ export function broadcastUpdate(data: unknown) {
 
 export async function main() {
   try {
-    // Load environment variables
-    startSpinner("env", "Loading environment variables...");
+    // Load environment variables and config
+    startSpinner("env", "Loading environment variables and config...");
     dotenv.config();
     validateEnv();
-    succeedSpinner("env", "Environment variables loaded");
+    await configService.loadConfig();
+    succeedSpinner("env", "Environment variables and config loaded");
 
     // Initialize services
     startSpinner("server", "Starting server...");
@@ -154,23 +156,42 @@ export async function main() {
 
     succeedSpinner("server", `Server running on port ${PORT}`);
 
-    // Initialize export service
-    startSpinner("export-init", "Initializing export service...");
-    const exportManager = new ExportManager();
-    await exportManager.initialize(config.exports);
-    succeedSpinner("export-init", "Export service initialized");
-
-    // Initialize Twitter service after server is running
+    // Initialize Twitter service
     startSpinner("twitter-init", "Initializing Twitter service...");
-    const twitterService = new TwitterService(config.twitter, exportManager);
+    const twitterService = new TwitterService({
+      username: process.env.TWITTER_USERNAME!,
+      password: process.env.TWITTER_PASSWORD!,
+      email: process.env.TWITTER_EMAIL!
+    });
     await twitterService.initialize();
     succeedSpinner("twitter-init", "Twitter service initialized");
+
+    // Initialize distribution service
+    startSpinner("distribution-init", "Initializing distribution service...");
+    const distributionService = new DistributionService();
+    const config = configService.getConfig();
+    await distributionService.initialize(config.plugins);
+    succeedSpinner("distribution-init", "distribution service initialized");
+
+    // Initialize submission service
+    startSpinner("submission-init", "Initializing submission service...");
+    const submissionService = new SubmissionService(
+      twitterService,
+      distributionService,
+      config
+    );
+    await submissionService.initialize();
+    succeedSpinner("submission-init", "Submission service initialized");
 
     // Handle graceful shutdown
     process.on("SIGINT", async () => {
       startSpinner("shutdown", "Shutting down gracefully...");
       try {
-        await Promise.all([twitterService.stop(), exportManager.shutdown()]);
+        await Promise.all([
+          twitterService.stop(),
+          submissionService.stop(),
+          distributionService.shutdown()
+        ]);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);
       } catch (error) {
@@ -183,19 +204,19 @@ export async function main() {
     logger.info("🚀 Bot is running and ready for events", {
       twitterEnabled: true,
       websocketEnabled: true,
-      exportsEnabled: config.exports.length > 0,
+      distributionsEnabled: Object.keys(config.plugins).length > 0,
     });
 
     // Start checking for mentions
-    startSpinner("twitter-mentions", "Starting mentions check...");
-    await twitterService.startMentionsCheck();
-    succeedSpinner("twitter-mentions", "Mentions check started");
+    startSpinner("submission-monitor", "Starting submission monitoring...");
+    await submissionService.startMentionsCheck();
+    succeedSpinner("submission-monitor", "Submission monitoring started");
   } catch (error) {
     // Handle any initialization errors
     [
       "env",
       "twitter-init",
-      "export-init",
+      "distribution-init",
       "twitter-mentions",
       "server",
     ].forEach((key) => {
