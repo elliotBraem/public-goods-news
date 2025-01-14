@@ -13,10 +13,10 @@ export interface ModerationConfig {
   approvers: {
     twitter: string[];
   };
-  templates: {
-    approve: string;
-    reject: string;
-    acknowledge: string;
+  templates?: {
+    approve?: string;
+    reject?: string;
+    acknowledge?: string;
   };
 }
 

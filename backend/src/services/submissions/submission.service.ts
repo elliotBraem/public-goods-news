@@ -48,44 +48,52 @@ export class SubmissionService {
   async startMentionsCheck(): Promise<void> {
     logger.info("Starting submission monitoring...");
 
-    // Check mentions every minute
+    // Do an immediate check
+    await this.checkMentions();
+
+    // Then check mentions every minute
     this.checkInterval = setInterval(async () => {
-      try {
-        logger.info("Checking mentions...");
-        const newTweets = await this.twitterService.fetchAllNewMentions(this.lastCheckedTweetId);
+      await this.checkMentions();
+    }, 60000);
+  }
 
-        if (newTweets.length === 0) {
-          logger.info("No new mentions");
-        } else {
-          logger.info(`Found ${newTweets.length} new mentions`);
+  private async checkMentions(): Promise<void> {
+    try {
+      logger.info("Checking mentions...");
+      const newTweets = await this.twitterService.fetchAllNewMentions(this.lastCheckedTweetId);
 
-          // Process new tweets
-          for (const tweet of newTweets) {
-            if (!tweet.id) continue;
-
-            try {
-              if (this.isSubmission(tweet)) {
-                logger.info(`Received new submission: ${tweet.id}`);
-                await this.handleSubmission(tweet);
-              } else if (this.isModeration(tweet)) {
-                logger.info(`Received new moderation: ${tweet.id}`);
-                await this.handleModeration(tweet);
-              }
-            } catch (error) {
-              logger.error("Error processing tweet:", error);
-            }
-          }
-
-          // Update the last checked tweet ID
-          const latestTweetId = newTweets[newTweets.length - 1].id;
-          if (latestTweetId) {
-            await this.setLastCheckedTweetId(latestTweetId);
-          }
-        }
-      } catch (error) {
-        logger.error("Error checking mentions:", error);
+      if (newTweets.length === 0) {
+        logger.info("No new mentions");
+        return;
       }
-    }, 60000); // Check every minute
+
+      logger.info(`Found ${newTweets.length} new mentions`);
+
+      // Process new tweets
+      for (const tweet of newTweets) {
+        if (!tweet.id) continue;
+
+        try {
+          if (this.isSubmission(tweet)) {
+            logger.info(`Received new submission: ${tweet.id}`);
+            await this.handleSubmission(tweet);
+          } else if (this.isModeration(tweet)) {
+            logger.info(`Received new moderation: ${tweet.id}`);
+            await this.handleModeration(tweet);
+          }
+        } catch (error) {
+          logger.error("Error processing tweet:", error);
+        }
+      }
+
+      // Update the last checked tweet ID
+      const latestTweetId = newTweets[newTweets.length - 1].id;
+      if (latestTweetId) {
+        await this.setLastCheckedTweetId(latestTweetId);
+      }
+    } catch (error) {
+      logger.error("Error checking mentions:", error);
+    }
   }
 
   async stop(): Promise<void> {
