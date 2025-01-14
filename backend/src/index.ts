@@ -170,10 +170,7 @@ export async function main() {
     process.on("SIGINT", async () => {
       startSpinner("shutdown", "Shutting down gracefully...");
       try {
-        await Promise.all([
-          twitterService.stop(),
-          exportManager.shutdown(),
-        ]);
+        await Promise.all([twitterService.stop(), exportManager.shutdown()]);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);
       } catch (error) {
@@ -195,7 +192,13 @@ export async function main() {
     succeedSpinner("twitter-mentions", "Mentions check started");
   } catch (error) {
     // Handle any initialization errors
-    ["env", "twitter-init", "export-init", "twitter-mentions", "server"].forEach((key) => {
+    [
+      "env",
+      "twitter-init",
+      "export-init",
+      "twitter-mentions",
+      "server",
+    ].forEach((key) => {
       failSpinner(key, `Failed during ${key}`);
     });
     logger.error("Startup", error);

@@ -18,7 +18,10 @@ export class ExportManager {
         this.services.push(service);
         logger.info(`Initialized ${service.name} export service`);
       } catch (error) {
-        logger.error(`Failed to initialize ${config.type} export service:`, error);
+        logger.error(
+          `Failed to initialize ${config.type} export service:`,
+          error,
+        );
       }
     }
   }
@@ -27,32 +30,35 @@ export class ExportManager {
     const errors: Error[] = [];
 
     await Promise.all(
-      this.services.map(async service => {
+      this.services.map(async (service) => {
         try {
           await service.handleApprovedSubmission(submission);
         } catch (error) {
           errors.push(error as Error);
           logger.error(`Export error in ${service.name}:`, error);
         }
-      })
+      }),
     );
 
     if (errors.length > 0) {
       throw new Error(
-        `Export errors: ${errors.map(e => e.message).join(", ")}`
+        `Export errors: ${errors.map((e) => e.message).join(", ")}`,
       );
     }
   }
 
   async shutdown(): Promise<void> {
     await Promise.all(
-      this.services.map(async service => {
+      this.services.map(async (service) => {
         try {
           await service.shutdown?.();
         } catch (error) {
-          logger.error(`Error shutting down ${service.name} export service:`, error);
+          logger.error(
+            `Error shutting down ${service.name} export service:`,
+            error,
+          );
         }
-      })
+      }),
     );
   }
 }

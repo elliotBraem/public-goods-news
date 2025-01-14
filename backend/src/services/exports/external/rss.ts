@@ -29,9 +29,10 @@ export class RssExportService implements ExportService {
         const content = await readFile(this.config.feedPath, "utf-8");
         const match = content.match(/<item>[\s\S]*?<\/item>/g);
         if (match) {
-          this.items = match.map(item => {
+          this.items = match.map((item) => {
             const title = item.match(/<title>(.*?)<\/title>/)?.[1] || "";
-            const description = item.match(/<description>(.*?)<\/description>/)?.[1] || "";
+            const description =
+              item.match(/<description>(.*?)<\/description>/)?.[1] || "";
             const link = item.match(/<link>(.*?)<\/link>/)?.[1] || "";
             const pubDate = item.match(/<pubDate>(.*?)<\/pubDate>/)?.[1] || "";
             const guid = item.match(/<guid>(.*?)<\/guid>/)?.[1] || "";
@@ -86,14 +87,14 @@ export class RssExportService implements ExportService {
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${this.items
       .map(
-        item => `
+        (item) => `
     <item>
       <title>${this.escapeXml(item.title)}</title>
       <description>${this.escapeXml(item.description)}</description>
       <link>${item.link}</link>
       <pubDate>${item.pubDate}</pubDate>
       <guid>${item.guid}</guid>
-    </item>`
+    </item>`,
       )
       .join("\n")}
   </channel>

@@ -39,7 +39,12 @@ export class DatabaseService {
     status: TwitterSubmission["status"],
     moderationResponseTweetId: string,
   ): void {
-    queries.updateSubmissionStatus(this.db, tweetId, status, moderationResponseTweetId);
+    queries.updateSubmissionStatus(
+      this.db,
+      tweetId,
+      status,
+      moderationResponseTweetId,
+    );
     this.notifyUpdate();
   }
 
@@ -50,7 +55,10 @@ export class DatabaseService {
   getSubmissionByAcknowledgmentTweetId(
     acknowledgmentTweetId: string,
   ): TwitterSubmission | null {
-    return queries.getSubmissionByAcknowledgmentTweetId(this.db, acknowledgmentTweetId);
+    return queries.getSubmissionByAcknowledgmentTweetId(
+      this.db,
+      acknowledgmentTweetId,
+    );
   }
 
   getAllSubmissions(): TwitterSubmission[] {
@@ -75,7 +83,11 @@ export class DatabaseService {
     tweetId: string,
     acknowledgmentTweetId: string,
   ): void {
-    queries.updateSubmissionAcknowledgment(this.db, tweetId, acknowledgmentTweetId);
+    queries.updateSubmissionAcknowledgment(
+      this.db,
+      tweetId,
+      acknowledgmentTweetId,
+    );
     this.notifyUpdate();
   }
 }

@@ -18,7 +18,7 @@ export class TelegramExportService implements ExportService {
     try {
       // Validate bot token and channel ID by making a test API call
       const response = await fetch(
-        `https://api.telegram.org/bot${this.botToken}/getChat?chat_id=${this.channelId}`
+        `https://api.telegram.org/bot${this.botToken}/getChat?chat_id=${this.channelId}`,
       );
       if (!response.ok) {
         throw new Error("Failed to validate Telegram credentials");
@@ -45,7 +45,7 @@ export class TelegramExportService implements ExportService {
     const categories = submission.categories?.length
       ? `\nCategories: ${submission.categories.join(", ")}`
       : "";
-    
+
     return `🆕 New Curation\n\n${submission.content}${categories}\n\nBy @${
       submission.username
     }\nSource: https://twitter.com/user/status/${submission.tweetId}`;
@@ -64,7 +64,7 @@ export class TelegramExportService implements ExportService {
           text,
           parse_mode: "HTML",
         }),
-      }
+      },
     );
 
     if (!response.ok) {
