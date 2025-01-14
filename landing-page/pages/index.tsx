@@ -75,7 +75,7 @@ export default function Home() {
           content="Curate news directly on socials and turn feeds into regular content."
         />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://curate.fun" />
+        <meta property="og:url" content="https://curate.press" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
@@ -91,14 +91,14 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="canonical" href="https://curate.fun" />
+        <link rel="canonical" href="https://curate.press" />
         <meta httpEquiv="content-language" content="en" />
         <meta name="author" content="Potlock" />
         <meta name="robots" content="index, follow" />
-        <meta property="og:image" content="https://curate.fun/og-image.jpg" />
+        <meta property="og:image" content="https://curate.press/og-image.jpg" />
         <meta
           property="twitter:image"
-          content="https://curate.fun/og-image.jpg"
+          content="https://curate.press/og-image.jpg"
         />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -162,7 +162,7 @@ export default function Home() {
               Twitter
             </Link>
             <Link
-              href="https://docs.curate.fun"
+              href="https://docs.curate.press"
               className="btn text-sm sm:text-base w-[calc(50%-0.5rem)] sm:w-auto"
               target="_blank"
               rel="noopener noreferrer"
