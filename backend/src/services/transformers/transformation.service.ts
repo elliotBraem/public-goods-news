@@ -1,5 +1,5 @@
-import { PluginModule, Plugin } from "types/plugin";
-import { AppConfig, PluginConfig, PluginsConfig } from "../../types/config";
+import { Plugin, PluginModule } from "types/plugin";
+import { PluginConfig, PluginsConfig } from "../../types/config";
 import { logger } from "../../utils/logger";
 
 export class DistributionService {
@@ -21,10 +21,10 @@ export class DistributionService {
       // Dynamic import of plugin from URL
       const module = await import(config.url) as PluginModule;
       const plugin = new module.default();
-      
+
       // Store the plugin instance
       this.plugins.set(name, plugin);
-      
+
       logger.info(`Successfully loaded plugin: ${name}`);
     } catch (error) {
       logger.error(`Error loading plugin ${name}:`, error);
@@ -45,84 +45,6 @@ export class DistributionService {
       logger.error(`Error transforming content with plugin ${pluginName}:`, error);
       throw error;
     }
-  }
-
-  async distributeContent(pluginName: string, content: string, config: Record<string, string>): Promise<void> {
-    const plugin = this.plugins.get(pluginName);
-    if (!plugin || !('distribute' in plugin)) {
-      throw new Error(`Distributor plugin ${pluginName} not found or invalid`);
-    }
-
-    try {
-      await plugin.initialize(config);
-      await plugin.distribute(content);
-    } catch (error) {
-      logger.error(`Error distributing content with plugin ${pluginName}:`, error);
-      throw error;
-    }
-  }
-
-  async processStreamOutput(feedId: string, content: string): Promise<void> {
-    const config = await this.getConfig();
-    const feed = config.feeds.find(f => f.id === feedId);
-    if (!feed?.outputs.stream?.enabled) {
-      return;
-    }
-
-    const { transform, distribute } = feed.outputs.stream;
-
-    // Transform content if configured
-    let processedContent = content;
-    if (transform) {
-      processedContent = await this.transformContent(
-        transform.plugin,
-        content,
-        transform.config
-      );
-    }
-
-    // Distribute to all configured outputs
-    for (const dist of distribute) {
-      await this.distributeContent(
-        dist.plugin,
-        processedContent,
-        dist.config
-      );
-    }
-  }
-
-  async processRecapOutput(feedId: string, content: string): Promise<void> {
-    const config = await this.getConfig();
-    const feed = config.feeds.find(f => f.id === feedId);
-    if (!feed?.outputs.recap?.enabled) {
-      return;
-    }
-
-    const { transform, distribute } = feed.outputs.recap;
-
-    // Transform content if configured
-    let processedContent = content;
-    if (transform) {
-      processedContent = await this.transformContent(
-        transform.plugin,
-        content,
-        transform.config
-      );
-    }
-
-    // Distribute to all configured outputs
-    for (const dist of distribute) {
-      await this.distributeContent(
-        dist.plugin,
-        processedContent,
-        dist.config
-      );
-    }
-  }
-
-  private async getConfig(): Promise<AppConfig> {
-    const { ConfigService } = await import('../config');
-    return ConfigService.getInstance().getConfig();
   }
 
   async shutdown(): Promise<void> {

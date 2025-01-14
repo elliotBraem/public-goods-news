@@ -90,6 +90,23 @@ export class DatabaseService {
     );
     this.notifyUpdate();
   }
+
+  upsertFeed(feed: { id: string; name: string; description?: string }): void {
+    queries.upsertFeed(this.db, feed);
+  }
+
+  saveSubmissionToFeed(submissionId: string, feedId: string): void {
+    queries.saveSubmissionToFeed(this.db, submissionId, feedId);
+  }
+
+  getSubmissionFeeds(submissionId: string): { feedId: string }[] {
+    return queries.getSubmissionFeeds(this.db, submissionId);
+  }
+
+  removeFromSubmissionFeed(submissionId: string, feedId: string): void {
+    queries.removeFromSubmissionFeed(this.db, submissionId, feedId);
+    this.notifyUpdate();
+  }
 }
 
 // Export a singleton instance

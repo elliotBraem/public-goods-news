@@ -1,4 +1,11 @@
-import { integer, sqliteTable as table, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable as table, text, primaryKey } from "drizzle-orm/sqlite-core";
+
+export const feeds = table("feeds", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
 
 export const submissions = table("submissions", {
   tweetId: text("tweet_id").primaryKey(),
@@ -40,3 +47,14 @@ export const submissionCountsDateIndex = table("idx_submission_counts_date", {
 export const submissionAckIndex = table("idx_acknowledgment_tweet_id", {
   acknowledgmentTweetId: text("acknowledgment_tweet_id"),
 });
+
+export const submissionFeeds = table("submission_feeds", {
+  submissionId: text("submission_id")
+    .notNull()
+    .references(() => submissions.tweetId),
+  feedId: text("feed_id")
+    .notNull()
+    .references(() => feeds.id),
+}, (t) => ({
+  pk: primaryKey(t.submissionId, t.feedId),
+}));

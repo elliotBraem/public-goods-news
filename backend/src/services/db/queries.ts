@@ -1,7 +1,52 @@
 import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
-import { moderationHistory, submissionCounts, submissions } from "./schema";
+import { moderationHistory, submissionCounts, submissions, feeds, submissionFeeds } from "./schema";
 import { Moderation, TwitterSubmission } from "types/twitter";
+
+export function upsertFeed(
+  db: BunSQLiteDatabase,
+  feed: { id: string; name: string; description?: string }
+) {
+  return db.insert(feeds)
+    .values({
+      id: feed.id,
+      name: feed.name,
+      description: feed.description,
+      createdAt: new Date().toISOString(),
+    })
+    .onConflictDoUpdate({
+      target: feeds.id,
+      set: {
+        name: feed.name,
+        description: feed.description,
+      },
+    });
+}
+
+export function saveSubmissionToFeed(
+  db: BunSQLiteDatabase,
+  submissionId: string,
+  feedId: string
+) {
+  return db.insert(submissionFeeds)
+    .values({
+      submissionId,
+      feedId,
+    })
+    .onConflictDoNothing();
+}
+
+export function getSubmissionFeeds(
+  db: BunSQLiteDatabase,
+  submissionId: string
+) {
+  return db.select({
+    feedId: submissionFeeds.feedId,
+  })
+  .from(submissionFeeds)
+  .where(eq(submissionFeeds.submissionId, submissionId))
+  .all();
+}
 
 export function saveSubmission(
   db: BunSQLiteDatabase,
@@ -376,5 +421,20 @@ export function updateSubmissionAcknowledgment(
   db.update(submissions)
     .set({ acknowledgmentTweetId })
     .where(eq(submissions.tweetId, tweetId))
+    .run();
+}
+
+export function removeFromSubmissionFeed(
+  db: BunSQLiteDatabase,
+  submissionId: string,
+  feedId: string,
+): void {
+  db.delete(submissionFeeds)
+    .where(
+      and(
+        eq(submissionFeeds.submissionId, submissionId),
+        eq(submissionFeeds.feedId, feedId)
+      )
+    )
     .run();
 }
