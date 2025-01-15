@@ -112,22 +112,22 @@ export default function Home() {
             className="text-4xl sm:text-6xl md:text-8xl mb-4 sm:mb-8 space-x-2 sm:space-x-4 md:space-x-8"
           >
             <SlotEmoji
-              finalEmoji="💸�"
+              finalEmoji="🔖"
               duration={2000}
               interval={150}
               emojiSet={["🔖", "📑", "📚", "📌", "📎"]}
             />
             <SlotEmoji
-              finalEmoji="�"
+              finalEmoji="📸"
               duration={2500}
-              interval={100}
+              interval={150}
               emojiSet={["📷", "🎥", "🎙️", "📹", "📸"]}
             />
             <SlotEmoji
               finalEmoji="🤖"
-              duration={3000}
-              interval={200}
-              emojiSet={["🤖", "🦾", "🔧", "🧠", "⚡"]}
+              duration={2500}
+              interval={150}
+              emojiSet={["🤖", "🦾", "🔧"]}
             />
           </div>
 
