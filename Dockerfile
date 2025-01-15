@@ -30,9 +30,15 @@ RUN bun run build
 FROM oven/bun as production
 WORKDIR /app
 
-# Create directory for mount with correct permissions
-RUN mkdir -p /.data/db /.data/cache && \
-    chown -R bun:bun /.data
+# Install LiteFS dependencies
+RUN apt-get update -y && apt-get install -y ca-certificates fuse3 sqlite3
+
+# Copy LiteFS binary
+COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
+
+# Create directories for mounts with correct permissions
+RUN mkdir -p /litefs /var/lib/litefs /public && \
+    chown -R bun:bun /litefs /var/lib/litefs /public
 
 # Copy only necessary files from builder
 COPY --from=builder --chown=bun:bun /app/package.json /app/bun.lockb /app/turbo.json ./
@@ -41,12 +47,12 @@ COPY --from=builder --chown=bun:bun /app/frontend/dist ./frontend/dist
 COPY --from=builder --chown=bun:bun /app/backend/dist ./backend/dist
 
 # Set environment variables
-ENV DATABASE_URL="file:/.data/db/sqlite.db"
-ENV CACHE_DIR="/.data/cache"
+ENV DATABASE_URL="file:/litefs/db"
+ENV CACHE_DIR="/litefs/cache"
 ENV NODE_ENV="production"
 
 # Expose the port
 EXPOSE 3000
 
-# Start the application using the production start script
-CMD ["bun", "run", "start"]
+# Start LiteFS (runs app with distributed file system for SQLite)
+ENTRYPOINT ["litefs", "mount"]
