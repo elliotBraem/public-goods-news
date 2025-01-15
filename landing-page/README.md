@@ -1,6 +1,6 @@
 # 🎮 curate.fun Landing Page
 
-Welcome to the curate.FUN landing page repository! This is the official website for curate.fun a platform that allow you anyone to create feeds with set approvers that create feeds that turn into different content sources.
+Welcome to the curate.FUN landing page repository! This is the official website for curate.fun, a platform that allows anyone to create feeds with set approvers that turn into different content sources.
 
 ## ✨ Features
 
@@ -21,24 +21,26 @@ Welcome to the curate.FUN landing page repository! This is the official website 
 ## 🚀 Getting Started
 
 1. Clone the repository:
-```bash
-git clone https://github.com/potlock/curatedotfun.git
+   ```bash
+   git clone https://github.com/potlock/curatedotfun.git
+   ```
 
-```
+2. Install Bun:
+   ```bash
+   curl -fsSL https://bun.sh/install | bash && echo 'export PATH="$HOME/.bun/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+   ```
 
-```bash
-# Install dependencies
-npm install
-# or
-yarn install
+3. Install dependencies:
+   ```bash
+   bun install
+   ```
 
-# Run development server
-npm run dev
-# or
-yarn dev
-```
+4. Run the development server:
+   ```bash
+   bun run dev
+   ```
 
-2. Open [http://localhost:3000](http://localhost:3000) in your browser.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📝 Environment Variables
 
@@ -61,4 +63,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🏗 Built by Potlock Protocol
 
-curate.fun is built and maintained by [Potlock Protocol](https://potlock.org).
+curate.fun is built and maintained by [POTLOCK Protocol](https://potlock.org).

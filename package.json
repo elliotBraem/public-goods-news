@@ -17,8 +17,7 @@
   "workspaces": [
     "frontend",
     "backend",
-    "docs",
-    "landing-page"
+    "docs"
   ],
   "devDependencies": {
     "turbo": "latest",
