@@ -87,18 +87,18 @@ export default function Home() {
         />
         <meta
           name="keywords"
-          content="curate, news, socials, content, feeds, curate.fun"
+          content="curate, news, socials, content, feeds, curate.fun, curate press, cryptogrants wire, potlock"
         />
         <link rel="icon" href="/favicon.ico" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="canonical" href="https://curate.press" />
         <meta httpEquiv="content-language" content="en" />
-        <meta name="author" content="Potlock" />
+        <meta name="author" content="POTLOCK" />
         <meta name="robots" content="index, follow" />
-        <meta property="og:image" content="https://curate.press/og-image.jpg" />
+        <meta property="og:image" content="https://curate.press/curatedotfunbannernew.png" />
         <meta
           property="twitter:image"
-          content="https://curate.press/og-image.jpg"
+          content="https://curate.press/curatedotfunbannernew.png"
         />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -137,11 +137,13 @@ export default function Home() {
                 "[curate]",
                 1000,
                 "[curate] news...",
+                800,
+                "[curate] crowdsourced on socials..",
                 1000,
                 "[output] blogs",
-                1000,
+                800,
                 "[output] podcasts",
-                1000,
+                800,
                 "[output] CONTENT",
                 1000,
               ]}
