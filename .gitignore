@@ -48,3 +48,4 @@ next-env.d.ts
 landing-page/yarn.lock
 package-lock.json
 landing-page/bun.lockb
+bun.lockb

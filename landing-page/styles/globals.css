@@ -32,3 +32,71 @@
     display: inline-block;
     animation: spin 0.1s ease-out;
   }
+  @font-face {
+    font-family: 'Londrina Solid';
+    src: url('/fonts/LondrinaSolid-NNS.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  Link, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Londrina Solid', sans-serif;
+  }
+
+  h1 {
+    font-size: 4rem;
+    font-weight: 900;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+  }
+  h4 {
+    font-size: 1rem;
+    font-weight: 900;
+  }
+  h5 {
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+  h6 {
+    font-size: 0.6rem;
+    font-weight: 900;
+  }
+
+/* For WebKit browsers (Chrome, Safari) */
+::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Background of the scrollbar track */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: black; /* Color of the scrollbar thumb */
+  border-radius: 0; /* No rounded corners */
+  border: none; /* No border */
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: black transparent;
+}
+
+@layer base {
+  p, .text-base {
+    font-family: 'Open Sans', sans-serif;
+  }
+}
+
+.typewriter {
+  font-family: 'Londrina Solid', sans-serif;
+}
