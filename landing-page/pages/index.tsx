@@ -138,27 +138,32 @@ export default function Home() {
     {
       emoji: "📰",
       title: "Smart Feed Creation",
-      description: "Build intelligent content feeds that automatically collect and filter posts using advanced AI (powered by ChatGPT, Claude, and Llama)."
+      description: "Build intelligent content feeds that automatically collect and filter posts using advanced AI (powered by ChatGPT, Claude, and Llama).",
+      soon: false
     },
     {
       emoji: "👍",
       title: "Streamlined Approval Workflow",
-      description: "Designated approvers review submissions through an intuitive interface, ensuring quality while maintaining efficiency."
+      description: "Designated approvers review submissions through an intuitive interface, ensuring quality while maintaining efficiency.",
+      soon: false
     },
     {
       emoji: "🔄",
       title: "AI-Powered Content Summaries",
-      description: "Our AI creates engaging recaps and transforms content into multiple formats - from newsletters to podcasts."
+      description: "Our AI creates engaging recaps and transforms content into multiple formats - from newsletters to podcasts.",
+      soon: false
     },
     {
       emoji: "🎙️",
       title: "Multi-Format Publishing",
-      description: "One-click conversion into professional blog posts, curated newsletters, AI-voiced podcasts, and real-time news feeds."
+      description: "One-click conversion into professional blog posts, curated newsletters, AI-voiced podcasts, and real-time news feeds.",
+      soon: true
     },
     {
       emoji: "🚀",
       title: "Incentivized Curation",
-      description: "Coming Soon: Earn tokens for quality content curation, creating a sustainable ecosystem for content creators and curators."
+      description: "Coming Soon: Earn tokens for quality content curation, creating a sustainable ecosystem for content creators and curators.",
+      soon: true
     }
   ];
 
@@ -188,7 +193,7 @@ export default function Home() {
         <meta name="mobile-web-app-capable" content="yes" />
       </Head>
 
-      <header className="flex justify-between items-center p-4 border-b-4 border-black">
+      <header className="sticky top-0 flex justify-between items-center p-4 border-b-4 border-black bg-white z-10">
         <div className="flex items-center">
           <img src="/curatedotfuntransparenticon.png" alt="curate.fun Logo" className="h-8 w-8 mr-2" />
           <div>
@@ -250,7 +255,7 @@ export default function Home() {
           <div className="flex justify-center items-center mb-8 sm:mb-12 border-b-4 border-black w-full">
             <div className="flex-1 p-4 flex justify-center items-center w-full">
               <div
-                id="emojis"
+                id="slot"
                 className="text-4xl sm:text-6xl md:text-8xl space-x-2 sm:space-x-4 md:space-x-8 w-full"
               >
                 <SlotEmoji
@@ -273,21 +278,22 @@ export default function Home() {
                 />
               </div>
             </div>
-            <div className="border-l-4 border-black h-full"></div>
-            <div className="flex-1 p-4 flex justify-center items-center w-full">
+
+
+            <div className="flex-1 p-4 flex justify-center items-center w-full border-l-4 border-black border-r-0 border-t-0 border-b-0">
               <TypeAnimation
                 sequence={[
                   "[curate]",
                   1000,
                   "[curate] news...",
                   800,
-                  "[curate] crowdsourced on socials..",
+                  "[curate] on socials",
                   1000,
-                  "[output] blogs",
+                  "[output] tweets..",
                   800,
                   "[output] podcasts",
                   800,
-                  "[output] CONTENT",
+                  "[output] blogs.",
                   1000,
                 ]}
                 wrapper="div"
@@ -298,11 +304,17 @@ export default function Home() {
             </div>
           </div>
 
+
           <section className="mb-8 sm:mb-12 w-full">
             <h2 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">Key Features</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
               {features.map((feature, index) => (
-                <div key={index} className="card p-4 border-4 border-black shadow-md hover:shadow-lg transform hover:translate-y-[-2px] transition duration-300 w-full">
+                <div key={index} className="card p-4 border-4 border-black shadow-md hover:shadow-lg transform hover:translate-y-[-2px] transition duration-300 w-full relative">
+                  {feature.soon && (
+                    <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+                      <span className="text-2xl font-bold text-gray-500">Soon</span>
+                    </div>
+                  )}
                   <h5 className="text-2xl">{feature.emoji + " " + feature.title}</h5>
                   <p className="mt-2">{feature.description}</p>
                 </div>
@@ -384,7 +396,7 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="mb-8 sm:mb-12 w-full">
+          <section className="mb-8 sm:mb-12 w-full text-center">
             <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">Community Section</h1>
             <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-4 w-full">
               <Link href="https://t.me/+UM70lvMnofk3YTVh" target="_blank" rel="noopener noreferrer" className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center">
