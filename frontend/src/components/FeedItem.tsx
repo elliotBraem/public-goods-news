@@ -11,7 +11,11 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString();
 };
 
-export const StatusBadge = ({ status }: { status: TwitterSubmission["status"] }) => {
+export const StatusBadge = ({
+  status,
+}: {
+  status: TwitterSubmission["status"];
+}) => {
   const baseClasses = "status-badge";
   const statusClasses = {
     pending: "bg-yellow-200 text-black",
@@ -56,7 +60,8 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 {formatDate(submission.createdAt)}
               </span>
             </div>
-            {(submission.status === "approved" || submission.status === "rejected") &&
+            {(submission.status === "approved" ||
+              submission.status === "rejected") &&
               submission.moderationHistory?.length > 0 && (
                 <div className="text-sm space-y-2">
                   <div className="text-gray-600">
@@ -90,7 +95,9 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 </div>
               )}
           </div>
-          <p className="text-lg mb-4 leading-relaxed body-text">{submission.content}</p>
+          <p className="text-lg mb-4 leading-relaxed body-text">
+            {submission.content}
+          </p>
         </div>
         <div className="flex items-end gap-2 flex-col">
           <a
@@ -110,13 +117,10 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
 
       {submission.description && (
         <div className="mb-4">
-          <h4 className="heading-3 mb-1">
-            Curator's Notes:
-          </h4>
+          <h4 className="heading-3 mb-1">Curator's Notes:</h4>
           <p className="body-text">{submission.description}</p>
         </div>
       )}
-
     </div>
   );
 };

@@ -37,11 +37,7 @@ export function deleteTwitterCookies(db: BunSQLiteDatabase, username: string) {
 
 // Twitter Cache Management
 export function getTwitterCacheValue(db: BunSQLiteDatabase, key: string) {
-  return db
-    .select()
-    .from(twitterCache)
-    .where(eq(twitterCache.key, key))
-    .get();
+  return db.select().from(twitterCache).where(eq(twitterCache.key, key)).get();
 }
 
 export function setTwitterCacheValue(

@@ -25,7 +25,7 @@ export class DistributionService {
     try {
       // Dynamic import of plugin from URL
       const module = (await import(config.url)) as PluginModule;
-      
+
       // Create plugin instance with database operations if needed
       const plugin = new module.default(db.getOperations());
 
@@ -130,7 +130,7 @@ export class DistributionService {
         feedId,
         dist.plugin,
         processedContent,
-        dist.config
+        dist.config,
       );
     }
     if (!feed?.outputs.recap?.enabled) {
@@ -180,7 +180,12 @@ export class DistributionService {
 
     // Distribute to all configured outputs
     for (const dist of distribute) {
-      await this.distributeContent(feedId, dist.plugin, processedContent, dist.config);
+      await this.distributeContent(
+        feedId,
+        dist.plugin,
+        processedContent,
+        dist.config,
+      );
     }
 
     // Remove from submission feed after successful recap

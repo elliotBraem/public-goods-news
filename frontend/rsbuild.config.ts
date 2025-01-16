@@ -1,11 +1,11 @@
-import { defineConfig } from '@rsbuild/core';
-import { pluginReact } from '@rsbuild/plugin-react';
-import { TanStackRouterRspack } from '@tanstack/router-plugin/rspack';
+import { defineConfig } from "@rsbuild/core";
+import { pluginReact } from "@rsbuild/plugin-react";
+import { TanStackRouterRspack } from "@tanstack/router-plugin/rspack";
 
 export default defineConfig({
   plugins: [pluginReact()],
   html: {
-    template: './index.html',
+    template: "./index.html",
   },
   tools: {
     rspack: {
@@ -14,9 +14,9 @@ export default defineConfig({
         rules: [
           {
             test: /\.(woff|woff2|eot|ttf|otf)$/i,
-            type: 'asset/resource',
+            type: "asset/resource",
             generator: {
-              filename: 'fonts/[name][ext]',
+              filename: "fonts/[name][ext]",
             },
           },
         ],
@@ -25,12 +25,12 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
+      "/api": {
+        target: "http://localhost:3000",
         secure: false,
         changeOrigin: true,
-        ws: true
-      }
-    }
-  }
-})
+        ws: true,
+      },
+    },
+  },
+});

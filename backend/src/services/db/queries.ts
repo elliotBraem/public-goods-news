@@ -7,7 +7,7 @@ import {
   moderationHistory,
   submissionCounts,
   submissionFeeds,
-  submissions
+  submissions,
 } from "./schema";
 
 export function upsertFeed(
@@ -173,11 +173,11 @@ export function getSubmission(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(`[${result.moderationHistory}]`)
-        .filter((m: any) => m !== null)
-        .map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp),
-        }))
+          .filter((m: any) => m !== null)
+          .map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          }))
       : [],
   };
 }
@@ -224,11 +224,11 @@ export function getSubmissionByAcknowledgmentTweetId(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(`[${result.moderationHistory}]`)
-        .filter((m: any) => m !== null)
-        .map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp),
-        }))
+          .filter((m: any) => m !== null)
+          .map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          }))
       : [],
   };
 }
@@ -269,11 +269,11 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(result.moderationHistory)
-        .filter((m: any) => m !== null)
-        .map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp),
-        }))
+          .filter((m: any) => m !== null)
+          .map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          }))
       : [],
   }));
 }
@@ -318,11 +318,11 @@ export function getSubmissionsByStatus(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(result.moderationHistory)
-        .filter((m: any) => m !== null)
-        .map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp),
-        }))
+          .filter((m: any) => m !== null)
+          .map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          }))
       : [],
   }));
 }
@@ -419,10 +419,7 @@ export function getFeedPlugin(
     .select()
     .from(feedPlugins)
     .where(
-      and(
-        eq(feedPlugins.feedId, feedId),
-        eq(feedPlugins.pluginId, pluginId)
-      )
+      and(eq(feedPlugins.feedId, feedId), eq(feedPlugins.pluginId, pluginId)),
     )
     .get();
 }
@@ -431,7 +428,7 @@ export function upsertFeedPlugin(
   db: BunSQLiteDatabase,
   feedId: string,
   pluginId: string,
-  config: Record<string, any>
+  config: Record<string, any>,
 ) {
   return db
     .insert(feedPlugins)
@@ -493,11 +490,11 @@ export function getSubmissionsByFeed(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(result.moderationHistory)
-        .filter((m: any) => m !== null)
-        .map((m: any) => ({
-          ...m,
-          timestamp: new Date(m.timestamp),
-        }))
+          .filter((m: any) => m !== null)
+          .map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp),
+          }))
       : [],
   }));
 }

@@ -14,13 +14,15 @@ export default function Settings() {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-    
+
     try {
       await updateTweetId.mutateAsync(newTweetId);
       setSuccess(true);
       setNewTweetId("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update tweet ID");
+      setError(
+        err instanceof Error ? err.message : "Failed to update tweet ID",
+      );
     }
   };
 
@@ -32,17 +34,18 @@ export default function Settings() {
       <div className="card mb-8">
         <h2 className="heading-2 mb-4">Global Plugins</h2>
         <div className="space-y-4">
-          {config?.plugins && Object.entries(config.plugins).map(([name, plugin]) => (
-            <div key={name} className="card">
-              <h3 className="heading-3 mb-2">{name}</h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="font-semibold">Type:</div>
-                <div>{plugin.type}</div>
-                <div className="font-semibold">URL:</div>
-                <div className="font-mono">{plugin.url}</div>
+          {config?.plugins &&
+            Object.entries(config.plugins).map(([name, plugin]) => (
+              <div key={name} className="card">
+                <h3 className="heading-3 mb-2">{name}</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="font-semibold">Type:</div>
+                  <div>{plugin.type}</div>
+                  <div className="font-semibold">URL:</div>
+                  <div className="font-mono">{plugin.url}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 
@@ -54,13 +57,16 @@ export default function Settings() {
             <div key={feed.id} className="card">
               <h3 className="heading-3 mb-2">{feed.name}</h3>
               <p className="body-text mb-4">{feed.description}</p>
-              
+
               {/* Approvers */}
               <div className="mb-4">
                 <h4 className="heading-3 mb-2">Approvers:</h4>
                 <div className="flex flex-wrap gap-2">
                   {feed.moderation.approvers.twitter.map((handle) => (
-                    <span key={handle} className="bg-gray-100 px-2 py-1 rounded font-mono text-sm">
+                    <span
+                      key={handle}
+                      className="bg-gray-100 px-2 py-1 rounded font-mono text-sm"
+                    >
                       @{handle}
                     </span>
                   ))}
@@ -68,18 +74,21 @@ export default function Settings() {
               </div>
 
               {/* Stream Plugins */}
-              {feed.outputs.stream?.enabled && feed.outputs.stream?.distribute && (
-                <div className="mb-4">
-                  <h4 className="font-semibold mb-2">Stream Plugins:</h4>
-                  <div className="space-y-2">
-                    {feed.outputs.stream?.distribute.map((dist, idx) => (
-                      <div key={idx} className="bg-gray-50 p-2 rounded">
-                        <code className="font-mono text-sm">{dist.plugin}</code>
-                      </div>
-                    ))}
+              {feed.outputs.stream?.enabled &&
+                feed.outputs.stream?.distribute && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Stream Plugins:</h4>
+                    <div className="space-y-2">
+                      {feed.outputs.stream?.distribute.map((dist, idx) => (
+                        <div key={idx} className="bg-gray-50 p-2 rounded">
+                          <code className="font-mono text-sm">
+                            {dist.plugin}
+                          </code>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Recap Plugins */}
               {feed.outputs.recap?.enabled && (
@@ -89,12 +98,16 @@ export default function Settings() {
                     {feed.outputs.recap.transform && (
                       <div className="bg-gray-50 p-2 rounded">
                         <span className="text-sm font-medium">Transform: </span>
-                        <code className="font-mono text-sm">{feed.outputs.recap.transform.plugin}</code>
+                        <code className="font-mono text-sm">
+                          {feed.outputs.recap.transform.plugin}
+                        </code>
                       </div>
                     )}
                     {feed.outputs.recap.distribute?.map((dist, idx) => (
                       <div key={idx} className="bg-gray-50 p-2 rounded">
-                        <span className="text-sm font-medium">Distribute: </span>
+                        <span className="text-sm font-medium">
+                          Distribute:{" "}
+                        </span>
                         <code className="font-mono text-sm">{dist.plugin}</code>
                       </div>
                     ))}
@@ -142,10 +155,7 @@ export default function Settings() {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="btn w-full flex justify-center"
-          >
+          <button type="submit" className="btn w-full flex justify-center">
             Update Tweet ID
           </button>
         </form>

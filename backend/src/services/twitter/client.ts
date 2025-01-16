@@ -23,8 +23,10 @@ export class TwitterService {
   private async setCookiesFromArray(cookies: TwitterCookie[]) {
     const cookieStrings = cookies.map(
       (cookie) =>
-        `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
-        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
+        `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+          cookie.secure ? "Secure" : ""
+        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+          cookie.sameSite || "Lax"
         }`,
     );
     await this.client.setCookies(cookieStrings);
@@ -49,20 +51,24 @@ export class TwitterService {
             this.config.username,
             this.config.password,
             this.config.email,
-            this.config.twoFactorSecret
+            this.config.twoFactorSecret,
           );
 
           if (await this.client.isLoggedIn()) {
             // Cache the new cookies
             const cookies = await this.client.getCookies();
-            const formattedCookies = cookies.map(cookie => ({
+            const formattedCookies = cookies.map((cookie) => ({
               name: cookie.key,
               value: cookie.value,
               domain: cookie.domain,
               path: cookie.path,
               secure: cookie.secure,
               httpOnly: cookie.httpOnly,
-              sameSite: cookie.sameSite as "Strict" | "Lax" | "None" | undefined,
+              sameSite: cookie.sameSite as
+                | "Strict"
+                | "Lax"
+                | "None"
+                | undefined,
             }));
             db.setTwitterCookies(this.config.username, formattedCookies);
             break;

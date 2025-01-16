@@ -1,5 +1,10 @@
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
-import { RssItem, saveRssItem, getRssItems, deleteOldRssItems } from "../rss/queries";
+import {
+  RssItem,
+  saveRssItem,
+  getRssItems,
+  deleteOldRssItems,
+} from "../rss/queries";
 
 export class DBOperations {
   constructor(private db: BunSQLiteDatabase) {}
@@ -16,5 +21,4 @@ export class DBOperations {
   deleteOldRssItems(feedId: string, limit: number): void {
     deleteOldRssItems(this.db, feedId, limit);
   }
-
 }

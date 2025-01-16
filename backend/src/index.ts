@@ -51,7 +51,7 @@ export async function main() {
       username: process.env.TWITTER_USERNAME!,
       password: process.env.TWITTER_PASSWORD!,
       email: process.env.TWITTER_EMAIL!,
-      twoFactorSecret: process.env.TWITTER_2FA_SECRET
+      twoFactorSecret: process.env.TWITTER_2FA_SECRET,
     });
     await twitterService.initialize();
     succeedSpinner("twitter-init", "Twitter service initialized");
@@ -165,12 +165,12 @@ export async function main() {
         if (!rssPlugin || !(rssPlugin instanceof RssPlugin)) {
           throw new Error("RSS plugin not found or invalid");
         }
-        
+
         const service = rssPlugin.getServices().get(feedId);
         if (!service) {
           throw new Error("RSS service not initialized for this feed");
         }
-        
+
         return service.getItems();
       })
       .post("/api/feeds/:feedId/process", async ({ params: { feedId } }) => {

@@ -5,7 +5,10 @@ export default class TelegramPlugin implements DistributorPlugin {
   private botToken: string | null = null;
   private channelId: string | null = null;
 
-  async initialize(feedId: string, config: Record<string, string>): Promise<void> {
+  async initialize(
+    feedId: string,
+    config: Record<string, string>,
+  ): Promise<void> {
     // Validate required config
     if (!config.botToken || !config.channelId) {
       throw new Error("Telegram plugin requires botToken and channelId");

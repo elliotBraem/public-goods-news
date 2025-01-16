@@ -1,11 +1,15 @@
-import { FaTwitter, FaBook, FaGithub, FaTelegram } from 'react-icons/fa';
+import { FaTwitter, FaBook, FaGithub, FaTelegram } from "react-icons/fa";
 
 const Header = () => {
   return (
     <header className="sticky top-0 flex justify-between items-center p-4 border-b-2 border-black bg-white z-10">
       <div className="flex items-center">
-        <img src="/curatedotfuntransparenticon.png" alt="curate.fun Logo" className="h-8 w-8 mr-2" />
-        <div className='flex'>
+        <img
+          src="/curatedotfuntransparenticon.png"
+          alt="curate.fun Logo"
+          className="h-8 w-8 mr-2"
+        />
+        <div className="flex">
           <h1 className="text-2xl h-8">curate.fun</h1>
         </div>
       </div>

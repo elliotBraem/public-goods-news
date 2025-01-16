@@ -6,7 +6,7 @@ export default {
       fontFamily: {
         sans: ["Roboto", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "monospace"],
-        londrina: ["Londrina Solid", "sans-serif"]
+        londrina: ["Londrina Solid", "sans-serif"],
       },
       boxShadow: {
         sharp: "4px 4px 0 rgba(0, 0, 0, 1)",

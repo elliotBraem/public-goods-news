@@ -28,7 +28,7 @@ export function saveRssItem(
 export function getRssItems(
   db: BunSQLiteDatabase,
   feedId: string,
-  limit: number = 100
+  limit: number = 100,
 ): RssItem[] {
   const results = db
     .select()
@@ -38,19 +38,19 @@ export function getRssItems(
     .limit(limit)
     .all();
 
-  return results.map(item => ({
+  return results.map((item) => ({
     title: item.title || undefined,
     content: item.content,
     link: item.link || undefined,
     guid: item.guid || undefined,
-    publishedAt: item.publishedAt
+    publishedAt: item.publishedAt,
   }));
 }
 
 export function deleteOldRssItems(
   db: BunSQLiteDatabase,
   feedId: string,
-  limit: number = 100
+  limit: number = 100,
 ) {
   // Keep only the most recent items up to the limit
   const keepIds = db
@@ -63,9 +63,6 @@ export function deleteOldRssItems(
   return db
     .delete(rssItems)
     .where(
-      and(
-        eq(rssItems.feedId, feedId),
-        sql`${rssItems.id} NOT IN (${keepIds})`
-      )
+      and(eq(rssItems.feedId, feedId), sql`${rssItems.id} NOT IN (${keepIds})`),
     );
 }

@@ -7,7 +7,7 @@ export class RssService {
     private title: string,
     private maxItems: number = 100,
     private path?: string,
-    private dbOps?: DBOperations
+    private dbOps?: DBOperations,
   ) {}
 
   saveItem(item: RssItem): void {

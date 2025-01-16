@@ -139,7 +139,11 @@ export class DatabaseService {
     return queries.getFeedPlugin(this.db, feedId, pluginId);
   }
 
-  upsertFeedPlugin(feedId: string, pluginId: string, config: Record<string, any>) {
+  upsertFeedPlugin(
+    feedId: string,
+    pluginId: string,
+    config: Record<string, any>,
+  ) {
     return queries.upsertFeedPlugin(this.db, feedId, pluginId, config).run();
   }
 
