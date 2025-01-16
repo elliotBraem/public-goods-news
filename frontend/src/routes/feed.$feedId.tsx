@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Layout from "../components/Layout";
-import FeedList from "../components/FeedList";
-import LiveStatus from "../components/LiveStatus";
-import { useFeedConfig, useFeedItems } from "../lib/api";
 import FeedItem from "../components/FeedItem";
+import FeedList from "../components/FeedList";
+import Layout from "../components/Layout";
+import { useFeedConfig, useFeedItems } from "../lib/api";
 
 export const Route = createFileRoute("/feed/$feedId")({
   component: FeedPage,

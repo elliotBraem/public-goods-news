@@ -1,11 +1,10 @@
-import { DistributionService } from "./../distribution/distribution.service";
 import { Tweet } from "agent-twitter-client";
 import { AppConfig } from "../../types/config";
-import { TwitterService } from "../twitter/client";
-import { db } from "../db";
-import { logger } from "../../utils/logger";
 import { Moderation, TwitterSubmission } from "../../types/twitter";
-import { broadcastUpdate } from "../../index";
+import { logger } from "../../utils/logger";
+import { db } from "../db";
+import { TwitterService } from "../twitter/client";
+import { DistributionService } from "./../distribution/distribution.service";
 
 export class SubmissionService {
   private checkInterval: NodeJS.Timer | null = null;
@@ -16,7 +15,7 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) {}
+  ) { }
 
   async initialize(): Promise<void> {
     // Initialize feeds and admin cache from config
@@ -46,7 +45,6 @@ export class SubmissionService {
 
     // Load last checked tweet ID
     this.lastCheckedTweetId = this.twitterService.getLastCheckedTweetId();
-    broadcastUpdate({ type: "lastTweetId", data: this.lastCheckedTweetId });
   }
 
   async startMentionsCheck(): Promise<void> {

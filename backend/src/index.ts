@@ -11,7 +11,6 @@ import RssPlugin from "./external/rss";
 import { db } from "./services/db";
 import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
-import { webSocketService } from "./services/websocket/websocket.service";
 import {
   cleanup,
   failSpinner,
@@ -30,10 +29,6 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3000",
   "https://curatedotfun.fly.dev",
 ];
-
-// Export broadcast function for other modules
-export const broadcastUpdate =
-  webSocketService.broadcast.bind(webSocketService);
 
 export async function main() {
   try {
@@ -100,20 +95,6 @@ export async function main() {
         }),
       )
       .use(swagger())
-      // WebSocket handling
-      .ws("/ws", {
-        open: (ws: any) => {
-          if (!webSocketService.addConnection(ws.remoteAddress, ws)) {
-            ws.close();
-          }
-        },
-        close: (ws: any) => {
-          webSocketService.removeConnection(ws.remoteAddress, ws);
-        },
-        message: () => {
-          // we don't care about two-way connection yet
-        },
-      })
       // API Routes
       .get("/api/last-tweet-id", () => {
         const lastTweetId = twitterService.getLastCheckedTweetId();

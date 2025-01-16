@@ -3,7 +3,6 @@ import { BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
 import { join } from "node:path";
 
 import { logger } from "utils/logger";
-import { broadcastUpdate } from "../../index";
 
 import { DBOperations } from "./operations";
 import * as queries from "./queries";
@@ -29,22 +28,12 @@ export class DatabaseService {
     return this.operations;
   }
 
-  private notifyUpdate() {
-    const submissions = this.getAllSubmissions();
-    broadcastUpdate({
-      type: "update",
-      data: submissions,
-    });
-  }
-
   saveSubmission(submission: TwitterSubmission): void {
     queries.saveSubmission(this.db, submission).run();
-    this.notifyUpdate();
   }
 
   saveModerationAction(moderation: Moderation): void {
     queries.saveModerationAction(this.db, moderation).run();
-    this.notifyUpdate();
   }
 
   updateSubmissionStatus(
@@ -60,7 +49,6 @@ export class DatabaseService {
         moderationResponseTweetId,
       )
       .run();
-    this.notifyUpdate();
   }
 
   getSubmission(tweetId: string): TwitterSubmission | null {
@@ -104,7 +92,6 @@ export class DatabaseService {
     queries
       .updateSubmissionAcknowledgment(this.db, tweetId, acknowledgmentTweetId)
       .run();
-    this.notifyUpdate();
   }
 
   upsertFeed(feed: { id: string; name: string; description?: string }): void {
@@ -113,7 +100,6 @@ export class DatabaseService {
 
   saveSubmissionToFeed(submissionId: string, feedId: string): void {
     queries.saveSubmissionToFeed(this.db, submissionId, feedId).run();
-    this.notifyUpdate();
   }
 
   getFeedsBySubmission(submissionId: string): { feedId: string }[] {
@@ -122,7 +108,6 @@ export class DatabaseService {
 
   removeFromSubmissionFeed(submissionId: string, feedId: string): void {
     queries.removeFromSubmissionFeed(this.db, submissionId, feedId).run();
-    this.notifyUpdate();
   }
 
   getSubmissionsByFeed(feedId: string): TwitterSubmission[] {

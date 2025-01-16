@@ -25,6 +25,12 @@ export function useFeedItems(feedId: string) {
       }
       return response.json();
     },
+    // Poll every 10 seconds
+    refetchInterval: 10000,
+    // Refetch on window focus
+    refetchOnWindowFocus: true,
+    // Refetch when regaining network connection
+    refetchOnReconnect: true,
   });
 }
 
