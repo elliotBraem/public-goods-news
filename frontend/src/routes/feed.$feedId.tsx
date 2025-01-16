@@ -1,30 +1,32 @@
-import { createFileRoute } from "@tanstack/react-router";
-import FeedItem from "../components/FeedItem";
-import FeedList from "../components/FeedList";
-import Layout from "../components/Layout";
-import { useFeedConfig, useFeedItems } from "../lib/api";
-import { useState } from "react";
-import { TwitterSubmission } from "../types/twitter";
+import { createFileRoute } from '@tanstack/react-router'
+import FeedItem from '../components/FeedItem'
+import FeedList from '../components/FeedList'
+import Layout from '../components/Layout'
+import { useFeedConfig, useFeedItems } from '../lib/api'
+import { useState } from 'react'
+import { TwitterSubmission } from '../types/twitter'
 
-export const Route = createFileRoute("/feed/$feedId")({
+export const Route = createFileRoute('/feed/$feedId')({
   component: FeedPage,
-});
+})
 
 function FeedPage() {
-  const { feedId } = Route.useParams();
-  const { data: feed } = useFeedConfig(feedId);
-  const { data: items = [] } = useFeedItems(feedId);
-  const [statusFilter, setStatusFilter] = useState<"all" | TwitterSubmission["status"]>("all");
+  const { feedId } = Route.useParams()
+  const { data: feed } = useFeedConfig(feedId)
+  const { data: items = [] } = useFeedItems(feedId)
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | TwitterSubmission['status']
+  >('all')
 
   const filteredItems = items.filter(
-    (item) => statusFilter === "all" || item.status === statusFilter
-  );
+    (item) => statusFilter === 'all' || item.status === statusFilter,
+  )
 
   const sidebarContent = (
     <div className="p-4">
       <FeedList />
     </div>
-  );
+  )
 
   const rightPanelContent = feed && (
     <div className="space-y-8 max-w-full overflow-x-hidden">
@@ -79,50 +81,50 @@ function FeedPage() {
         </div>
       </div>
     </div>
-  );
+  )
 
   return (
     <Layout sidebar={sidebarContent} rightPanel={rightPanelContent}>
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-6 mr-4">
-          <h2 className="text-2xl font-bold">{feed?.name || "Loading..."}</h2>
+          <h2 className="text-2xl font-bold">{feed?.name || 'Loading...'}</h2>
           <div className="flex gap-2">
             <button
-              onClick={() => setStatusFilter("all")}
+              onClick={() => setStatusFilter('all')}
               className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
-                statusFilter === "all"
-                  ? "bg-black text-white"
-                  : "bg-gray-100 hover:bg-gray-200 text-black"
+                statusFilter === 'all'
+                  ? 'bg-black text-white'
+                  : 'bg-gray-100 hover:bg-gray-200 text-black'
               }`}
             >
               All
             </button>
             <button
-              onClick={() => setStatusFilter("pending")}
+              onClick={() => setStatusFilter('pending')}
               className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
-                statusFilter === "pending"
-                  ? "bg-yellow-200 text-black"
-                  : "bg-gray-100 hover:bg-gray-200 text-black"
+                statusFilter === 'pending'
+                  ? 'bg-yellow-200 text-black'
+                  : 'bg-gray-100 hover:bg-gray-200 text-black'
               }`}
             >
               Pending
             </button>
             <button
-              onClick={() => setStatusFilter("approved")}
+              onClick={() => setStatusFilter('approved')}
               className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
-                statusFilter === "approved"
-                  ? "bg-green-200 text-black"
-                  : "bg-gray-100 hover:bg-gray-200 text-black"
+                statusFilter === 'approved'
+                  ? 'bg-green-200 text-black'
+                  : 'bg-gray-100 hover:bg-gray-200 text-black'
               }`}
             >
               Approved
             </button>
             <button
-              onClick={() => setStatusFilter("rejected")}
+              onClick={() => setStatusFilter('rejected')}
               className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
-                statusFilter === "rejected"
-                  ? "bg-red-200 text-black"
-                  : "bg-gray-100 hover:bg-gray-200 text-black"
+                statusFilter === 'rejected'
+                  ? 'bg-red-200 text-black'
+                  : 'bg-gray-100 hover:bg-gray-200 text-black'
               }`}
             >
               Rejected
@@ -134,9 +136,11 @@ function FeedPage() {
             <p className="text-gray-500">No items found</p>
           </div>
         ) : (
-          filteredItems.map((item) => <FeedItem key={item.tweetId} submission={item} />)
+          filteredItems.map((item) => (
+            <FeedItem key={item.tweetId} submission={item} />
+          ))
         )}
       </div>
     </Layout>
-  );
+  )
 }

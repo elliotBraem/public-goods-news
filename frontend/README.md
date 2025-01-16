@@ -114,7 +114,6 @@ The frontend communicates with the [backend service](../backend/README.md) throu
 
 - Submission handling via `/submit` endpoint
 - Content retrieval through `/submissions`
-- Real-time updates using polling (future: WebSocket support)
 
 See the [Backend README](../backend/README.md) for detailed API documentation.
 

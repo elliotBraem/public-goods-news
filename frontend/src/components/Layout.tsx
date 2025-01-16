@@ -21,7 +21,7 @@ const Layout = ({ children, sidebar, rightPanel }: LayoutProps) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Feed List (Desktop) */}
         <div className="hidden md:block w-64 panel custom-scrollbar overflow-y-auto">
-          <div className="p-4">{sidebar}</div>
+          <div className="md:pb-16">{sidebar}</div>
         </div>
 
         {/* Main Content Area */}

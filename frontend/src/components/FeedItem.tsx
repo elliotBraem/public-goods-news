@@ -1,17 +1,16 @@
 import { HiExternalLink } from "react-icons/hi";
 import { TwitterSubmission } from "../types/twitter";
-
-const BOT_ID = "test_curation";
+import { useBotId } from "../lib/config";
 
 const getTweetUrl = (tweetId: string, username: string) => {
   return `https://x.com/${username}/status/${tweetId}`;
 };
 
-const getTwitterIntentUrl = (tweetId: string, action: "approve" | "reject") => {
+const getTwitterIntentUrl = (tweetId: string, action: "approve" | "reject", botId: string) => {
   const baseUrl = "https://twitter.com/intent/tweet";
   // Add in_reply_to_status_id parameter to make it a reply
   const params = new URLSearchParams({
-    text: `@${BOT_ID} #${action}`,
+    text: `@${botId} #${action}`,
     in_reply_to: tweetId,
   });
   return `${baseUrl}?${params.toString()}`;
@@ -42,6 +41,7 @@ interface FeedItemProps {
 }
 
 export const FeedItem = ({ submission }: FeedItemProps) => {
+  const botId = useBotId();
   const tweetId = submission.status === "pending"
     ? submission.acknowledgmentTweetId
     : submission.moderationResponseTweetId;
@@ -82,7 +82,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
         <div>
           {tweetId && (
             <a
-              href={getTweetUrl(tweetId, BOT_ID)}
+              href={getTweetUrl(tweetId, botId)}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -96,7 +96,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
         <div className="flex-1">
           {(submission.status === "approved" ||
             submission.status === "rejected") &&
-            (
+            submission.moderationHistory?.length > 0 && (
               <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50 mb-4">
                 <div className="flex items-center gap-2 mb-2">
                   <h4 className="heading-3">Moderation Notes</h4>
@@ -157,7 +157,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
         {submission.status === "pending" && submission.acknowledgmentTweetId && (
           <div className="flex flex-col gap-2">
             <a
-              href={getTwitterIntentUrl(submission.acknowledgmentTweetId, "approve")}
+              href={getTwitterIntentUrl(submission.acknowledgmentTweetId, "approve", botId)}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
@@ -165,7 +165,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               Approve
             </a>
             <a
-              href={getTwitterIntentUrl(submission.acknowledgmentTweetId, "reject")}
+              href={getTwitterIntentUrl(submission.acknowledgmentTweetId, "reject", botId)}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
