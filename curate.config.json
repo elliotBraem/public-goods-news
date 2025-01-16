@@ -30,7 +30,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": true,
+          "enabled": false,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
