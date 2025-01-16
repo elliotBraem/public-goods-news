@@ -75,6 +75,7 @@ export class TwitterService {
           }
         } catch (error) {
           logger.error("Failed to login to Twitter, retrying...", error);
+          break;
         }
 
         // Wait before retrying
