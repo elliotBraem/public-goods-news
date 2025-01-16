@@ -194,10 +194,22 @@ export default function Home() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://curate.fun" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="CURATE.FUN - Curate News on Socials" />
-        <meta name="twitter:description" content="Curate news directly on socials and turn feeds into regular content." />
-        <meta property="og:image" content="https://curate.fun/curatedotfunbannernew.png" />
-        <meta property="twitter:image" content="https://curate.fun/curatedotfunbannernew.png" />
+        <meta
+          name="twitter:title"
+          content="CURATE.FUN - Curate News on Socials"
+        />
+        <meta
+          name="twitter:description"
+          content="Curate news directly on socials and turn feeds into regular content."
+        />
+        <meta
+          property="og:image"
+          content="https://curate.fun/curatedotfunbannernew.png"
+        />
+        <meta
+          property="twitter:image"
+          content="https://curate.fun/curatedotfunbannernew.png"
+        />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -229,38 +241,13 @@ export default function Home() {
             </div>
           ))} */}
           </div>
-          <Link
-            href="https://twitter.com/curatedotfun"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xl hover:text-blue-500"
+
+          <div
+            id="cta-button"
+            className="text-xl bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed font-lodrina"
           >
-            <FaTwitter />
-          </Link>
-          <Link
-            href="https://docs.curate.fun"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xl hover:text-blue-500"
-          >
-            <FaBook />
-          </Link>
-          <Link
-            href="https://github.com/potlock/curatedotfun"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xl hover:text-blue-500"
-          >
-            <FaGithub />
-          </Link>
-          <Link
-            href="https://t.me/+UM70lvMnofk3YTVh"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xl hover:text-blue-500"
-          >
-            <FaTelegram />
-          </Link>
+            DASHBOARD
+          </div>
         </nav>
       </header>
 
@@ -388,7 +375,17 @@ export default function Home() {
                 <p>NEAR Social</p>
               </div>
             </div>
-            <p className="mt-4 italic">Powered by <a className="text-blue-500 hover:text-gray-800" href="https://crosspost.everything.dev/" target="_blank" rel="noopener noreferrer">opencrosspost.com</a></p>
+            <p className="mt-4 italic">
+              Powered by{" "}
+              <a
+                className="text-blue-500 hover:text-gray-800"
+                href="https://crosspost.everything.dev/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                opencrosspost.com
+              </a>
+            </p>
           </section>
 
           <section className="mb-8 sm:mb-12 w-full">
@@ -541,15 +538,51 @@ export default function Home() {
         </div>
       </main>
 
-      <footer className="fixed bottom-0 w-full py-2 sm:py-4 text-center bg-white/80 backdrop-blur text-sm sm:text-base border-t-4 border-black">
-        <Link
-          href="https://potlock.org"
-          className="hover:text-gray-800"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Curated with ❤️ by 🫕 POTLOCK
-        </Link>
+      <footer className="fixed bottom-0 w-full py-2 sm:py-4 bg-white/80 backdrop-blur border-t-4 border-black flex flex-col sm:flex-row justify-between items-center px-4">
+        <div className="flex space-x-4">
+          <Link
+            href="https://twitter.com/curatedotfun"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xl hover:text-blue-500"
+          >
+            <FaTwitter />
+          </Link>
+          <Link
+            href="https://docs.curate.fun"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xl hover:text-blue-500"
+          >
+            <FaBook />
+          </Link>
+          <Link
+            href="https://github.com/potlock/curatedotfun"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xl hover:text-blue-500"
+          >
+            <FaGithub />
+          </Link>
+          <Link
+            href="https://t.me/+UM70lvMnofk3YTVh"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xl hover:text-blue-500"
+          >
+            <FaTelegram />
+          </Link>
+        </div>
+        <div className="text-sm sm:text-base text-right mt-2 sm:mt-0">
+          <Link
+            href="https://potlock.org"
+            className="hover:text-gray-800"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Curated with ❤️ by 🫕 POTLOCK
+          </Link>
+        </div>
       </footer>
     </div>
   );
