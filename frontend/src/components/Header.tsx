@@ -41,7 +41,7 @@ const Header = () => {
             <FaTwitter />
           </a>
           <a
-            href="https://docs.curate.press"
+            href="https://docs.curate.fun"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xl hover:text-blue-500"
