@@ -137,9 +137,7 @@ function FeedPage() {
             <p className="text-gray-500">No items yet</p>
           </div>
         ) : (
-          items.map((item) => (
-            <FeedItem key={item.tweetId} submission={item} />
-          ))
+          items.map((item) => <FeedItem key={item.tweetId} submission={item} />)
         )}
       </div>
     </Layout>

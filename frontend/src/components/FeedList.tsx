@@ -33,22 +33,22 @@ const FeedList = () => {
       </div>
       <nav className="flex md:block overflow-x-auto p-1">
         {feeds?.map((feed) => (
-        <Link
-          key={feed.id}
-          to="/feed/$feedId"
-          params={{ feedId: feed.id }}
-          className={`flex-shrink-0 min-w-[200px]  mx-2 md:mx-0 md:min-w-0 block px-4 py-2 text-sm border-2 border-black shadow-sharp transition-all duration-200 md:mb-2 ${
-            feedId === feed.id
-              ? "bg-gray-100 text-black font-medium translate-x-0.5 translate-y-0.5 shadow-none"
-              : "text-gray-600 hover:shadow-sharp-hover hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-gray-50"
-          }`}
-        >
-          <div className="flex items-center">
-            <span className="flex-1">{feed.name}</span>
-            <span className="text-xs text-gray-400">#{feed.hashtag}</span>
-          </div>
-        </Link>
-      ))}
+          <Link
+            key={feed.id}
+            to="/feed/$feedId"
+            params={{ feedId: feed.id }}
+            className={`flex-shrink-0 min-w-[200px]  mx-2 md:mx-0 md:min-w-0 block px-4 py-2 text-sm border-2 border-black shadow-sharp transition-all duration-200 md:mb-2 ${
+              feedId === feed.id
+                ? "bg-gray-100 text-black font-medium translate-x-0.5 translate-y-0.5 shadow-none"
+                : "text-gray-600 hover:shadow-sharp-hover hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-gray-50"
+            }`}
+          >
+            <div className="flex items-center">
+              <span className="flex-1">{feed.name}</span>
+              <span className="text-xs text-gray-400">#{feed.hashtag}</span>
+            </div>
+          </Link>
+        ))}
       </nav>
     </div>
   );

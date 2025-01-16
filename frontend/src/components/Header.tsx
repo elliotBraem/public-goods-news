@@ -4,7 +4,10 @@ import { Link } from "@tanstack/react-router";
 const Header = () => {
   return (
     <header className="sticky top-0 flex justify-between items-center p-4 border-b-2 border-black bg-white z-10">
-      <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
+      <Link
+        to="/"
+        className="flex items-center hover:opacity-80 transition-opacity"
+      >
         <img
           src="/curatedotfuntransparenticon.png"
           alt="curate.fun Logo"
