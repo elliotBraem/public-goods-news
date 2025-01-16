@@ -6,6 +6,7 @@ import { swagger } from "@elysiajs/swagger";
 import { DistributionService } from "services/distribution/distribution.service";
 import configService, { validateEnv } from "./config/config";
 import { db } from "./services/db";
+import RssPlugin from "./external/rss";
 import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
 import {
@@ -153,6 +154,19 @@ export async function main() {
           throw new Error(`Feed not found: ${feedId}`);
         }
         return feed;
+      })
+      .get("/plugin/rss/:feedId", ({ params: { feedId } }) => {
+        const rssPlugin = distributionService.getPlugin("rss");
+        if (!rssPlugin || !(rssPlugin instanceof RssPlugin)) {
+          throw new Error("RSS plugin not found or invalid");
+        }
+        
+        const service = rssPlugin.getServices().get(feedId);
+        if (!service) {
+          throw new Error("RSS service not initialized for this feed");
+        }
+        
+        return service.getItems();
       })
       .post("/api/feeds/:feedId/process", async ({ params: { feedId } }) => {
         // Get feed config

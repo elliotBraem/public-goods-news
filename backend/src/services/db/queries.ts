@@ -2,6 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import { Moderation, TwitterSubmission } from "types/twitter";
 import {
+  feedPlugins,
   feeds,
   moderationHistory,
   submissionCounts,
@@ -406,6 +407,46 @@ export function removeFromSubmissionFeed(
         eq(submissionFeeds.feedId, feedId),
       ),
     );
+}
+
+// Feed Plugin queries
+export function getFeedPlugin(
+  db: BunSQLiteDatabase,
+  feedId: string,
+  pluginId: string,
+) {
+  return db
+    .select()
+    .from(feedPlugins)
+    .where(
+      and(
+        eq(feedPlugins.feedId, feedId),
+        eq(feedPlugins.pluginId, pluginId)
+      )
+    )
+    .get();
+}
+
+export function upsertFeedPlugin(
+  db: BunSQLiteDatabase,
+  feedId: string,
+  pluginId: string,
+  config: Record<string, any>
+) {
+  return db
+    .insert(feedPlugins)
+    .values({
+      feedId,
+      pluginId,
+      config: JSON.stringify(config),
+    })
+    .onConflictDoUpdate({
+      target: [feedPlugins.feedId, feedPlugins.pluginId],
+      set: {
+        config: JSON.stringify(config),
+        updatedAt: new Date().toISOString(),
+      },
+    });
 }
 
 export function getSubmissionsByFeed(

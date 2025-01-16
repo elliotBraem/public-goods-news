@@ -6,12 +6,15 @@ import { logger } from "utils/logger";
 import { broadcastUpdate } from "../../index";
 
 import * as queries from "./queries";
+import { DBOperations } from "./operations";
 
-// Twitter
+// Twitter & RSS
 import { Moderation, TwitterSubmission, TwitterCookie } from "types/twitter";
 import * as twitterQueries from "../twitter/queries";
+import * as rssQueries from "../rss/queries";
 export class DatabaseService {
   private db: BunSQLiteDatabase;
+  private operations: DBOperations;
   private static readonly DB_PATH =
     process.env.DATABASE_URL?.replace("file:", "") ||
     join(".db", "submissions.sqlite");
@@ -19,6 +22,11 @@ export class DatabaseService {
   constructor() {
     const sqlite = new Database(DatabaseService.DB_PATH, { create: true });
     this.db = drizzle(sqlite);
+    this.operations = new DBOperations(this.db);
+  }
+
+  getOperations(): DBOperations {
+    return this.operations;
   }
 
   private notifyUpdate() {
@@ -126,6 +134,15 @@ export class DatabaseService {
     return this.getSubmission(contentId);
   }
 
+  // Feed Plugin Management
+  getFeedPlugin(feedId: string, pluginId: string) {
+    return queries.getFeedPlugin(this.db, feedId, pluginId);
+  }
+
+  upsertFeedPlugin(feedId: string, pluginId: string, config: Record<string, any>) {
+    return queries.upsertFeedPlugin(this.db, feedId, pluginId, config).run();
+  }
+
   // Twitter Cookie Management
   setTwitterCookies(username: string, cookies: TwitterCookie[]): void {
     const cookiesJson = JSON.stringify(cookies);
@@ -164,6 +181,19 @@ export class DatabaseService {
 
   clearTwitterCache(): void {
     twitterQueries.clearTwitterCache(this.db).run();
+  }
+
+  // RSS Management
+  saveRssItem(feedId: string, item: rssQueries.RssItem): void {
+    rssQueries.saveRssItem(this.db, feedId, item).run();
+  }
+
+  getRssItems(feedId: string, limit?: number): rssQueries.RssItem[] {
+    return rssQueries.getRssItems(this.db, feedId, limit);
+  }
+
+  deleteOldRssItems(feedId: string, limit: number): void {
+    rssQueries.deleteOldRssItems(this.db, feedId, limit).run();
   }
 }
 
