@@ -22,7 +22,7 @@ const FeedList = () => {
   });
 
   return (
-    <nav className="space-y-1">
+    <nav className="space-y-2">
       {feeds?.map((feed) => (
         <Link
           key={feed.id}
@@ -30,7 +30,7 @@ const FeedList = () => {
           params={{ feedId: feed.id }}
           className={`block px-4 py-2 text-sm border-2 border-black shadow-sharp transition-all duration-200 mb-2 ${
             feedId === feed.id
-              ? 'bg-blue-50 text-blue-600 font-medium translate-x-0.5 translate-y-0.5 shadow-none'
+              ? 'bg-gray-100 text-black font-medium translate-x-0.5 translate-y-0.5 shadow-none'
               : 'text-gray-600 hover:shadow-sharp-hover hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-gray-50'
           }`}
         >

@@ -72,7 +72,7 @@
 
   /* Panel styles */
   .panel {
-    @apply bg-white border-4 border-black overflow-y-auto;
+    @apply bg-white border-2 border-black overflow-y-auto;
   }
 }
 
