@@ -1,13 +1,14 @@
-import dotenv from "dotenv";
-import path from "path";
-import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
-import { swagger } from "@elysiajs/swagger";
 import { staticPlugin } from "@elysiajs/static";
+import { swagger } from "@elysiajs/swagger";
+import { ServerWebSocket } from "bun";
+import dotenv from "dotenv";
+import { Elysia } from "elysia";
+import path from "path";
 import { DistributionService } from "services/distribution/distribution.service";
 import configService, { validateEnv } from "./config/config";
-import { db } from "./services/db";
 import RssPlugin from "./external/rss";
+import { db } from "./services/db";
 import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
 import {
@@ -17,9 +18,11 @@ import {
   startSpinner,
   succeedSpinner,
 } from "./utils/logger";
-import { ServerWebSocket } from "bun";
 
 const PORT = Number(process.env.PORT) || 3000;
+const FRONTEND_DIST_PATH =
+  process.env.FRONTEND_DIST_PATH ||
+  path.join(process.cwd(), "../frontend/dist");
 
 // Store active WebSocket connections
 const activeConnections = new Set();
@@ -211,45 +214,15 @@ export async function main() {
 
         return { processed };
       })
-      // Serve static files in production
+      // This was the most annoying thing to set up and debug. Serves our frontend and handles routing. alwaysStatic is essential.
       .use(
         staticPlugin({
-          assets:
-            process.env.FRONTEND_DIST_PATH ||
-            path.join(process.cwd(), "../frontend/dist"),
+          assets: FRONTEND_DIST_PATH,
           prefix: "/",
-          indexHTML: true, // Enable SPA routing
+          alwaysStatic: true,
         }),
       )
-      .get("/debug/env", () => {
-        return {
-          cwd: process.cwd(),
-          frontendPath:
-            process.env.FRONTEND_DIST_PATH ||
-            path.join(process.cwd(), "../frontend/dist"),
-          resolvedPath: path.resolve(
-            process.env.FRONTEND_DIST_PATH ||
-              path.join(process.cwd(), "../frontend/dist"),
-          ),
-          env: process.env.NODE_ENV,
-        };
-      })
-      .onError(({ error }) => {
-        logger.error("Request error:", error);
-        return new Response(
-          JSON.stringify({
-            error:
-              error instanceof Error ? error.message : "Internal server error",
-          }),
-          {
-            status:
-              error instanceof Error && error.message === "Not found"
-                ? 404
-                : 500,
-            headers: { "Content-Type": "application/json" },
-          },
-        );
-      })
+      .get("/*", () => Bun.file(`${FRONTEND_DIST_PATH}/index.html`))
       .listen(PORT);
 
     succeedSpinner("server", `Server running on port ${PORT}`);
