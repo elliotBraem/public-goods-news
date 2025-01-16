@@ -118,6 +118,17 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
       {submission.description && (
         <div className="mb-4">
           <h4 className="heading-3 mb-1">Curator's Notes:</h4>
+          <div className="text-gray-600">
+            Curated by{" "}
+            <a
+              href={`https://x.com/${submission.curatorUsername}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-800 hover:text-gray-600 transition-colors"
+            >
+              @{submission.curatorUsername}
+            </a>
+          </div>
           <p className="body-text">{submission.description}</p>
         </div>
       )}

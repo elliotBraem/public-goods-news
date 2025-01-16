@@ -162,6 +162,8 @@ export class SubmissionService {
         tweetId: originalTweet.id!,
         userId: originalTweet.userId!,
         username: originalTweet.username!,
+        curatorId: userId,
+        curatorUsername: tweet.username!,
         content: originalTweet.text || "",
         description: this.extractDescription(tweet),
         status: this.config.global.defaultStatus as

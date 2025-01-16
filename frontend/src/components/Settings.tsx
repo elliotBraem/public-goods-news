@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useLiveUpdates } from "../contexts/LiveUpdateContext";
 import { useAppConfig, useUpdateLastTweetId } from "../lib/api";
 
 export default function Settings() {
-  const { lastTweetId } = useLiveUpdates();
   const { data: config } = useAppConfig();
   const updateTweetId = useUpdateLastTweetId();
   const [newTweetId, setNewTweetId] = useState("");
@@ -125,7 +123,7 @@ export default function Settings() {
         <div className="mb-4">
           <p className="text-gray-600 mb-2">Current ID:</p>
           <code className="bg-gray-50 p-2 border-4 border-black block font-mono">
-            {lastTweetId || "Not set"}
+            {"Not set"}
           </code>
         </div>
 
