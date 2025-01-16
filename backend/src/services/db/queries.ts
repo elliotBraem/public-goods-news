@@ -1,13 +1,13 @@
 import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import { Moderation, TwitterSubmission } from "types/twitter";
 import {
+  feeds,
   moderationHistory,
   submissionCounts,
-  submissions,
-  feeds,
   submissionFeeds,
+  submissions
 } from "./schema";
-import { Moderation, TwitterSubmission } from "types/twitter";
 
 export function upsertFeed(
   db: BunSQLiteDatabase,
@@ -172,11 +172,11 @@ export function getSubmission(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(`[${result.moderationHistory}]`)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        .filter((m: any) => m !== null)
+        .map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }))
       : [],
   };
 }
@@ -223,11 +223,11 @@ export function getSubmissionByAcknowledgmentTweetId(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(`[${result.moderationHistory}]`)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        .filter((m: any) => m !== null)
+        .map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }))
       : [],
   };
 }
@@ -268,11 +268,11 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(result.moderationHistory)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        .filter((m: any) => m !== null)
+        .map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }))
       : [],
   }));
 }
@@ -317,11 +317,11 @@ export function getSubmissionsByStatus(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(result.moderationHistory)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        .filter((m: any) => m !== null)
+        .map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }))
       : [],
   }));
 }
@@ -452,11 +452,11 @@ export function getSubmissionsByFeed(
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
       ? JSON.parse(result.moderationHistory)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
+        .filter((m: any) => m !== null)
+        .map((m: any) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }))
       : [],
   }));
 }

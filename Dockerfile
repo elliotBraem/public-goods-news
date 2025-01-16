@@ -51,6 +51,7 @@ COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
 RUN mkdir -p /litefs /var/lib/litefs /public && \
     chown -R bun:bun /litefs /var/lib/litefs /public
 
+# Create volume mount points
 # Copy only necessary files from builders
 COPY --from=backend-builder --chown=bun:bun /app/package.json ./
 COPY --chown=bun:bun curate.config.json ./
@@ -60,7 +61,6 @@ COPY --from=backend-builder --chown=bun:bun /app/backend/dist ./backend/dist
 
 # Set environment variables
 ENV DATABASE_URL="file:/litefs/db"
-ENV CACHE_DIR="/litefs/cache"
 ENV NODE_ENV="production"
 
 # Expose the port

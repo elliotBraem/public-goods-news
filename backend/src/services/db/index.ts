@@ -1,11 +1,15 @@
 import { Database } from "bun:sqlite";
 import { BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
 import { join } from "node:path";
-import { Moderation, TwitterSubmission } from "types/twitter";
-import { broadcastUpdate } from "../../index";
-import * as queries from "./queries";
-import { logger } from "utils/logger";
 
+import { logger } from "utils/logger";
+import { broadcastUpdate } from "../../index";
+
+import * as queries from "./queries";
+
+// Twitter
+import { Moderation, TwitterSubmission, TwitterCookie } from "types/twitter";
+import * as twitterQueries from "../twitter/queries";
 export class DatabaseService {
   private db: BunSQLiteDatabase;
   private static readonly DB_PATH =
@@ -120,6 +124,46 @@ export class DatabaseService {
   getContent(contentId: string): TwitterSubmission | null {
     // For now, content is the same as submission since we're dealing with tweets
     return this.getSubmission(contentId);
+  }
+
+  // Twitter Cookie Management
+  setTwitterCookies(username: string, cookies: TwitterCookie[]): void {
+    const cookiesJson = JSON.stringify(cookies);
+    twitterQueries.setTwitterCookies(this.db, username, cookiesJson).run();
+  }
+
+  getTwitterCookies(username: string): TwitterCookie[] | null {
+    const result = twitterQueries.getTwitterCookies(this.db, username);
+    if (!result) return null;
+
+    try {
+      return JSON.parse(result.cookies) as TwitterCookie[];
+    } catch (e) {
+      logger.error("Error parsing Twitter cookies:", e);
+      return null;
+    }
+  }
+
+  deleteTwitterCookies(username: string): void {
+    twitterQueries.deleteTwitterCookies(this.db, username).run();
+  }
+
+  // Twitter Cache Management
+  setTwitterCacheValue(key: string, value: string): void {
+    twitterQueries.setTwitterCacheValue(this.db, key, value).run();
+  }
+
+  getTwitterCacheValue(key: string): string | null {
+    const result = twitterQueries.getTwitterCacheValue(this.db, key);
+    return result?.value ?? null;
+  }
+
+  deleteTwitterCacheValue(key: string): void {
+    twitterQueries.deleteTwitterCacheValue(this.db, key).run();
+  }
+
+  clearTwitterCache(): void {
+    twitterQueries.clearTwitterCache(this.db).run();
   }
 }
 

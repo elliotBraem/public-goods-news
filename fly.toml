@@ -16,6 +16,12 @@ primary_region = 'den'
   source = "litefs"
   destination = "/var/lib/litefs"
   initial_size = '1GB'
+
+[[mounts]]
+  source = "public"
+  destination = "/public"
+  initial_size = '1GB'
+
 [http_service]
   internal_port = 3000
   force_https = true
@@ -28,3 +34,4 @@ primary_region = 'den'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+  

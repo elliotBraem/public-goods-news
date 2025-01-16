@@ -6,6 +6,9 @@ import {
   text,
 } from "drizzle-orm/sqlite-core";
 
+// From exports/plugins
+export * from "../twitter/schema";
+
 // Reusable timestamp columns
 const timestamps = {
   createdAt: text("created_at")
