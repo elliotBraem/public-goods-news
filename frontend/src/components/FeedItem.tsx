@@ -1,10 +1,23 @@
 import { HiExternalLink } from "react-icons/hi";
 import { TwitterSubmission } from "../types/twitter";
-
-const BOT_ID = "test_curation";
+import { useBotId } from "../lib/config";
 
 const getTweetUrl = (tweetId: string, username: string) => {
   return `https://x.com/${username}/status/${tweetId}`;
+};
+
+const getTwitterIntentUrl = (
+  tweetId: string,
+  action: "approve" | "reject",
+  botId: string,
+) => {
+  const baseUrl = "https://twitter.com/intent/tweet";
+  // Add in_reply_to_status_id parameter to make it a reply
+  const params = new URLSearchParams({
+    text: `@${botId} #${action}`,
+    in_reply_to: tweetId,
+  });
+  return `${baseUrl}?${params.toString()}`;
 };
 
 const formatDate = (dateString: string) => {
@@ -32,9 +45,15 @@ interface FeedItemProps {
 }
 
 export const FeedItem = ({ submission }: FeedItemProps) => {
+  const botId = useBotId();
+  const tweetId =
+    submission.status === "pending"
+      ? submission.acknowledgmentTweetId
+      : submission.moderationResponseTweetId;
+
   return (
     <div className="card">
-      <div className="flex justify-between items-start mb-4">
+      <div className="flex justify-between items-start">
         <div className="flex-grow">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
@@ -60,12 +79,35 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 {formatDate(submission.createdAt)}
               </span>
             </div>
-            {(submission.status === "approved" ||
-              submission.status === "rejected") &&
-              submission.moderationHistory?.length > 0 && (
-                <div className="text-sm space-y-2">
+          </div>
+          <p className="text-lg mb-4 leading-relaxed body-text">
+            {submission.content}
+          </p>
+        </div>
+        <div>
+          {tweetId && (
+            <a
+              href={getTweetUrl(tweetId, botId)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <StatusBadge status={submission.status} />
+            </a>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-between items-start gap-8">
+        <div className="flex-1">
+          {(submission.status === "approved" ||
+            submission.status === "rejected") &&
+            submission.moderationHistory?.length > 0 && (
+              <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50 mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="heading-3">Moderation Notes</h4>
+                  <span className="text-gray-400">·</span>
                   <div className="text-gray-600">
-                    Moderated by{" "}
+                    by{" "}
                     <a
                       href={`https://x.com/${submission.moderationHistory?.[submission.moderationHistory.length - 1]?.adminId}`}
                       target="_blank"
@@ -80,47 +122,75 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                       }
                     </a>
                   </div>
-                  {submission.moderationHistory?.[
-                    submission.moderationHistory.length - 1
-                  ]?.note && (
-                    <div className="text-gray-700">
-                      <span className="font-semibold">Moderation Note:</span>{" "}
-                      {
-                        submission.moderationHistory?.[
-                          submission.moderationHistory.length - 1
-                        ]?.note
-                      }
-                    </div>
-                  )}
                 </div>
-              )}
-          </div>
-          <p className="text-lg mb-4 leading-relaxed body-text">
-            {submission.content}
-          </p>
-        </div>
-        <div className="flex items-end gap-2 flex-col">
-          <a
-            href={getTweetUrl(
-              (submission.status === "pending"
-                ? submission.acknowledgmentTweetId
-                : submission.moderationResponseTweetId) || "",
-              BOT_ID,
+                {submission.moderationHistory?.[
+                  submission.moderationHistory.length - 1
+                ]?.note && (
+                  <p className="body-text text-gray-700">
+                    {
+                      submission.moderationHistory?.[
+                        submission.moderationHistory.length - 1
+                      ]?.note
+                    }
+                  </p>
+                )}
+              </div>
             )}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <StatusBadge status={submission.status} />
-          </a>
-        </div>
-      </div>
 
-      {submission.description && (
-        <div className="mb-4">
-          <h4 className="heading-3 mb-1">Curator's Notes:</h4>
-          <p className="body-text">{submission.description}</p>
+          {submission.status === "pending" && (
+            <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50">
+              <div className="flex items-center gap-2 mb-2">
+                <h4 className="heading-3">Curator's Notes</h4>
+                <span className="text-gray-400">·</span>
+                <div className="text-gray-600">
+                  by{" "}
+                  <a
+                    href={`https://x.com/${submission.curatorUsername}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-800 hover:text-gray-600 transition-colors"
+                  >
+                    @{submission.curatorUsername}
+                  </a>
+                </div>
+              </div>
+              <p className="body-text text-gray-700">
+                {submission.description}
+              </p>
+            </div>
+          )}
         </div>
-      )}
+
+        {submission.status === "pending" &&
+          submission.acknowledgmentTweetId && (
+            <div className="flex flex-col gap-2">
+              <a
+                href={getTwitterIntentUrl(
+                  submission.acknowledgmentTweetId,
+                  "approve",
+                  botId,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+              >
+                Approve
+              </a>
+              <a
+                href={getTwitterIntentUrl(
+                  submission.acknowledgmentTweetId,
+                  "reject",
+                  botId,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+              >
+                Reject
+              </a>
+            </div>
+          )}
+      </div>
     </div>
   );
 };

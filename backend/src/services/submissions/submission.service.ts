@@ -15,7 +15,7 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) { }
+  ) {}
 
   async initialize(): Promise<void> {
     // Initialize feeds and admin cache from config
@@ -162,6 +162,8 @@ export class SubmissionService {
         tweetId: originalTweet.id!,
         userId: originalTweet.userId!,
         username: originalTweet.username!,
+        curatorId: userId,
+        curatorUsername: tweet.username!,
         content: originalTweet.text || "",
         description: this.extractDescription(tweet),
         status: this.config.global.defaultStatus as

@@ -2,6 +2,8 @@ export interface TwitterSubmission {
   tweetId: string;
   userId: string;
   username: string;
+  curatorId: string;
+  curatorUsername: string;
   content: string;
   description?: string;
   status: "pending" | "approved" | "rejected";

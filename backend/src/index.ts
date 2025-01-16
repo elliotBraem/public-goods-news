@@ -76,7 +76,6 @@ export async function main() {
           contentSecurityPolicy: {
             directives: {
               defaultSrc: ["'self'"],
-              connectSrc: ["'self'", "ws:", "wss:"], // Allow WebSocket connections
               scriptSrc: ["'self'", "'unsafe-inline'"], // Required for some frontend frameworks
               styleSrc: ["'self'", "'unsafe-inline'"], // Required for styled-components
               imgSrc: ["'self'", "data:", "https:"], // Allow images from HTTPS sources
@@ -125,18 +124,6 @@ export async function main() {
           : db.getAllSubmissions();
       })
       .get(
-        "/api/feed/:hashtagId",
-        ({ params: { hashtagId } }: { params: { hashtagId: string } }) => {
-          const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id === hashtagId);
-          if (!feed) {
-            throw new Error(`Feed not found: ${hashtagId}`);
-          }
-
-          return db.getSubmissionsByFeed(hashtagId);
-        },
-      )
-      .get(
         "/api/submissions/:hashtagId",
         ({ params: { hashtagId } }: { params: { hashtagId: string } }) => {
           const config = configService.getConfig();
@@ -145,6 +132,18 @@ export async function main() {
             throw new Error(`Feed not found: ${hashtagId}`);
           }
           // this should be pending submissions
+          return db.getSubmissionsByFeed(hashtagId);
+        },
+      )
+      .get(
+        "/api/feed/:hashtagId",
+        ({ params: { hashtagId } }: { params: { hashtagId: string } }) => {
+          const config = configService.getConfig();
+          const feed = config.feeds.find((f) => f.id === hashtagId);
+          if (!feed) {
+            throw new Error(`Feed not found: ${hashtagId}`);
+          }
+
           return db.getSubmissionsByFeed(hashtagId);
         },
       )
@@ -164,6 +163,10 @@ export async function main() {
       .get("/api/feeds", () => {
         const config = configService.getConfig();
         return config.feeds;
+      })
+      .get("/api/config", () => {
+        const config = configService.getConfig();
+        return config;
       })
       .get(
         "/api/config/:feedId",
