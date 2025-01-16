@@ -16,7 +16,6 @@ function FeedPage() {
 
   const sidebarContent = (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Feeds</h1>
       <FeedList />
     </div>
   );
@@ -130,9 +129,8 @@ function FeedPage() {
   return (
     <Layout sidebar={sidebarContent} rightPanel={rightPanelContent}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 mr-4">
           <h2 className="text-2xl font-bold">{feed?.name || "Loading..."}</h2>
-          <LiveStatus />
         </div>
         {items.length === 0 ? (
           <div className="flex justify-center items-center p-8">
