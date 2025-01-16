@@ -182,12 +182,12 @@ export default function Home() {
         <meta property="og:title" content="CURATE.FUN - Curate News on Socials" />
         <meta property="og:description" content="Curate news directly on socials and turn feeds into regular content." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://curate.press" />
+        <meta property="og:url" content="https://curate.fun" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="CURATE.FUN - Curate News on Socials" />
         <meta name="twitter:description" content="Curate news directly on socials and turn feeds into regular content." />
-        <meta property="og:image" content="https://curate.press/curatedotfunbannernew.png" />
-        <meta property="twitter:image" content="https://curate.press/curatedotfunbannernew.png" />
+        <meta property="og:image" content="https://curate.fun/curatedotfunbannernew.png" />
+        <meta property="twitter:image" content="https://curate.fun/curatedotfunbannernew.png" />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -224,7 +224,7 @@ export default function Home() {
             <FaTwitter />
           </Link>
           <Link
-            href="https://docs.curate.press"
+            href="https://docs.curate.fun"
             target="_blank"
             rel="noopener noreferrer"
             className="text-xl hover:text-blue-500"
@@ -366,7 +366,7 @@ export default function Home() {
                 <p>NEAR Social</p>
               </div>
             </div>
-            <p className="mt-4 italic">Powered by <a className="text-blue-500 hover:text-gray-800" href="http://crosspost.everything.dev" target="_blank" rel="noopener noreferrer">opencrosspost.com</a></p>
+            <p className="mt-4 italic">Powered by <a className="text-blue-500 hover:text-gray-800" href="https://crosspost.everything.dev/" target="_blank" rel="noopener noreferrer">opencrosspost.com</a></p>
           </section>
 
 
