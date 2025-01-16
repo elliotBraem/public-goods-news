@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useLiveUpdates } from "../contexts/LiveUpdateContext";
+import { useAppConfig, useUpdateLastTweetId } from "../lib/api";
 
 export default function Settings() {
   const { lastTweetId } = useLiveUpdates();
+  const { data: config } = useAppConfig();
+  const updateTweetId = useUpdateLastTweetId();
   const [newTweetId, setNewTweetId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -13,19 +16,7 @@ export default function Settings() {
     setSuccess(false);
 
     try {
-      const response = await fetch("/api/last-tweet-id", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tweetId: newTweetId }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update tweet ID");
-      }
-
+      await updateTweetId.mutateAsync(newTweetId);
       setSuccess(true);
       setNewTweetId("");
     } catch (err) {
@@ -37,13 +28,103 @@ export default function Settings() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">Settings</h1>
+      <h1 className="heading-1 mb-8">Settings</h1>
 
-      <div className="bg-white p-6 card-shadow">
-        <h2 className="text-lg font-semibold mb-4">Last Checked Tweet ID</h2>
+      {/* Global Plugins Section */}
+      <div className="card mb-8">
+        <h2 className="heading-2 mb-4">Global Plugins</h2>
+        <div className="space-y-4">
+          {config?.plugins &&
+            Object.entries(config.plugins).map(([name, plugin]) => (
+              <div key={name} className="card">
+                <h3 className="heading-3 mb-2">{name}</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="font-semibold">Type:</div>
+                  <div>{plugin.type}</div>
+                  <div className="font-semibold">URL:</div>
+                  <div className="font-mono">{plugin.url}</div>
+                </div>
+              </div>
+            ))}
+        </div>
+      </div>
+
+      {/* Feeds Section */}
+      <div className="card mb-8">
+        <h2 className="heading-2 mb-4">Feed Configurations</h2>
+        <div className="space-y-6">
+          {config?.feeds.map((feed) => (
+            <div key={feed.id} className="card">
+              <h3 className="heading-3 mb-2">{feed.name}</h3>
+              <p className="body-text mb-4">{feed.description}</p>
+
+              {/* Approvers */}
+              <div className="mb-4">
+                <h4 className="heading-3 mb-2">Approvers:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {feed.moderation.approvers.twitter.map((handle) => (
+                    <span
+                      key={handle}
+                      className="bg-gray-100 px-2 py-1 rounded font-mono text-sm"
+                    >
+                      @{handle}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stream Plugins */}
+              {feed.outputs.stream?.enabled &&
+                feed.outputs.stream?.distribute && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Stream Plugins:</h4>
+                    <div className="space-y-2">
+                      {feed.outputs.stream?.distribute.map((dist, idx) => (
+                        <div key={idx} className="bg-gray-50 p-2 rounded">
+                          <code className="font-mono text-sm">
+                            {dist.plugin}
+                          </code>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+              {/* Recap Plugins */}
+              {feed.outputs.recap?.enabled && (
+                <div className="mb-4">
+                  <h4 className="font-semibold mb-2">Recap Plugins:</h4>
+                  <div className="space-y-2">
+                    {feed.outputs.recap.transform && (
+                      <div className="bg-gray-50 p-2 rounded">
+                        <span className="text-sm font-medium">Transform: </span>
+                        <code className="font-mono text-sm">
+                          {feed.outputs.recap.transform.plugin}
+                        </code>
+                      </div>
+                    )}
+                    {feed.outputs.recap.distribute?.map((dist, idx) => (
+                      <div key={idx} className="bg-gray-50 p-2 rounded">
+                        <span className="text-sm font-medium">
+                          Distribute:{" "}
+                        </span>
+                        <code className="font-mono text-sm">{dist.plugin}</code>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Tweet ID Section */}
+      <div className="card">
+        <h2 className="heading-2 mb-4">Last Checked Tweet ID</h2>
         <div className="mb-4">
           <p className="text-gray-600 mb-2">Current ID:</p>
-          <code className="bg-gray-50 p-2 border-2 border-gray-800 block font-mono">
+          <code className="bg-gray-50 p-2 border-4 border-black block font-mono">
             {lastTweetId || "Not set"}
           </code>
         </div>
@@ -74,10 +155,7 @@ export default function Settings() {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border-2 border-gray-800 bg-gray-800 text-white font-medium hover:bg-gray-900 transition-colors"
-          >
+          <button type="submit" className="btn w-full flex justify-center">
             Update Tweet ID
           </button>
         </form>
