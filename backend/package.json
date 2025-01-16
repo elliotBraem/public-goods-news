@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@elysiajs/cors": "^1.2.0",
+    "@elysiajs/static": "^1.2.0",
     "@elysiajs/swagger": "^1.2.0",
     "@libsql/client": "^0.14.0",
     "@types/cors": "^2.8.17",

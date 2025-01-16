@@ -3,6 +3,7 @@ import path from "path";
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
+import { staticPlugin } from "@elysiajs/static";
 import { DistributionService } from "services/distribution/distribution.service";
 import configService, { validateEnv } from "./config/config";
 import { db } from "./services/db";
@@ -210,23 +211,28 @@ export async function main() {
 
         return { processed };
       })
-      // Static file serving in production
-      .get("/*", async ({ request }) => {
-        if (process.env.NODE_ENV === "production") {
-          const url = new URL(request.url);
-          const filePath = url.pathname === "/" ? "/index.html" : url.pathname;
-          const file = Bun.file(
-            path.join(__dirname, "../../frontend/dist", filePath),
-          );
-          if (await file.exists()) {
-            return new Response(file);
-          }
-          // Fallback to index.html for client-side routing
-          return new Response(
-            Bun.file(path.join(__dirname, "../../frontend/dist/index.html")),
-          );
-        }
-        throw new Error("Not found");
+      // Serve static files in production
+      .use(
+        staticPlugin({
+          assets:
+            process.env.FRONTEND_DIST_PATH ||
+            path.join(process.cwd(), "../frontend/dist"),
+          prefix: "/",
+          indexHTML: true, // Enable SPA routing
+        }),
+      )
+      .get("/debug/env", () => {
+        return {
+          cwd: process.cwd(),
+          frontendPath:
+            process.env.FRONTEND_DIST_PATH ||
+            path.join(process.cwd(), "../frontend/dist"),
+          resolvedPath: path.resolve(
+            process.env.FRONTEND_DIST_PATH ||
+              path.join(process.cwd(), "../frontend/dist"),
+          ),
+          env: process.env.NODE_ENV,
+        };
       })
       .onError(({ error }) => {
         logger.error("Request error:", error);
