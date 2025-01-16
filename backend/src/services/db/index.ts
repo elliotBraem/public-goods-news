@@ -5,13 +5,13 @@ import { join } from "node:path";
 import { logger } from "utils/logger";
 import { broadcastUpdate } from "../../index";
 
-import * as queries from "./queries";
 import { DBOperations } from "./operations";
+import * as queries from "./queries";
 
 // Twitter & RSS
-import { Moderation, TwitterSubmission, TwitterCookie } from "types/twitter";
-import * as twitterQueries from "../twitter/queries";
+import { Moderation, TwitterCookie, TwitterSubmission } from "types/twitter";
 import * as rssQueries from "../rss/queries";
+import * as twitterQueries from "../twitter/queries";
 export class DatabaseService {
   private db: BunSQLiteDatabase;
   private operations: DBOperations;
