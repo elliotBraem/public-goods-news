@@ -23,10 +23,8 @@ export class TwitterService {
   private async setCookiesFromArray(cookies: TwitterCookie[]) {
     const cookieStrings = cookies.map(
       (cookie) =>
-        `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-          cookie.secure ? "Secure" : ""
-        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-          cookie.sameSite || "Lax"
+        `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
         }`,
     );
     await this.client.setCookies(cookieStrings);

@@ -27,6 +27,7 @@ WORKDIR /app
 # Copy backend package files
 COPY package.json ./
 COPY backend/package.json ./backend/
+COPY backend/drizzle.config.ts ./backend/
 
 # Install backend dependencies
 RUN cd backend && bun install
@@ -57,11 +58,14 @@ COPY --from=backend-builder --chown=bun:bun /app/package.json ./
 COPY --chown=bun:bun curate.config.json ./
 
 COPY --from=frontend-builder --chown=bun:bun /app/frontend/dist ./frontend/dist
-COPY --from=backend-builder --chown=bun:bun /app/backend/dist ./backend/dist
+COPY --from=backend-builder --chown=bun:bun /app/backend ./backend
+
+RUN cd backend && bun install
 
 # Set environment variables
 ENV DATABASE_URL="file:/litefs/db"
 ENV NODE_ENV="production"
+ENV FRONTEND_DIST_PATH="/app/frontend/dist"
 
 # Expose the port
 EXPOSE 3000
