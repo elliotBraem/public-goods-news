@@ -212,17 +212,26 @@ export async function main() {
         return { processed };
       })
       // Serve static files in production
-      .use(staticPlugin({
-        assets: process.env.FRONTEND_DIST_PATH || path.join(process.cwd(), "../frontend/dist"),
-        prefix: "/",
-        indexHTML: true // Enable SPA routing
-      }))
+      .use(
+        staticPlugin({
+          assets:
+            process.env.FRONTEND_DIST_PATH ||
+            path.join(process.cwd(), "../frontend/dist"),
+          prefix: "/",
+          indexHTML: true, // Enable SPA routing
+        }),
+      )
       .get("/debug/env", () => {
         return {
           cwd: process.cwd(),
-          frontendPath: process.env.FRONTEND_DIST_PATH || path.join(process.cwd(), "../frontend/dist"),
-          resolvedPath: path.resolve(process.env.FRONTEND_DIST_PATH || path.join(process.cwd(), "../frontend/dist")),
-          env: process.env.NODE_ENV
+          frontendPath:
+            process.env.FRONTEND_DIST_PATH ||
+            path.join(process.cwd(), "../frontend/dist"),
+          resolvedPath: path.resolve(
+            process.env.FRONTEND_DIST_PATH ||
+              path.join(process.cwd(), "../frontend/dist"),
+          ),
+          env: process.env.NODE_ENV,
         };
       })
       .onError(({ error }) => {
