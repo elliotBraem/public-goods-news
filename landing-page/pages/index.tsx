@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { TypeAnimation } from "react-type-animation";
-import { FaTwitter, FaBook, FaGithub, FaTelegram } from 'react-icons/fa';
+import { FaTwitter, FaBook, FaGithub, FaTelegram } from "react-icons/fa";
 
 const SlotEmoji = ({
   finalEmoji,
@@ -66,8 +66,7 @@ export default function Home() {
       logo: "📡",
       link: "https://t.me/cryptograntwire",
       soon: true,
-      hide: false
-
+      hide: false,
     },
     {
       name: "This Week in Ethereum",
@@ -76,7 +75,7 @@ export default function Home() {
       logo: "🌐",
       link: "https://x.com/curatedotfun",
       soon: true,
-      hide: true
+      hide: true,
     },
     {
       name: "NEARWEEK",
@@ -85,7 +84,7 @@ export default function Home() {
       logo: "📅",
       link: "https://x.com/nearweekbot",
       soon: true,
-      hide: false
+      hide: false,
     },
     {
       name: "AI x Crypto News",
@@ -94,7 +93,7 @@ export default function Home() {
       logo: "🤖",
       link: "https://t.me/curatedotfun",
       soon: true,
-      hide: true
+      hide: true,
     },
     {
       name: "AI News",
@@ -103,7 +102,7 @@ export default function Home() {
       logo: "📰",
       link: "https://near.ai",
       soon: true,
-      hide: true
+      hide: true,
     },
     {
       name: "Crypto News",
@@ -112,7 +111,7 @@ export default function Home() {
       logo: "💰",
       link: "https://t.me/curatedotfun",
       soon: true,
-      hide: true
+      hide: true,
     },
     {
       name: "Public Goods FM",
@@ -121,7 +120,7 @@ export default function Home() {
       logo: "🎙️",
       link: "https:/publicgoods.fm",
       soon: true,
-      hide: false
+      hide: false,
     },
     {
       name: "Morph L2",
@@ -130,41 +129,46 @@ export default function Home() {
       logo: "🔄",
       link: "https://x.com/morph-news",
       soon: true,
-      hide: true
-    }
+      hide: true,
+    },
   ];
 
   const features = [
     {
       emoji: "📰",
       title: "Smart Feed Creation",
-      description: "Build intelligent content feeds that automatically collect and filter posts using advanced AI (powered by ChatGPT, Claude, and Llama).",
-      soon: false
+      description:
+        "Build intelligent content feeds that automatically collect and filter posts using advanced AI (powered by ChatGPT, Claude, and Llama).",
+      soon: false,
     },
     {
       emoji: "👍",
       title: "Streamlined Approval Workflow",
-      description: "Designated approvers review submissions through an intuitive interface, ensuring quality while maintaining efficiency.",
-      soon: false
+      description:
+        "Designated approvers review submissions through an intuitive interface, ensuring quality while maintaining efficiency.",
+      soon: false,
     },
     {
       emoji: "🔄",
       title: "AI-Powered Content Summaries",
-      description: "Our AI creates engaging recaps and transforms content into multiple formats - from newsletters to podcasts.",
-      soon: false
+      description:
+        "Our AI creates engaging recaps and transforms content into multiple formats - from newsletters to podcasts.",
+      soon: false,
     },
     {
       emoji: "🎙️",
       title: "Multi-Format Publishing",
-      description: "One-click conversion into professional blog posts, curated newsletters, AI-voiced podcasts, and real-time news feeds.",
-      soon: true
+      description:
+        "One-click conversion into professional blog posts, curated newsletters, AI-voiced podcasts, and real-time news feeds.",
+      soon: true,
     },
     {
       emoji: "🚀",
       title: "Incentivized Curation",
-      description: "Coming Soon: Earn tokens for quality content curation, creating a sustainable ecosystem for content creators and curators.",
-      soon: true
-    }
+      description:
+        "Coming Soon: Earn tokens for quality content curation, creating a sustainable ecosystem for content creators and curators.",
+      soon: true,
+    },
   ];
 
   return (
@@ -179,15 +183,33 @@ export default function Home() {
           name="keywords"
           content="content curation, social media automation, AI content management, digital publishing, content transformation"
         />
-        <meta property="og:title" content="CURATE.FUN - Curate News on Socials" />
-        <meta property="og:description" content="Curate news directly on socials and turn feeds into regular content." />
+        <meta
+          property="og:title"
+          content="CURATE.FUN - Curate News on Socials"
+        />
+        <meta
+          property="og:description"
+          content="Curate news directly on socials and turn feeds into regular content."
+        />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://curate.press" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="CURATE.FUN - Curate News on Socials" />
-        <meta name="twitter:description" content="Curate news directly on socials and turn feeds into regular content." />
-        <meta property="og:image" content="https://curate.press/curatedotfunbannernew.png" />
-        <meta property="twitter:image" content="https://curate.press/curatedotfunbannernew.png" />
+        <meta
+          name="twitter:title"
+          content="CURATE.FUN - Curate News on Socials"
+        />
+        <meta
+          name="twitter:description"
+          content="Curate news directly on socials and turn feeds into regular content."
+        />
+        <meta
+          property="og:image"
+          content="https://curate.press/curatedotfunbannernew.png"
+        />
+        <meta
+          property="twitter:image"
+          content="https://curate.press/curatedotfunbannernew.png"
+        />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -195,14 +217,18 @@ export default function Home() {
 
       <header className="sticky top-0 flex justify-between items-center p-4 border-b-4 border-black bg-white z-10">
         <div className="flex items-center">
-          <img src="/curatedotfuntransparenticon.png" alt="curate.fun Logo" className="h-8 w-8 mr-2" />
+          <img
+            src="/curatedotfuntransparenticon.png"
+            alt="curate.fun Logo"
+            className="h-8 w-8 mr-2"
+          />
           <div>
             <h1 className="text-2xl h-8 flex items-center">curate.fun</h1>
           </div>
         </div>
         <nav className="flex space-x-4 mx-4">
           <div>
-        {/* {["How to Submit", "See Feeds", "See Content"].map((item) => (
+            {/* {["How to Submit", "See Feeds", "See Content"].map((item) => (
             <div key={item} className="flex items-center space-x-2">
               <span className={`text-lg ${soon ? "text-gray-500" : "text-black"}`}>
                 {item}
@@ -279,7 +305,6 @@ export default function Home() {
               </div>
             </div>
 
-
             <div className="flex-1 p-4 flex justify-center items-center w-full border-l-4 border-black border-r-0 border-t-0 border-b-0">
               <TypeAnimation
                 sequence={[
@@ -304,30 +329,40 @@ export default function Home() {
             </div>
           </div>
 
-
           <section className="mb-8 sm:mb-12 w-full">
-            <h2 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">Key Features</h2>
+            <h2 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
+              Key Features
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
               {features.map((feature, index) => (
-                <div key={index} className="card p-4 border-4 border-black shadow-md hover:shadow-lg transform hover:translate-y-[-2px] transition duration-300 w-full relative">
+                <div
+                  key={index}
+                  className="card p-4 border-4 border-black shadow-md hover:shadow-lg transform hover:translate-y-[-2px] transition duration-300 w-full relative"
+                >
                   {feature.soon && (
                     <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-gray-500">Soon</span>
+                      <span className="text-2xl font-bold text-gray-500">
+                        Soon
+                      </span>
                     </div>
                   )}
-                  <h5 className="text-2xl">{feature.emoji + " " + feature.title}</h5>
+                  <h5 className="text-2xl">
+                    {feature.emoji + " " + feature.title}
+                  </h5>
                   <p className="mt-2">{feature.description}</p>
                 </div>
               ))}
             </div>
           </section>
           <section className="mb-8 sm:mb-12 w-full">
-            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">Supported Platforms</h1>
-            <p className="mb-4">Seamlessly integrate with your favorite platforms:</p>
+            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
+              Supported Platforms
+            </h1>
+            <p className="mb-4">
+              Seamlessly integrate with your favorite platforms:
+            </p>
             <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3  gap-4 w-full">
-
-   
-            <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full">
+              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full">
                 <span className="text-3xl mr-2">🐦</span>
                 <p>Twitter</p>
               </div>
@@ -335,9 +370,8 @@ export default function Home() {
                 <span className="text-3xl mr-2">✉️</span>
                 <p>Telegram</p>
               </div>
-      
+
               <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full relative">
-                
                 <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
                   <span className="text-2xl font-bold text-gray-500">Soon</span>
                 </div>
@@ -366,28 +400,51 @@ export default function Home() {
                 <p>NEAR Social</p>
               </div>
             </div>
-            <p className="mt-4 italic">Powered by <a className="text-blue-500 hover:text-gray-800" href="http://crosspost.everything.dev" target="_blank" rel="noopener noreferrer">opencrosspost.com</a></p>
+            <p className="mt-4 italic">
+              Powered by{" "}
+              <a
+                className="text-blue-500 hover:text-gray-800"
+                href="http://crosspost.everything.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                opencrosspost.com
+              </a>
+            </p>
           </section>
 
-
           <section className="mb-8 sm:mb-12 w-full">
-            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">Case Studies</h1>
+            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
+              Case Studies
+            </h1>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
               {caseStudies
                 .filter((study) => !study.hide)
                 .map((study, index) => (
-                  <Link key={index} href={study.link} target="_blank" rel="noopener noreferrer" className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col relative">
+                  <Link
+                    key={index}
+                    href={study.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col relative"
+                  >
                     {study.soon && (
                       <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-gray-500">Soon</span>
+                        <span className="text-2xl font-bold text-gray-500">
+                          Soon
+                        </span>
                       </div>
                     )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <span className="text-3xl mr-2">{study.logo || "🎙️"}</span>
+                        <span className="text-3xl mr-2">
+                          {study.logo || "🎙️"}
+                        </span>
                         <p className="font-bold">{study.name}</p>
                       </div>
-                      <span className="text-xs bg-gray-200 p-1">{study.hashtag}</span>
+                      <span className="text-xs bg-gray-200 p-1">
+                        {study.hashtag}
+                      </span>
                     </div>
                     <hr className="my-2 border-t-4 border-black" />
                     <p className="mt-2 text-sm italic">{study.description}</p>
@@ -397,17 +454,34 @@ export default function Home() {
           </section>
 
           <section className="mb-8 sm:mb-12 w-full text-center">
-            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">Community Section</h1>
+            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
+              Community Section
+            </h1>
             <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-4 w-full">
-              <Link href="https://t.me/+UM70lvMnofk3YTVh" target="_blank" rel="noopener noreferrer" className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center">
+              <Link
+                href="https://t.me/+UM70lvMnofk3YTVh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center"
+              >
                 <span className="text-3xl">👥</span>
                 <p>Curate</p>
               </Link>
-              <Link href="https://t.me/+UM70lvMnofk3YTVh" target="_blank" rel="noopener noreferrer" className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center">
+              <Link
+                href="https://t.me/+UM70lvMnofk3YTVh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center"
+              >
                 <span className="text-3xl">🚀</span>
                 <p>Launch Feed</p>
               </Link>
-              <Link href="https://t.me/+UM70lvMnofk3YTVh" target="_blank" rel="noopener noreferrer" className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center">
+              <Link
+                href="https://t.me/+UM70lvMnofk3YTVh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center"
+              >
                 <span className="text-3xl">🤝</span>
                 <p>Partner W Us</p>
               </Link>
@@ -486,7 +560,6 @@ export default function Home() {
               </tbody>
             </table>
           </section> */}
-
         </div>
       </main>
 

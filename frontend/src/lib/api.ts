@@ -1,0 +1,63 @@
+import { useQuery, useMutation } from "@tanstack/react-query";
+import type { FeedConfig, AppConfig } from "../../../backend/src/types/config";
+import type { TwitterSubmission } from "../../../backend/src/types/twitter";
+
+export function useFeedConfig(feedId: string) {
+  return useQuery<FeedConfig>({
+    queryKey: ["feed", feedId],
+    queryFn: async () => {
+      const response = await fetch(`/api/config/${feedId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch feed config");
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useFeedItems(feedId: string) {
+  return useQuery<TwitterSubmission[]>({
+    queryKey: ["feed-items", feedId],
+    queryFn: async () => {
+      const response = await fetch(`/api/feed/${feedId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch feed items");
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useAppConfig() {
+  return useQuery<AppConfig>({
+    queryKey: ["app-config"],
+    queryFn: async () => {
+      const response = await fetch("/api/config");
+      if (!response.ok) {
+        throw new Error("Failed to fetch app config");
+      }
+      return response.json();
+    },
+  });
+}
+
+export function useUpdateLastTweetId() {
+  return useMutation({
+    mutationFn: async (tweetId: string) => {
+      const response = await fetch("/api/last-tweet-id", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tweetId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to update tweet ID");
+      }
+
+      return response.json();
+    },
+  });
+}

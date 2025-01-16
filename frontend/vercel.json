@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "destination": "https://curatedotfun.fly.dev/:path*",
+      "permanent": true
+    }
+  ]
+}
