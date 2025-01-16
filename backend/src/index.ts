@@ -148,6 +148,10 @@ export async function main() {
         }
         return content;
       })
+      .get("/api/feeds", () => {
+        const config = configService.getConfig();
+        return config.feeds;
+      })
       .get("/api/config/:feedId", ({ params: { feedId } }) => {
         const config = configService.getConfig();
         const feed = config.feeds.find((f) => f.id === feedId);
