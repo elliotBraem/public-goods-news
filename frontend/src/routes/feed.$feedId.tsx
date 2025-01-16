@@ -22,34 +22,63 @@ function FeedPage() {
   );
 
   const rightPanelContent = feed && (
-    <div className="p-4 space-y-8">
-      {/* Approvers Section */}
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Approvers</h3>
-        <ul className="space-y-2">
-          {feed.moderation.approvers.twitter.map((handle) => (
-            <li
-              key={handle}
-              className="px-3 py-2 bg-gray-50 rounded text-sm text-gray-700 font-mono"
-            >
-              @{handle}
-            </li>
-          ))}
-        </ul>
+    <div className="space-y-8 max-w-full overflow-x-hidden">
+      {/* Moderation Box */}
+      <div className="p-1">
+        <h3 className="heading-3 mb-4">Moderation</h3>
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-medium mb-2">Approvers</h4>
+            <ul className="space-y-2">
+              {feed.moderation.approvers.twitter.map((handle) => (
+                <li key={handle}>
+                  <a
+                    href={`https://twitter.com/${handle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-2 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-mono w-full"
+                  >
+                    <span className="bg-blue-400 text-white text-xs px-1.5 py-0.5 rounded mr-2">Twitter</span>
+                    @{handle}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
 
-      {/* Stream Plugins Section */}
+      {/* Stream Box */}
+      <div className="p-1">
+        <h3 className="heading-3 mb-4">Stream</h3>
+        <div className="space-y-4">
+          <div className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5">
+            <p className="text-center font-mono text-gray-500">Coming soon...</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Recap Box */}
+      <div className="p-1">
+        <h3 className="heading-3 mb-4">Recap</h3>
+        <div className="space-y-4">
+          <div className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5">
+            <p className="text-center font-mono text-gray-500">Coming soon...</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Commented out plugin configurations for future use
       {feed.outputs.stream?.enabled && feed.outputs.stream.distribute && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Stream Plugins</h3>
+        <div className="p-1">
           <div className="space-y-4">
             {feed.outputs.stream.distribute.map((plugin, index) => (
               <div
                 key={index}
-                className="p-4 bg-gray-50 rounded-lg"
+                className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5"
               >
                 <h4 className="font-mono font-medium mb-2">{plugin.plugin}</h4>
-                <pre className="text-xs bg-white p-2 rounded">
+                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">
                   {JSON.stringify(plugin.config, null, 2)}
                 </pre>
               </div>
@@ -58,33 +87,29 @@ function FeedPage() {
         </div>
       )}
 
-      {/* Recap Plugins Section */}
       {feed.outputs.recap?.enabled && (
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Recap Plugins</h3>
+        <div className="p-1">
           <div className="space-y-4">
-            {/* Transform Plugin */}
             {feed.outputs.recap.transform && (
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5">
                 <h4 className="font-mono font-medium mb-2">
                   {feed.outputs.recap.transform.plugin} (Transform)
                 </h4>
-                <pre className="text-xs bg-white p-2 rounded">
+                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">
                   {JSON.stringify(feed.outputs.recap.transform.config, null, 2)}
                 </pre>
               </div>
             )}
             
-            {/* Distribution Plugins */}
             {feed.outputs.recap.distribute?.map((plugin, index) => (
               <div
                 key={index}
-                className="p-4 bg-gray-50 rounded-lg"
+                className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5"
               >
                 <h4 className="font-mono font-medium mb-2">
                   {plugin.plugin} (Distribute)
                 </h4>
-                <pre className="text-xs bg-white p-2 rounded">
+                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">
                   {JSON.stringify(plugin.config, null, 2)}
                 </pre>
               </div>
@@ -92,6 +117,7 @@ function FeedPage() {
           </div>
         </div>
       )}
+      */}
     </div>
   );
 
