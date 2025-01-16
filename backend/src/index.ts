@@ -51,6 +51,7 @@ export async function main() {
       username: process.env.TWITTER_USERNAME!,
       password: process.env.TWITTER_PASSWORD!,
       email: process.env.TWITTER_EMAIL!,
+      twoFactorSecret: process.env.TWITTER_2FA_SECRET
     });
     await twitterService.initialize();
     succeedSpinner("twitter-init", "Twitter service initialized");

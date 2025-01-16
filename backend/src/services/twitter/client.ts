@@ -13,6 +13,7 @@ export class TwitterService {
       username: string;
       password: string;
       email: string;
+      twoFactorSecret?: string;
     },
   ) {
     this.client = new Scraper();
@@ -48,6 +49,7 @@ export class TwitterService {
             this.config.username,
             this.config.password,
             this.config.email,
+            this.config.twoFactorSecret
           );
 
           if (await this.client.isLoggedIn()) {

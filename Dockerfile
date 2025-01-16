@@ -48,8 +48,8 @@ RUN apt-get update -y && apt-get install -y ca-certificates fuse3 sqlite3
 COPY --from=flyio/litefs:0.5 /usr/local/bin/litefs /usr/local/bin/litefs
 
 # Create directories for mounts with correct permissions
-RUN mkdir -p /litefs /var/lib/litefs /public && \
-    chown -R bun:bun /litefs /var/lib/litefs /public
+RUN mkdir -p /litefs /var/lib/litefs && \
+    chown -R bun:bun /litefs /var/lib/litefs
 
 # Create volume mount points
 # Copy only necessary files from builders

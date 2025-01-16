@@ -82,7 +82,6 @@ The deployment includes:
 - Primary instance (LAX region) handles write operations
 - Replicas automatically sync data from primary
 - Consul manages primary/replica coordination
-- Files in /public directory are replicated across instances
 - Automatic failover if primary becomes unavailable
 
 #### Key Files
@@ -117,7 +116,7 @@ Common issues and solutions:
 
 2. **File Replication Issues**
    - Verify LiteFS FUSE mount: `fly ssh console -C "mount | grep litefs"`
-   - Check file permissions: `fly ssh console -C "ls -la /public"`
+   - Check file permissions: `fly ssh console -C "ls -la /src"`
    - Monitor LiteFS logs: `fly logs --level debug`
 
 3. **Memory/CPU Issues**
