@@ -1,9 +1,10 @@
 import { FaTwitter, FaBook, FaGithub, FaTelegram } from "react-icons/fa";
+import { Link } from "@tanstack/react-router";
 
 const Header = () => {
   return (
     <header className="sticky top-0 flex justify-between items-center p-4 border-b-2 border-black bg-white z-10">
-      <div className="flex items-center">
+      <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
         <img
           src="/curatedotfuntransparenticon.png"
           alt="curate.fun Logo"
@@ -12,7 +13,7 @@ const Header = () => {
         <div className="flex">
           <h1 className="text-2xl h-8">curate.fun</h1>
         </div>
-      </div>
+      </Link>
       <nav className="flex space-x-4 mx-4">
         <a
           href="https://twitter.com/curatedotfun"

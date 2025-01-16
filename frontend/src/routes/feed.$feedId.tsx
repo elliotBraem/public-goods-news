@@ -134,9 +134,15 @@ function FeedPage() {
           <h2 className="text-2xl font-bold">{feed?.name || "Loading..."}</h2>
           <LiveStatus />
         </div>
-        {items?.map((item) => (
-          <FeedItem key={item.tweetId} submission={item} />
-        ))}
+        {items.length === 0 ? (
+          <div className="flex justify-center items-center p-8">
+            <p className="text-gray-500">No items yet</p>
+          </div>
+        ) : (
+          items.map((item) => (
+            <FeedItem key={item.tweetId} submission={item} />
+          ))
+        )}
       </div>
     </Layout>
   );
