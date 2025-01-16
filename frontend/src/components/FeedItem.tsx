@@ -1,4 +1,4 @@
-import { ExternalLink } from "lucide-react";
+import { HiExternalLink } from "react-icons/hi";
 import { TwitterSubmission } from "../types/twitter";
 
 const BOT_ID = "test_curation";
@@ -53,7 +53,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 className="text-gray-600 hover:text-gray-800 transition-colors"
                 title="View original post on X/Twitter"
               >
-                <ExternalLink className="h-4 w-4" />
+                <HiExternalLink className="h-4 w-4" />
               </a>
               <span className="text-gray-500">·</span>
               <span className="text-gray-600 font-serif">
