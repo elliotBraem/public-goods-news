@@ -42,8 +42,8 @@ export const submissions = table(
     tweetId: text("tweet_id").primaryKey(),
     userId: text("user_id").notNull(),
     username: text("username").notNull(),
-    curatorId: text("curator_id").notNull(),
-    curatorUsername: text("curator_username").notNull(),
+    curatorId: text("curator_id").notNull().default("system"),
+    curatorUsername: text("curator_username").notNull().default("system"),
     content: text("content").notNull(),
     description: text("description"),
     status: text("status")
