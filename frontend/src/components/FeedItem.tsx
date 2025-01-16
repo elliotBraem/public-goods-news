@@ -12,11 +12,11 @@ const formatDate = (dateString: string) => {
 };
 
 export const StatusBadge = ({ status }: { status: TwitterSubmission["status"] }) => {
-  const baseClasses = "px-2 py-1 rounded-full text-sm font-semibold border";
+  const baseClasses = "status-badge";
   const statusClasses = {
-    pending: "bg-yellow-200 text-yellow-900 border-yellow-400",
-    approved: "bg-green-200 text-green-900 border-green-400",
-    rejected: "bg-red-200 text-red-900 border-red-400",
+    pending: "bg-yellow-200 text-black",
+    approved: "bg-green-200 text-black",
+    rejected: "bg-red-200 text-black",
   };
   return (
     <span className={`${baseClasses} ${statusClasses[status]}`}>{status}</span>
@@ -29,10 +29,10 @@ interface FeedItemProps {
 
 export const FeedItem = ({ submission }: FeedItemProps) => {
   return (
-    <div className="bg-white p-6 card-shadow">
+    <div className="card">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-grow">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <a
                 href={`https://x.com/${submission.username}`}
@@ -90,7 +90,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 </div>
               )}
           </div>
-          <p className="text-lg mb-4 leading-relaxed">{submission.content}</p>
+          <p className="text-lg mb-4 leading-relaxed body-text">{submission.content}</p>
         </div>
         <div className="flex items-end gap-2 flex-col">
           <a
@@ -110,10 +110,10 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
 
       {submission.description && (
         <div className="mb-4">
-          <h4 className="text-sm font-semibold text-gray-700 mb-1">
+          <h4 className="heading-3 mb-1">
             Curator's Notes:
           </h4>
-          <p className="text-gray-700">{submission.description}</p>
+          <p className="body-text">{submission.description}</p>
         </div>
       )}
 

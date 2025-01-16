@@ -20,5 +20,8 @@
   "devDependencies": {
     "turbo": "latest",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "react-icons": "^5.4.0"
   }
 }

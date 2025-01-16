@@ -26,15 +26,15 @@ export default function Settings() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-8">Settings</h1>
+      <h1 className="heading-1 mb-8">Settings</h1>
 
       {/* Global Plugins Section */}
-      <div className="bg-white p-6 card-shadow mb-8">
-        <h2 className="text-xl font-semibold mb-4">Global Plugins</h2>
+      <div className="card mb-8">
+        <h2 className="heading-2 mb-4">Global Plugins</h2>
         <div className="space-y-4">
           {config?.plugins && Object.entries(config.plugins).map(([name, plugin]) => (
-            <div key={name} className="border-2 border-gray-800 p-4">
-              <h3 className="font-mono text-lg mb-2">{name}</h3>
+            <div key={name} className="card">
+              <h3 className="heading-3 mb-2">{name}</h3>
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="font-semibold">Type:</div>
                 <div>{plugin.type}</div>
@@ -47,17 +47,17 @@ export default function Settings() {
       </div>
 
       {/* Feeds Section */}
-      <div className="bg-white p-6 card-shadow mb-8">
-        <h2 className="text-xl font-semibold mb-4">Feed Configurations</h2>
+      <div className="card mb-8">
+        <h2 className="heading-2 mb-4">Feed Configurations</h2>
         <div className="space-y-6">
           {config?.feeds.map((feed) => (
-            <div key={feed.id} className="border-2 border-gray-800 p-4">
-              <h3 className="text-lg font-semibold mb-2">{feed.name}</h3>
-              <p className="text-gray-600 mb-4">{feed.description}</p>
+            <div key={feed.id} className="card">
+              <h3 className="heading-3 mb-2">{feed.name}</h3>
+              <p className="body-text mb-4">{feed.description}</p>
               
               {/* Approvers */}
               <div className="mb-4">
-                <h4 className="font-semibold mb-2">Approvers:</h4>
+                <h4 className="heading-3 mb-2">Approvers:</h4>
                 <div className="flex flex-wrap gap-2">
                   {feed.moderation.approvers.twitter.map((handle) => (
                     <span key={handle} className="bg-gray-100 px-2 py-1 rounded font-mono text-sm">
@@ -107,11 +107,11 @@ export default function Settings() {
       </div>
 
       {/* Tweet ID Section */}
-      <div className="bg-white p-6 card-shadow">
-        <h2 className="text-lg font-semibold mb-4">Last Checked Tweet ID</h2>
+      <div className="card">
+        <h2 className="heading-2 mb-4">Last Checked Tweet ID</h2>
         <div className="mb-4">
           <p className="text-gray-600 mb-2">Current ID:</p>
-          <code className="bg-gray-50 p-2 border-2 border-gray-800 block font-mono">
+          <code className="bg-gray-50 p-2 border-4 border-black block font-mono">
             {lastTweetId || "Not set"}
           </code>
         </div>
@@ -144,7 +144,7 @@ export default function Settings() {
 
           <button
             type="submit"
-            className="w-full flex justify-center py-2 px-4 border-2 border-gray-800 bg-gray-800 text-white font-medium hover:bg-gray-900 transition-colors"
+            className="btn w-full flex justify-center"
           >
             Update Tweet ID
           </button>

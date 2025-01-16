@@ -10,6 +10,17 @@ export default defineConfig({
   tools: {
     rspack: {
       plugins: [TanStackRouterRspack()],
+      module: {
+        rules: [
+          {
+            test: /\.(woff|woff2|eot|ttf|otf)$/i,
+            type: 'asset/resource',
+            generator: {
+              filename: 'fonts/[name][ext]',
+            },
+          },
+        ],
+      },
     },
   },
   server: {
