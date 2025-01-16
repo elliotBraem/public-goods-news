@@ -3,6 +3,8 @@ import FeedItem from "../components/FeedItem";
 import FeedList from "../components/FeedList";
 import Layout from "../components/Layout";
 import { useFeedConfig, useFeedItems } from "../lib/api";
+import { useState } from "react";
+import { TwitterSubmission } from "../types/twitter";
 
 export const Route = createFileRoute("/feed/$feedId")({
   component: FeedPage,
@@ -12,6 +14,11 @@ function FeedPage() {
   const { feedId } = Route.useParams();
   const { data: feed } = useFeedConfig(feedId);
   const { data: items = [] } = useFeedItems(feedId);
+  const [statusFilter, setStatusFilter] = useState<"all" | TwitterSubmission["status"]>("all");
+
+  const filteredItems = items.filter(
+    (item) => statusFilter === "all" || item.status === statusFilter
+  );
 
   const sidebarContent = (
     <div className="p-4">
@@ -71,57 +78,6 @@ function FeedPage() {
           </div>
         </div>
       </div>
-
-      {/* Commented out plugin configurations for future use
-      {feed.outputs.stream?.enabled && feed.outputs.stream.distribute && (
-        <div className="p-1">
-          <div className="space-y-4">
-            {feed.outputs.stream.distribute.map((plugin, index) => (
-              <div
-                key={index}
-                className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5"
-              >
-                <h4 className="font-mono font-medium mb-2">{plugin.plugin}</h4>
-                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">
-                  {JSON.stringify(plugin.config, null, 2)}
-                </pre>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {feed.outputs.recap?.enabled && (
-        <div className="p-1">
-          <div className="space-y-4">
-            {feed.outputs.recap.transform && (
-              <div className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5">
-                <h4 className="font-mono font-medium mb-2">
-                  {feed.outputs.recap.transform.plugin} (Transform)
-                </h4>
-                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">
-                  {JSON.stringify(feed.outputs.recap.transform.config, null, 2)}
-                </pre>
-              </div>
-            )}
-            
-            {feed.outputs.recap.distribute?.map((plugin, index) => (
-              <div
-                key={index}
-                className="p-4 bg-white border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-shadow duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5"
-              >
-                <h4 className="font-mono font-medium mb-2">
-                  {plugin.plugin} (Distribute)
-                </h4>
-                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">
-                  {JSON.stringify(plugin.config, null, 2)}
-                </pre>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      */}
     </div>
   );
 
@@ -130,13 +86,55 @@ function FeedPage() {
       <div className="space-y-4">
         <div className="flex items-center justify-between mb-6 mr-4">
           <h2 className="text-2xl font-bold">{feed?.name || "Loading..."}</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
+                statusFilter === "all"
+                  ? "bg-black text-white"
+                  : "bg-gray-100 hover:bg-gray-200 text-black"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setStatusFilter("pending")}
+              className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
+                statusFilter === "pending"
+                  ? "bg-yellow-200 text-black"
+                  : "bg-gray-100 hover:bg-gray-200 text-black"
+              }`}
+            >
+              Pending
+            </button>
+            <button
+              onClick={() => setStatusFilter("approved")}
+              className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
+                statusFilter === "approved"
+                  ? "bg-green-200 text-black"
+                  : "bg-gray-100 hover:bg-gray-200 text-black"
+              }`}
+            >
+              Approved
+            </button>
+            <button
+              onClick={() => setStatusFilter("rejected")}
+              className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${
+                statusFilter === "rejected"
+                  ? "bg-red-200 text-black"
+                  : "bg-gray-100 hover:bg-gray-200 text-black"
+              }`}
+            >
+              Rejected
+            </button>
+          </div>
         </div>
-        {items.length === 0 ? (
+        {filteredItems.length === 0 ? (
           <div className="flex justify-center items-center p-8">
-            <p className="text-gray-500">No items yet</p>
+            <p className="text-gray-500">No items found</p>
           </div>
         ) : (
-          items.map((item) => <FeedItem key={item.tweetId} submission={item} />)
+          filteredItems.map((item) => <FeedItem key={item.tweetId} submission={item} />)
         )}
       </div>
     </Layout>
