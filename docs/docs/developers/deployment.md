@@ -43,19 +43,25 @@ fly auth login
 bun run deploy:init
 ```
 
-2. Create the LiteFS volume (see [LiteFS Spreedrun](https://fly.io/docs/litefs/speedrun/) for more information):
+This will create the Fly App, the LiteFS volume (see [LiteFS Spreedrun](https://fly.io/docs/litefs/speedrun/) for more information), and attach Consul for LiteFS cluster management (this sets the FLY_CONSUL_URL secret for the app, which is required for LitefS leases)
+
+2. The app will crash the first time, because your Fly App needs environment variables set (sorry, you have to do this manually):
 
 ```bash
-bun run deploy:volumes
+fly secrets set TWITTER_USERNAME=your_twitter_username
+fly secrets set TWITTER_PASSWORD=your_twitter_password
+fly secrets set TWITTER_EMAIL=your_twitter_email
 ```
 
-3. Attach Consul for LiteFS cluster management (this sets the FLY_CONSUL_URL secret for the app, which is required for LitefS leases):
+For distribution services, these will hydrate the curate.config.json:
 
 ```bash
-bun run deploy:consul
+# Telegram
+fly secrets set TELEGRAM_BOT_TOKEN=your_bot_token
+fly secrets set TELEGRAM_CHANNEL_ID=your_channel_id
 ```
 
-4. Deploy the application:
+2. Then redeploy the application. Use this command for any future deployments:
 
 ```bash
 bun run deploy
@@ -84,24 +90,6 @@ The deployment includes:
 - `fly.toml`: Main Fly.io configuration
 - `litefs.yml`: LiteFS configuration
 - `Dockerfile`: Container and LiteFS setup
-
-### Environment Variables
-
-Make sure to configure your environment variables in Fly.io:
-
-```bash
-fly secrets set TWITTER_USERNAME=your_twitter_username
-fly secrets set TWITTER_PASSWORD=your_twitter_password
-fly secrets set TWITTER_EMAIL=your_twitter_email
-```
-
-For distribution services, these will hydrate the curate.config.json:
-
-```bash
-# Telegram
-fly secrets set TELEGRAM_BOT_TOKEN=your_bot_token
-fly secrets set TELEGRAM_CHANNEL_ID=your_channel_id
-```
 
 ### Monitoring
 

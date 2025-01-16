@@ -8,8 +8,7 @@
     "build": "bunx turbo run build",
     "start": "NODE_ENV=production bun run backend/dist/index.js",
     "lint": "bunx turbo run lint",
-    "deploy:init": "fly launch",
-    "deploy:consul": "fly consul attach",
+    "deploy:init": "fly launch && fly consul attach",
     "deploy": "fly deploy",
     "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
     "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'"

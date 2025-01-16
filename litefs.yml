@@ -4,11 +4,7 @@
 # so that those transactions can be saved and shipped to replicas.
 fuse:
   dir: "/litefs"
-  mount-timeout: "5s"
   allow-other: true
-  directories:
-    - path: "/public"
-      read-only: false
 
 # The data section describes settings for the internal LiteFS storage. We'll 
 # mount a volume to the data directory so it can be persisted across restarts.
