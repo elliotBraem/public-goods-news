@@ -43,9 +43,9 @@ export class TwitterService {
       // Load last checked tweet ID from cache
       this.lastCheckedTweetId = db.getTwitterCacheValue("last_tweet_id");
 
-      // Try to login with retries
+      // Try to login with max 2 retries
       logger.info("Attempting Twitter login...");
-      while (true) {
+      for (let attempt = 0; attempt < 3; attempt++) {
         try {
           await this.client.login(
             this.config.username,
@@ -71,18 +71,24 @@ export class TwitterService {
                 | undefined,
             }));
             db.setTwitterCookies(this.config.username, formattedCookies);
+            logger.info("Successfully logged in to Twitter");
             break;
           }
         } catch (error) {
-          logger.error("Failed to login to Twitter, retrying...", error);
-          break;
+          logger.error(
+            `Failed to login to Twitter (attempt ${attempt + 1}/3)...`,
+            error,
+          );
         }
 
-        // Wait before retrying
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (attempt < 2) {
+          // Wait before retrying
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
       }
 
-      logger.info("Successfully logged in to Twitter");
+      // If we get here without breaking, all attempts failed
+      throw new Error("Failed to login to Twitter after 3 attempts");
     } catch (error) {
       logger.error("Failed to initialize Twitter client:", error);
       throw error;
