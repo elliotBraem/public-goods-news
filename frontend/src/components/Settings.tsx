@@ -1,47 +1,26 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLiveUpdates } from "../contexts/LiveUpdateContext";
-
-import type { AppConfig } from '../../../backend/src/types/config';
+import { useAppConfig, useUpdateLastTweetId } from "../lib/api";
 
 export default function Settings() {
   const { lastTweetId } = useLiveUpdates();
+  const { data: config } = useAppConfig();
+  const updateTweetId = useUpdateLastTweetId();
   const [newTweetId, setNewTweetId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [config, setConfig] = useState<AppConfig | null>(null);
-
-  useEffect(() => {
-    fetch("/api/config")
-      .then((res) => res.json())
-      .then((data) => setConfig(data))
-      .catch((err) => console.error("Failed to load config:", err));
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
-
+    
     try {
-      const response = await fetch("/api/last-tweet-id", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ tweetId: newTweetId }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update tweet ID");
-      }
-
+      await updateTweetId.mutateAsync(newTweetId);
       setSuccess(true);
       setNewTweetId("");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to update tweet ID",
-      );
+      setError(err instanceof Error ? err.message : "Failed to update tweet ID");
     }
   };
 
@@ -89,11 +68,11 @@ export default function Settings() {
               </div>
 
               {/* Stream Plugins */}
-              {feed.outputs.stream.enabled && feed.outputs.stream.distribute && (
+              {feed.outputs.stream?.enabled && feed.outputs.stream?.distribute && (
                 <div className="mb-4">
                   <h4 className="font-semibold mb-2">Stream Plugins:</h4>
                   <div className="space-y-2">
-                    {feed.outputs.stream.distribute.map((dist, idx) => (
+                    {feed.outputs.stream?.distribute.map((dist, idx) => (
                       <div key={idx} className="bg-gray-50 p-2 rounded">
                         <code className="font-mono text-sm">{dist.plugin}</code>
                       </div>

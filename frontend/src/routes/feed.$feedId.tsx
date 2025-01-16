@@ -1,19 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
 import Layout from '../components/Layout';
 import FeedList from '../components/FeedList';
 import LiveStatus from '../components/LiveStatus';
-
-import type { FeedConfig } from '../../../backend/src/types/config';
-
-type Feed = FeedConfig;
-
-interface FeedItem {
-  id: string;
-  content: string;
-  status: 'pending' | 'approved' | 'rejected';
-  tweetId: string;
-}
+import { useFeedConfig, useFeedItems } from '../lib/api';
+import FeedItem from '../components/FeedItem';
 
 export const Route = createFileRoute('/feed/$feedId')({
   component: FeedPage,
@@ -21,28 +11,8 @@ export const Route = createFileRoute('/feed/$feedId')({
 
 function FeedPage() {
   const { feedId } = Route.useParams();
-  
-  const { data: feed } = useQuery<Feed>({
-    queryKey: ['feed', feedId],
-    queryFn: async () => {
-      const response = await fetch(`/api/config/${feedId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch feed config');
-      }
-      return response.json();
-    },
-  });
-
-  const { data: items = [] } = useQuery<FeedItem[]>({
-    queryKey: ['feed-items', feedId],
-    queryFn: async () => {
-      const response = await fetch(`/api/feed/${feedId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch feed items');
-      }
-      return response.json();
-    },
-  });
+  const { data: feed } = useFeedConfig(feedId);
+  const { data: items = [] } = useFeedItems(feedId);
 
   const sidebarContent = (
     <div className="p-4">
@@ -136,21 +106,7 @@ function FeedPage() {
       <div className="space-y-4">
         <h2 className="text-2xl font-bold mb-6">{feed?.name || 'Loading...'}</h2>
         {items?.map((item) => (
-          <div
-            key={item.id}
-            className={`p-4 rounded-lg border ${
-              item.status === 'approved'
-                ? 'border-green-200 bg-green-50'
-                : item.status === 'rejected'
-                ? 'border-red-200 bg-red-50'
-                : 'border-gray-200 bg-white'
-            }`}
-          >
-            <p className="text-gray-800">{item.content}</p>
-            <div className="mt-2 text-sm text-gray-500">
-              Tweet ID: {item.tweetId}
-            </div>
-          </div>
+          <FeedItem key={item.tweetId} submission={item} />
         ))}
       </div>
 
