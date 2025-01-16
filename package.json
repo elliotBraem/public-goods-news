@@ -21,5 +21,8 @@
   "devDependencies": {
     "turbo": "latest",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "elysia-rate-limit": "^4.1.0"
   }
 }
