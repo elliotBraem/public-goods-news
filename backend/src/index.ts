@@ -164,13 +164,10 @@ export async function main() {
         const config = configService.getConfig();
         return config.feeds;
       })
-      .get(
-        "/api/config",
-        () => {
-          const config = configService.getConfig();
-          return config;
-        },
-      )
+      .get("/api/config", () => {
+        const config = configService.getConfig();
+        return config;
+      })
       .get(
         "/api/config/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {

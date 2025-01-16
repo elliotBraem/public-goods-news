@@ -15,7 +15,7 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) { }
+  ) {}
 
   async initialize(): Promise<void> {
     // Initialize feeds and admin cache from config

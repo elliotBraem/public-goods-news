@@ -6,7 +6,11 @@ const getTweetUrl = (tweetId: string, username: string) => {
   return `https://x.com/${username}/status/${tweetId}`;
 };
 
-const getTwitterIntentUrl = (tweetId: string, action: "approve" | "reject", botId: string) => {
+const getTwitterIntentUrl = (
+  tweetId: string,
+  action: "approve" | "reject",
+  botId: string,
+) => {
   const baseUrl = "https://twitter.com/intent/tweet";
   // Add in_reply_to_status_id parameter to make it a reply
   const params = new URLSearchParams({
@@ -42,9 +46,10 @@ interface FeedItemProps {
 
 export const FeedItem = ({ submission }: FeedItemProps) => {
   const botId = useBotId();
-  const tweetId = submission.status === "pending"
-    ? submission.acknowledgmentTweetId
-    : submission.moderationResponseTweetId;
+  const tweetId =
+    submission.status === "pending"
+      ? submission.acknowledgmentTweetId
+      : submission.moderationResponseTweetId;
 
   return (
     <div className="card">
@@ -130,7 +135,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                   </p>
                 )}
               </div>
-          )}
+            )}
 
           {submission.status === "pending" && (
             <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50">
@@ -149,31 +154,42 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                   </a>
                 </div>
               </div>
-              <p className="body-text text-gray-700">{submission.description}</p>
+              <p className="body-text text-gray-700">
+                {submission.description}
+              </p>
             </div>
           )}
         </div>
 
-        {submission.status === "pending" && submission.acknowledgmentTweetId && (
-          <div className="flex flex-col gap-2">
-            <a
-              href={getTwitterIntentUrl(submission.acknowledgmentTweetId, "approve", botId)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
-            >
-              Approve
-            </a>
-            <a
-              href={getTwitterIntentUrl(submission.acknowledgmentTweetId, "reject", botId)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
-            >
-              Reject
-            </a>
-          </div>
-        )}
+        {submission.status === "pending" &&
+          submission.acknowledgmentTweetId && (
+            <div className="flex flex-col gap-2">
+              <a
+                href={getTwitterIntentUrl(
+                  submission.acknowledgmentTweetId,
+                  "approve",
+                  botId,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+              >
+                Approve
+              </a>
+              <a
+                href={getTwitterIntentUrl(
+                  submission.acknowledgmentTweetId,
+                  "reject",
+                  botId,
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+              >
+                Reject
+              </a>
+            </div>
+          )}
       </div>
     </div>
   );

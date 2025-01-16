@@ -10,7 +10,8 @@ export function HowItWorks() {
         <div className="p-4 border-2 border-black rounded-md bg-gray-50">
           <h3 className="text-lg font-medium mb-2">1. Curation</h3>
           <p className="text-gray-700">
-            Mention @{botId} with your feed's hashtag to submit content. For example:
+            Mention @{botId} with your feed's hashtag to submit content. For
+            example:
             <code className="block mt-2 p-2 bg-white border border-gray-200 rounded font-mono text-sm">
               !submit @{botId} #ethereum Great article about web3!
             </code>
@@ -20,7 +21,8 @@ export function HowItWorks() {
         <div className="p-4 border-2 border-black rounded-md bg-gray-50">
           <h3 className="text-lg font-medium mb-2">2. Moderation</h3>
           <p className="text-gray-700">
-            Designated approvers review submissions and can approve or reject them using hashtags:
+            Designated approvers review submissions and can approve or reject
+            them using hashtags:
             <code className="block mt-2 p-2 bg-white border border-gray-200 rounded font-mono text-sm">
               @{botId} #approve
             </code>
@@ -33,7 +35,8 @@ export function HowItWorks() {
         <div className="p-4 border-2 border-black rounded-md bg-gray-50">
           <h3 className="text-lg font-medium mb-2">3. Distribution</h3>
           <p className="text-gray-700">
-            Approved content is automatically distributed across configured platforms and formats.
+            Approved content is automatically distributed across configured
+            platforms and formats.
           </p>
         </div>
       </div>
