@@ -1,9 +1,8 @@
 {
-  "redirects": [
+  "rewrites": [
     {
-      "source": "/:path*",
-      "destination": "https://curatedotfun.fly.dev/:path*",
-      "permanent": true
+      "source": "/(.*)",
+      "destination": "https://curatedotfun.fly.dev/$1"
     }
   ]
 }
