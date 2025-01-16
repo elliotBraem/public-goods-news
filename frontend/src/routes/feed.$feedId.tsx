@@ -5,6 +5,7 @@ import Layout from '../components/Layout'
 import { useFeedConfig, useFeedItems } from '../lib/api'
 import { useState } from 'react'
 import { TwitterSubmission } from '../types/twitter'
+import { useBotId } from '../lib/config'
 
 export const Route = createFileRoute('/feed/$feedId')({
   component: FeedPage,
@@ -14,6 +15,7 @@ function FeedPage() {
   const { feedId } = Route.useParams()
   const { data: feed } = useFeedConfig(feedId)
   const { data: items = [] } = useFeedItems(feedId)
+  const botId = useBotId();
   const [statusFilter, setStatusFilter] = useState<
     'all' | TwitterSubmission['status']
   >('all')
@@ -132,8 +134,9 @@ function FeedPage() {
           </div>
         </div>
         {filteredItems.length === 0 ? (
-          <div className="flex justify-center items-center p-8">
+          <div className="flex flex-col justify-center items-center p-8 space-y-2">
             <p className="text-gray-500">No items found</p>
+            <p className="text-gray-400 text-sm">comment with "!submit @{botId} #{feed?.id}" to start curating</p>
           </div>
         ) : (
           filteredItems.map((item) => (
