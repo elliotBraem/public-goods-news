@@ -21,8 +21,8 @@ export function HowItWorks() {
         <div className="p-4 border-2 border-black rounded-md bg-gray-50">
           <h3 className="text-lg font-medium mb-2">2. Moderation</h3>
           <p className="text-gray-700">
-            Designated approvers review submissions and can approve or reject
-            by replying:
+            Designated approvers review submissions and can approve or reject by
+            replying:
             <code className="block mt-2 p-2 bg-white border border-gray-200 rounded font-mono text-sm">
               !approve
             </code>

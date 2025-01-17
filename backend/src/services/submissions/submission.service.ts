@@ -164,9 +164,13 @@ export class SubmissionService {
       }
 
       // Check if submitter is a moderator for any of the feeds
-      const isModerator = feedIds.some(feedId => {
-        const feed = this.config.feeds.find(f => f.id === feedId.toLowerCase());
-        return feed?.moderation.approvers.twitter.includes(curatorTweet.username!);
+      const isModerator = feedIds.some((feedId) => {
+        const feed = this.config.feeds.find(
+          (f) => f.id === feedId.toLowerCase(),
+        );
+        return feed?.moderation.approvers.twitter.includes(
+          curatorTweet.username!,
+        );
       });
 
       // Create submission
@@ -178,14 +182,23 @@ export class SubmissionService {
         curatorUsername: curatorTweet.username,
         content: originalTweet.text || "",
         description: this.extractDescription(originalTweet.username!, tweet),
-        status: isModerator ? "approved" : (this.config.global.defaultStatus as "pending" | "approved" | "rejected"),
-        moderationHistory: isModerator ? [{
-          adminId: curatorTweet.username,
-          action: "approve",
-          timestamp: new Date(),
-          tweetId: originalTweet.id!,
-          note: "Auto-approved: Submission by feed moderator"
-        }] : [],
+        status: isModerator
+          ? "approved"
+          : (this.config.global.defaultStatus as
+              | "pending"
+              | "approved"
+              | "rejected"),
+        moderationHistory: isModerator
+          ? [
+              {
+                adminId: curatorTweet.username,
+                action: "approve",
+                timestamp: new Date(),
+                tweetId: originalTweet.id!,
+                note: "Auto-approved: Submission by feed moderator",
+              },
+            ]
+          : [],
         createdAt:
           originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
         submittedAt: new Date().toISOString(),
@@ -201,7 +214,9 @@ export class SubmissionService {
       // Send acknowledgment
       const acknowledgmentTweetId = await this.twitterService.replyToTweet(
         tweet.id,
-        isModerator ? "Successfully submitted and auto-approved!" : "Successfully submitted!",
+        isModerator
+          ? "Successfully submitted and auto-approved!"
+          : "Successfully submitted!",
       );
 
       if (acknowledgmentTweetId) {
@@ -217,7 +232,9 @@ export class SubmissionService {
         if (isModerator) {
           try {
             for (const feedId of feedIds) {
-              const feed = this.config.feeds.find(f => f.id === feedId.toLowerCase());
+              const feed = this.config.feeds.find(
+                (f) => f.id === feedId.toLowerCase(),
+              );
               if (feed?.outputs.stream?.enabled) {
                 await this.DistributionService.processStreamOutput(
                   feedId.toLowerCase(),
@@ -350,8 +367,10 @@ export class SubmissionService {
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
     const hashtags = tweet.hashtags?.map((tag) => tag.toLowerCase()) || [];
-    if (tweet.text?.includes("!approve") || hashtags.includes("approve")) return "approve";
-    if (tweet.text?.includes("!reject") || hashtags.includes("reject")) return "reject";
+    if (tweet.text?.includes("!approve") || hashtags.includes("approve"))
+      return "approve";
+    if (tweet.text?.includes("!reject") || hashtags.includes("reject"))
+      return "reject";
     return null;
   }
 
@@ -363,7 +382,10 @@ export class SubmissionService {
     return tweet.text?.toLowerCase().includes("!submit") || false;
   }
 
-  private extractDescription(username: string, tweet: Tweet): string | undefined {
+  private extractDescription(
+    username: string,
+    tweet: Tweet,
+  ): string | undefined {
     return (
       tweet.text
         ?.replace(/!submit\s+@\w+/i, "")

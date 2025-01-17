@@ -89,7 +89,9 @@ function FeedPage() {
     <Layout sidebar={sidebarContent} rightPanel={rightPanelContent}>
       <div className="space-y-4">
         <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between mb-6 mr-4">
-          <h2 className="text-2xl font-bold mb-2 sm:mb-0">{feed?.name || "Loading..."}</h2>
+          <h2 className="text-2xl font-bold mb-2 sm:mb-0">
+            {feed?.name || "Loading..."}
+          </h2>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setStatusFilter("all")}
