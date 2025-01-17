@@ -169,9 +169,14 @@ export async function main() {
       .post("/api/twitter/clear-cookies", async () => {
         try {
           await twitterService.clearCookies();
-          return { success: true, message: "Twitter cookies cleared and reinitialized successfully" };
+          return {
+            success: true,
+            message: "Twitter cookies cleared and reinitialized successfully",
+          };
         } catch (error) {
-          throw new Error(`Failed to clear Twitter cookies: ${error instanceof Error ? error.message : String(error)}`);
+          throw new Error(
+            `Failed to clear Twitter cookies: ${error instanceof Error ? error.message : String(error)}`,
+          );
         }
       })
       .get(
