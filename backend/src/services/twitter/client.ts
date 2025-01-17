@@ -75,6 +75,7 @@ export class TwitterService {
             break;
           }
         } catch (error) {
+          break;
           logger.error(
             `Failed to login to Twitter (attempt ${attempt + 1}/3)...`,
             error,
