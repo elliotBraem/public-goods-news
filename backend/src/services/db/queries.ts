@@ -69,7 +69,6 @@ export function saveSubmission(
     content: submission.content,
     description: submission.description,
     status: submission.status,
-    acknowledgmentTweetId: submission.acknowledgmentTweetId,
     createdAt: submission.createdAt,
     submittedAt: submission.submittedAt,
   });
@@ -104,20 +103,6 @@ export function updateSubmissionStatus(
     .where(eq(submissions.tweetId, tweetId));
 }
 
-type DbSubmission = {
-  tweetId: string;
-  userId: string;
-  username: string;
-  content: string;
-  description: string | null;
-  status: string;
-  acknowledgmentTweetId: string | null;
-  moderationResponseTweetId: string | null;
-  createdAt: string;
-  submittedAt: string;
-  moderationHistory: string;
-};
-
 const moderationHistoryJson = sql<string>`json_group_array(
   CASE 
     WHEN ${moderationHistory.adminId} IS NULL THEN NULL
@@ -145,6 +130,8 @@ export function getSubmission(
       status: submissions.status,
       acknowledgmentTweetId: submissions.acknowledgmentTweetId,
       moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorId: submissions.curatorId,
+      curatorUsername: submissions.curatorUsername,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       moderationHistory: moderationHistoryJson,
@@ -169,6 +156,8 @@ export function getSubmission(
     status: result.status as TwitterSubmission["status"],
     acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
     moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
+    curatorId: result.curatorId,
+    curatorUsername: result.curatorUsername,
     createdAt: result.createdAt,
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
@@ -196,6 +185,8 @@ export function getSubmissionByAcknowledgmentTweetId(
       status: submissions.status,
       acknowledgmentTweetId: submissions.acknowledgmentTweetId,
       moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorId: submissions.curatorId,
+      curatorUsername: submissions.curatorUsername,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       moderationHistory: moderationHistoryJson,
@@ -220,6 +211,8 @@ export function getSubmissionByAcknowledgmentTweetId(
     status: result.status as TwitterSubmission["status"],
     acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
     moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
+    curatorId: result.curatorId,
+    curatorUsername: result.curatorUsername,
     createdAt: result.createdAt,
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
@@ -244,6 +237,8 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
       status: submissions.status,
       acknowledgmentTweetId: submissions.acknowledgmentTweetId,
       moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorId: submissions.curatorId,
+      curatorUsername: submissions.curatorUsername,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       moderationHistory: moderationHistoryJson,
@@ -265,6 +260,8 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
     status: result.status as TwitterSubmission["status"],
     acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
     moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
+    curatorId: result.curatorId,
+    curatorUsername: result.curatorUsername,
     createdAt: result.createdAt,
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
@@ -292,6 +289,8 @@ export function getSubmissionsByStatus(
       status: submissions.status,
       acknowledgmentTweetId: submissions.acknowledgmentTweetId,
       moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorId: submissions.curatorId,
+      curatorUsername: submissions.curatorUsername,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       moderationHistory: moderationHistoryJson,
@@ -314,6 +313,8 @@ export function getSubmissionsByStatus(
     status: result.status as TwitterSubmission["status"],
     acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
     moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
+    curatorId: result.curatorId,
+    curatorUsername: result.curatorUsername,
     createdAt: result.createdAt,
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
@@ -460,6 +461,8 @@ export function getSubmissionsByFeed(
       status: submissions.status,
       acknowledgmentTweetId: submissions.acknowledgmentTweetId,
       moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorId: submissions.curatorId,
+      curatorUsername: submissions.curatorUsername,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       moderationHistory: moderationHistoryJson,
@@ -486,6 +489,8 @@ export function getSubmissionsByFeed(
     status: result.status as TwitterSubmission["status"],
     acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
     moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
+    curatorId: result.curatorId,
+    curatorUsername: result.curatorUsername,
     createdAt: result.createdAt,
     submittedAt: result.submittedAt,
     moderationHistory: result.moderationHistory
