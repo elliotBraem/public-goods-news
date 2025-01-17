@@ -150,7 +150,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               </div>
             )}
 
-          {submission.status === "pending" && (
+          {submission.status === "pending" && (submission.description && submission.description.trim() !== "") && (
             <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50">
               <div className="flex items-center gap-2 mb-2">
                 <h4 className="heading-3">Curator's Notes</h4>
