@@ -75,7 +75,6 @@ export class TwitterService {
             break;
           }
         } catch (error) {
-          break;
           logger.error(
             `Failed to login to Twitter (attempt ${attempt + 1}/3)...`,
             error,
@@ -92,7 +91,7 @@ export class TwitterService {
       throw new Error("Failed to login to Twitter after 3 attempts");
     } catch (error) {
       logger.error("Failed to initialize Twitter client:", error);
-      throw error;
+      // throw error;
     }
   }
 
