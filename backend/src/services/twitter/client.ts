@@ -175,6 +175,21 @@ export class TwitterService {
     return this.lastCheckedTweetId;
   }
 
+  async clearCookies() {
+    try {
+      // Clear cookies from the client
+      await this.client.setCookies([]);
+      // Clear cookies from the database
+      db.setTwitterCookies(this.config.username, []);
+      // Re-initialize to attempt fresh login
+      await this.initialize();
+      return true;
+    } catch (error) {
+      logger.error("Failed to clear Twitter cookies:", error);
+      throw error;
+    }
+  }
+
   async stop() {
     await this.client.logout();
   }

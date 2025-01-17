@@ -168,6 +168,14 @@ export async function main() {
         const config = configService.getConfig();
         return config;
       })
+      .post("/api/twitter/clear-cookies", async () => {
+        try {
+          await twitterService.clearCookies();
+          return { success: true, message: "Twitter cookies cleared and reinitialized successfully" };
+        } catch (error) {
+          throw new Error(`Failed to clear Twitter cookies: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      })
       .get(
         "/api/config/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
