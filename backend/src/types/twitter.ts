@@ -8,7 +8,7 @@ export interface TwitterSubmission {
   description?: string;
   status: "pending" | "approved" | "rejected";
   moderationHistory: Moderation[];
-  acknowledgmentTweetId?: string;
+  acknowledgmentTweetId?: string; // depreciated
   moderationResponseTweetId?: string;
   createdAt: string;
   submittedAt: string;

@@ -211,41 +211,25 @@ export class SubmissionService {
       }
       db.incrementDailySubmissionCount(userId);
 
-      // Send acknowledgment
-      const acknowledgmentTweetId = await this.twitterService.replyToTweet(
-        tweet.id,
-        isModerator
-          ? "Successfully submitted and auto-approved!"
-          : "Successfully submitted!",
-      );
+      logger.info(`Successfully submitted.`);
 
-      if (acknowledgmentTweetId) {
-        db.updateSubmissionAcknowledgment(
-          originalTweet.id!,
-          acknowledgmentTweetId,
-        );
-        logger.info(
-          `Successfully submitted. Sent reply: ${acknowledgmentTweetId}`,
-        );
-
-        // If moderator, process through distribution service
-        if (isModerator) {
-          try {
-            for (const feedId of feedIds) {
-              const feed = this.config.feeds.find(
-                (f) => f.id === feedId.toLowerCase(),
+      // If moderator, process through distribution service
+      if (isModerator) {
+        try {
+          for (const feedId of feedIds) {
+            const feed = this.config.feeds.find(
+              (f) => f.id === feedId.toLowerCase(),
+            );
+            if (feed?.outputs.stream?.enabled) {
+              await this.DistributionService.processStreamOutput(
+                feedId.toLowerCase(),
+                submission.tweetId,
+                submission.content,
               );
-              if (feed?.outputs.stream?.enabled) {
-                await this.DistributionService.processStreamOutput(
-                  feedId.toLowerCase(),
-                  submission.tweetId,
-                  submission.content,
-                );
-              }
             }
-          } catch (error) {
-            logger.error("Failed to process auto-approved submission:", error);
           }
+        } catch (error) {
+          logger.error("Failed to process auto-approved submission:", error);
         }
       }
     } catch (error) {
@@ -268,7 +252,10 @@ export class SubmissionService {
     const inReplyToId = tweet.inReplyToStatusId;
     if (!inReplyToId) return;
 
-    const submission = db.getSubmissionByAcknowledgmentTweetId(inReplyToId);
+    const submission =
+      db.getSubmission(inReplyToId) ||
+      db.getSubmissionByAcknowledgmentTweetId(inReplyToId); // legacy
+
     if (!submission || submission.status !== this.config.global.defaultStatus)
       return;
 
@@ -304,42 +291,31 @@ export class SubmissionService {
     tweet: Tweet,
     submission: TwitterSubmission,
   ): Promise<void> {
-    const responseTweetId = await this.twitterService.replyToTweet(
-      tweet.id!,
-      "Your submission has been approved!",
-    );
+    db.updateSubmissionStatus(submission.tweetId, "approved", tweet.id!);
 
-    if (responseTweetId) {
-      db.updateSubmissionStatus(
-        submission.tweetId,
-        "approved",
-        responseTweetId,
-      );
+    // Process through distribution service for each associated feed
+    try {
+      const submissionFeeds = db.getFeedsBySubmission(submission.tweetId);
 
-      // Process through distribution service for each associated feed
-      try {
-        const submissionFeeds = db.getFeedsBySubmission(submission.tweetId);
-
-        for (const { feedId } of submissionFeeds) {
-          const feed = this.config.feeds.find((f) => f.id === feedId);
-          if (
-            feed &&
-            feed.moderation.approvers.twitter.includes(
-              this.adminIdCache.get(tweet.userId!) || "",
-            )
-          ) {
-            if (feed?.outputs.stream?.enabled) {
-              await this.DistributionService.processStreamOutput(
-                feedId,
-                submission.tweetId,
-                submission.content,
-              );
-            }
+      for (const { feedId } of submissionFeeds) {
+        const feed = this.config.feeds.find((f) => f.id === feedId);
+        if (
+          feed &&
+          feed.moderation.approvers.twitter.includes(
+            this.adminIdCache.get(tweet.userId!) || "",
+          )
+        ) {
+          if (feed?.outputs.stream?.enabled) {
+            await this.DistributionService.processStreamOutput(
+              feedId,
+              submission.tweetId,
+              submission.content,
+            );
           }
         }
-      } catch (error) {
-        logger.error("Failed to process approved submission:", error);
       }
+    } catch (error) {
+      logger.error("Failed to process approved submission:", error);
     }
   }
 
@@ -347,18 +323,7 @@ export class SubmissionService {
     tweet: Tweet,
     submission: TwitterSubmission,
   ): Promise<void> {
-    const responseTweetId = await this.twitterService.replyToTweet(
-      tweet.id!,
-      "Your submission has been reviewed and was not accepted.",
-    );
-
-    if (responseTweetId) {
-      db.updateSubmissionStatus(
-        submission.tweetId,
-        "rejected",
-        responseTweetId,
-      );
-    }
+    db.updateSubmissionStatus(submission.tweetId, "rejected", tweet.id!);
   }
 
   private isAdmin(userId: string): boolean {
