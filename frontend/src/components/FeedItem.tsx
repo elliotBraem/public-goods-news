@@ -1,15 +1,12 @@
 import { HiExternalLink } from "react-icons/hi";
-import { TwitterSubmission } from "../types/twitter";
 import { useBotId } from "../lib/config";
+import { TwitterSubmission } from "../types/twitter";
 
 const getTweetUrl = (tweetId: string, username: string) => {
   return `https://x.com/${username}/status/${tweetId}`;
 };
 
-const getTwitterIntentUrl = (
-  tweetId: string,
-  action: "approve" | "reject",
-) => {
+const getTwitterIntentUrl = (tweetId: string, action: "approve" | "reject") => {
   const baseUrl = "https://twitter.com/intent/tweet";
   // Add in_reply_to_status_id parameter to make it a reply
   const params = new URLSearchParams({
@@ -54,8 +51,8 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
     <div className="card">
       <div className="flex justify-between items-start">
         <div className="flex-grow">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col pr-2">
+            <div className="flex">
               <a
                 href={`https://x.com/${submission.username}`}
                 target="_blank"
@@ -73,15 +70,13 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               >
                 <HiExternalLink className="h-4 w-4" />
               </a>
-              <span className="text-gray-500">·</span>
-              <span className="text-gray-600 font-serif">
+            </div>
+            <div className="flex">
+              <span className="text-gray-600">
                 {formatDate(submission.createdAt)}
               </span>
             </div>
           </div>
-          <p className="text-lg mb-4 leading-relaxed body-text">
-            {submission.content}
-          </p>
         </div>
         <div>
           {tweetId && (
@@ -95,6 +90,10 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
           )}
         </div>
       </div>
+
+      <p className="text-lg leading-relaxed body-text pt-2">
+        {submission.content}
+      </p>
 
       <div className="mt-6 flex justify-between items-start gap-8">
         <div className="flex-1">
@@ -124,7 +123,12 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                       <>
                         <span className="text-gray-400 mx-1">·</span>
                         <a
-                          href={getTweetUrl(submission.moderationResponseTweetId, submission.moderationHistory?.[submission.moderationHistory.length - 1]?.adminId)}
+                          href={getTweetUrl(
+                            submission.moderationResponseTweetId,
+                            submission.moderationHistory?.[
+                              submission.moderationHistory.length - 1
+                            ]?.adminId,
+                          )}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-600 hover:text-gray-800 transition-colors"
@@ -150,28 +154,30 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               </div>
             )}
 
-          {submission.status === "pending" && (submission.description && submission.description.trim() !== "") && (
-            <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50">
-              <div className="flex items-center gap-2 mb-2">
-                <h4 className="heading-3">Curator's Notes</h4>
-                <span className="text-gray-400">·</span>
-                <div className="text-gray-600">
-                  by{" "}
-                  <a
-                    href={`https://x.com/${submission.curatorUsername}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-800 hover:text-gray-600 transition-colors"
-                  >
-                    @{submission.curatorUsername}
-                  </a>
+          {submission.status === "pending" &&
+            submission.description &&
+            submission.description.trim() !== "" && (
+              <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50">
+                <div className="flex items-center gap-2 mb-2">
+                  <h4 className="heading-3">Curator's Notes</h4>
+                  <span className="text-gray-400">·</span>
+                  <div className="text-gray-600">
+                    by{" "}
+                    <a
+                      href={`https://x.com/${submission.curatorUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-800 hover:text-gray-600 transition-colors"
+                    >
+                      @{submission.curatorUsername}
+                    </a>
+                  </div>
                 </div>
+                <p className="body-text text-gray-700">
+                  {submission.description}
+                </p>
               </div>
-              <p className="body-text text-gray-700">
-                {submission.description}
-              </p>
-            </div>
-          )}
+            )}
         </div>
 
         {submission.status === "pending" &&
