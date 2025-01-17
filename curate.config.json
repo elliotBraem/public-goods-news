@@ -25,7 +25,7 @@
       "description": "Blockchain grant updates",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "sejal_rekhan", "arlery", "karmahq_"]
+          "twitter": ["plugrel", "sejal_rekhan", "arlery", "karmahq_", "sovereignsignal", "owoki", "civilmonkey", "TheDevanshMehta", "bbeats1"]
         }
       },
       "outputs": {
@@ -75,7 +75,7 @@
       "description": "Ethereum ecosystem updates",
       "moderation": {
         "approvers": {
-          "twitter": ["owoki"]
+          "twitter": ["owoki", "TrustlessState", "sassal0x", "laurashin", "evan_van_ness", "abcoathup"]
         }
       },
       "outputs": {
@@ -90,7 +90,7 @@
       "description": "NEAR Protocol updates",
       "moderation": {
         "approvers": {
-          "twitter": ["peter", "plugrel", "jarednotjerry1"]
+          "twitter": ["GUS_DAO", "quadron3stat3", "plugrel", "jarednotjerry", "ThePiVortex", "ilblackdragon", "elliotbraem", "jwaup", "Cameron_Dennis_", "cuongdc_real", "NEARQuant", "_fiatisabubble", "David___Mo", "slimedrgn"]
         }
       },
       "outputs": {
@@ -105,7 +105,7 @@
       "description": "AI and blockchain intersection",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "Cameron_Dennis_"]
+          "twitter": ["plugrel", "Cameron_Dennis_", "dabit3"]
         }
       },
       "outputs": {
@@ -150,7 +150,7 @@
       "description": "Public goods focus",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "owocki", "devansh", "niddhi"]
+          "twitter": ["plugrel", "owocki", "TheDevanshMehta", "niddhi", "sejal_rekhan"]
         }
       },
       "outputs": {
@@ -165,7 +165,7 @@
       "description": "Regenerative Finance updates",
       "moderation": {
         "approvers": {
-          "twitter": []
+          "twitter": ["TrinityMorphy", "TerezaBizkova", "ReFiMedellin", "ReFiDAOist", "MontyMerlin", "checkfit", "civilmonkey", "PaulBurg_"]
         }
       },
       "outputs": {
@@ -180,7 +180,7 @@
       "description": "Decentralized Science updates",
       "moderation": {
         "approvers": {
-          "twitter": ["jelani", "joshua", "paul"]
+          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci"]
         }
       },
       "outputs": {
@@ -195,7 +195,7 @@
       "description": "Network states & intentional communities",
       "moderation": {
         "approvers": {
-          "twitter": ["alyriadefi", "Balaji", "Noah", "Janine", "Timour"]
+          "twitter": ["alyriadefi", "balajis", "noahchonlee","JanineLeger" ,"timourxyz", "JoinEdgeCity", "shanhaiwoo", "SocialLayer_im"]
         }
       },
       "outputs": {
@@ -210,7 +210,7 @@
       "description": "Solana ecosystem updates",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "MERT", "rajgo", "anatoly"]
+          "twitter": ["plugrel", "0xMert_", "rajgokal", "aeyakovenko", "therealchaseeb", "Austin_Federa", "KyleSamani"]
         }
       },
       "outputs": {
