@@ -157,13 +157,20 @@ export class SubmissionService {
         return;
       }
 
+      // Fetch full curator tweet data to ensure we have the username
+      const curatorTweet = await this.twitterService.getTweet(tweet.id!);
+      if (!curatorTweet || !curatorTweet.username) {
+        logger.error(`Could not fetch curator tweet details ${tweet.id}`);
+        return;
+      }
+
       // Create submission
       const submission: TwitterSubmission = {
         tweetId: originalTweet.id!,
         userId: originalTweet.userId!,
         username: originalTweet.username!,
         curatorId: userId,
-        curatorUsername: tweet.username!,
+        curatorUsername: curatorTweet.username,
         content: originalTweet.text || "",
         description: this.extractDescription(tweet),
         status: this.config.global.defaultStatus as
