@@ -33,7 +33,6 @@ export class SubmissionService {
           const userId =
             await this.twitterService.getUserIdByScreenName(handle);
           this.adminIdCache.set(userId, handle);
-          logger.info(`Cached admin ID for @${handle}: ${userId}`);
         } catch (error) {
           logger.error(
             `Failed to fetch ID for admin handle @${handle}:`,
@@ -164,6 +163,12 @@ export class SubmissionService {
         return;
       }
 
+      // Check if submitter is a moderator for any of the feeds
+      const isModerator = feedIds.some(feedId => {
+        const feed = this.config.feeds.find(f => f.id === feedId.toLowerCase());
+        return feed?.moderation.approvers.twitter.includes(curatorTweet.username!);
+      });
+
       // Create submission
       const submission: TwitterSubmission = {
         tweetId: originalTweet.id!,
@@ -173,11 +178,14 @@ export class SubmissionService {
         curatorUsername: curatorTweet.username,
         content: originalTweet.text || "",
         description: this.extractDescription(originalTweet.username!, tweet),
-        status: this.config.global.defaultStatus as
-          | "pending"
-          | "approved"
-          | "rejected",
-        moderationHistory: [],
+        status: isModerator ? "approved" : (this.config.global.defaultStatus as "pending" | "approved" | "rejected"),
+        moderationHistory: isModerator ? [{
+          adminId: curatorTweet.username,
+          action: "approve",
+          timestamp: new Date(),
+          tweetId: originalTweet.id!,
+          note: "Auto-approved: Submission by feed moderator"
+        }] : [],
         createdAt:
           originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
         submittedAt: new Date().toISOString(),
@@ -193,7 +201,7 @@ export class SubmissionService {
       // Send acknowledgment
       const acknowledgmentTweetId = await this.twitterService.replyToTweet(
         tweet.id,
-        "Successfully submitted!",
+        isModerator ? "Successfully submitted and auto-approved!" : "Successfully submitted!",
       );
 
       if (acknowledgmentTweetId) {
@@ -204,6 +212,24 @@ export class SubmissionService {
         logger.info(
           `Successfully submitted. Sent reply: ${acknowledgmentTweetId}`,
         );
+
+        // If moderator, process through distribution service
+        if (isModerator) {
+          try {
+            for (const feedId of feedIds) {
+              const feed = this.config.feeds.find(f => f.id === feedId.toLowerCase());
+              if (feed?.outputs.stream?.enabled) {
+                await this.DistributionService.processStreamOutput(
+                  feedId.toLowerCase(),
+                  submission.tweetId,
+                  submission.content,
+                );
+              }
+            }
+          } catch (error) {
+            logger.error("Failed to process auto-approved submission:", error);
+          }
+        }
       }
     } catch (error) {
       logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
