@@ -120,6 +120,20 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                         ]?.adminId
                       }
                     </a>
+                    {submission.moderationResponseTweetId && (
+                      <>
+                        <span className="text-gray-400 mx-1">·</span>
+                        <a
+                          href={getTweetUrl(submission.moderationResponseTweetId, submission.moderationHistory?.[submission.moderationHistory.length - 1]?.adminId)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-600 hover:text-gray-800 transition-colors"
+                          title="View moderation response on X/Twitter"
+                        >
+                          <HiExternalLink className="inline h-4 w-4" />
+                        </a>
+                      </>
+                    )}
                   </div>
                 </div>
                 {submission.moderationHistory?.[
