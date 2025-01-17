@@ -22,12 +22,12 @@ export function HowItWorks() {
           <h3 className="text-lg font-medium mb-2">2. Moderation</h3>
           <p className="text-gray-700">
             Designated approvers review submissions and can approve or reject
-            them using hashtags:
+            by replying:
             <code className="block mt-2 p-2 bg-white border border-gray-200 rounded font-mono text-sm">
-              @{botId} #approve
+              !approve
             </code>
             <code className="block mt-2 p-2 bg-white border border-gray-200 rounded font-mono text-sm">
-              @{botId} #reject
+              !reject
             </code>
           </p>
         </div>
