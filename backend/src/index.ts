@@ -76,8 +76,6 @@ export async function main() {
           contentSecurityPolicy: {
             directives: {
               defaultSrc: ["'self'"],
-              scriptSrc: ["'self'", "'unsafe-inline'"], // Required for some frontend frameworks
-              styleSrc: ["'self'", "'unsafe-inline'"], // Required for styled-components
               imgSrc: ["'self'", "data:", "https:"], // Allow images from HTTPS sources
               fontSrc: ["'self'", "data:", "https:"], // Allow fonts
             },
