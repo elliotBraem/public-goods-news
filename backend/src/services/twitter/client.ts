@@ -180,7 +180,7 @@ export class TwitterService {
       // Clear cookies from the client
       await this.client.setCookies([]);
       // Clear cookies from the database
-      db.setTwitterCookies(this.config.username, []);
+      db.setTwitterCookies(this.config.username, null);
       // Re-initialize to attempt fresh login
       await this.initialize();
       return true;

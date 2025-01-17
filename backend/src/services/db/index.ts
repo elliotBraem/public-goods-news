@@ -133,7 +133,7 @@ export class DatabaseService {
   }
 
   // Twitter Cookie Management
-  setTwitterCookies(username: string, cookies: TwitterCookie[]): void {
+  setTwitterCookies(username: string, cookies: TwitterCookie[] | null): void {
     const cookiesJson = JSON.stringify(cookies);
     twitterQueries.setTwitterCookies(this.db, username, cookiesJson).run();
   }
