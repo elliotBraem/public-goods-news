@@ -25,7 +25,7 @@
       "description": "Blockchain grant updates",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "sejal_rekhan", "arlery", "karmahq_", "sovereignsignal", "owoki", "civilmonkey", "TheDevanshMehta", "bbeats1"]
+          "twitter": ["plugrel", "sejal_rekhan", "arlery", "karmahq_", "sovereignsignal", "owocki", "civilmonkey", "TheDevanshMehta", "bbeats1"]
         }
       },
       "outputs": {
@@ -75,7 +75,7 @@
       "description": "Ethereum ecosystem updates",
       "moderation": {
         "approvers": {
-          "twitter": ["owoki", "TrustlessState", "sassal0x", "laurashin", "evan_van_ness", "abcoathup"]
+          "twitter": ["owocki", "TrustlessState", "sassal0x", "laurashin", "evan_van_ness", "abcoathup"]
         }
       },
       "outputs": {
@@ -218,6 +218,81 @@
           "enabled": false
         },
         "recap": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "eigen",
+      "name": "Eigen Ecosystem news",
+      "description": "Eigen Layer Ecosystem",
+      "moderation": {
+        "approvers": {
+          "twitter": ["dabit3", "buildoneigen", "tracheopteryx", "mraltantutar", "0xkydo", "sreeramkannan", "soubhik_deb", "satyaki44", "0xcoordinated", "0xMustafa_eth", "0xpratik", "0xNFTy", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "DAO",
+      "name": "All things DAO, DAO News, DAO product updates, thought leadership governance udpates etc.",
+      "description": "Eigen Layer Ecosystem",
+      "moderation": {
+        "approvers": {
+          "twitter": ["tracheopteryx", "owocki", "PuncarH2D", "feemschats", "BryanPetes", "jwaup", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "morph",
+      "name": "Morph Ecosystem",
+      "description": "Morph L2 Ecosystem news",
+      "moderation": {
+        "approvers": {
+          "twitter": ["azeemk_", "cecilia_hsueh", "LxKus", "cryptogodfatha", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+        {
+      "id": "berachain",
+      "name": "Berachain Ecosystem",
+      "description": "Berachain Ecosystem news",
+      "moderation": {
+        "approvers": {
+          "twitter": ["camiinthisthang", "BeraMVP", "SmokeyTheBera", "buildabera", "whoiskevin", "_ianchain", "itsdevbear", "homme0x", "FWCrypto_", "dablackbera", "the_honeycast", "pandaberaa", "scaaaht", "0xHunterBera", "ellaqiang9" , "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "celo",
+      "name": "CELO Ecosystem",
+      "description": "CELO L2 Ecosystem news",
+      "moderation": {
+        "approvers": {
+          "twitter": ["Celo", "marek_", "sodofi_", "RegenRene", "naumannazim", "CeloDevs", "CeloDaily", "Celo_Col" , "joan_drb", "LuukDAO", "KohCelo", "CeloAfricaDao", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
           "enabled": false
         }
       }
