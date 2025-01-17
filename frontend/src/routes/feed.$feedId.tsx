@@ -25,7 +25,7 @@ function FeedPage() {
   );
 
   const sidebarContent = (
-    <div className="p-4">
+    <div className="p-2">
       <FeedList />
     </div>
   );
@@ -34,7 +34,7 @@ function FeedPage() {
     <div className="space-y-8 max-w-full overflow-x-hidden">
       {/* Moderation Box */}
       <div className="p-1">
-        <h3 className="heading-3 mb-4">Moderation</h3>
+        <h3 className="text-2xl mb-4">Moderation</h3>
         <div className="space-y-4">
           <div>
             <h4 className="font-medium mb-2">Approvers</h4>
@@ -88,9 +88,11 @@ function FeedPage() {
   return (
     <Layout sidebar={sidebarContent} rightPanel={rightPanelContent}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between mb-6 mr-4">
-          <h2 className="text-2xl font-bold">{feed?.name || "Loading..."}</h2>
-          <div className="flex gap-2">
+        <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between mb-6 mr-4">
+          <h2 className="text-2xl font-bold mb-2 sm:mb-0">
+            {feed?.name || "Loading..."}
+          </h2>
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setStatusFilter("all")}
               className={`px-3 py-1.5 rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium ${

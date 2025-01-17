@@ -33,7 +33,6 @@ export class SubmissionService {
           const userId =
             await this.twitterService.getUserIdByScreenName(handle);
           this.adminIdCache.set(userId, handle);
-          logger.info(`Cached admin ID for @${handle}: ${userId}`);
         } catch (error) {
           logger.error(
             `Failed to fetch ID for admin handle @${handle}:`,
@@ -157,20 +156,49 @@ export class SubmissionService {
         return;
       }
 
+      // Fetch full curator tweet data to ensure we have the username
+      const curatorTweet = await this.twitterService.getTweet(tweet.id!);
+      if (!curatorTweet || !curatorTweet.username) {
+        logger.error(`Could not fetch curator tweet details ${tweet.id}`);
+        return;
+      }
+
+      // Check if submitter is a moderator for any of the feeds
+      const isModerator = feedIds.some((feedId) => {
+        const feed = this.config.feeds.find(
+          (f) => f.id === feedId.toLowerCase(),
+        );
+        return feed?.moderation.approvers.twitter.includes(
+          curatorTweet.username!,
+        );
+      });
+
       // Create submission
       const submission: TwitterSubmission = {
         tweetId: originalTweet.id!,
         userId: originalTweet.userId!,
         username: originalTweet.username!,
         curatorId: userId,
-        curatorUsername: tweet.username!,
+        curatorUsername: curatorTweet.username,
         content: originalTweet.text || "",
-        description: this.extractDescription(tweet),
-        status: this.config.global.defaultStatus as
-          | "pending"
-          | "approved"
-          | "rejected",
-        moderationHistory: [],
+        description: this.extractDescription(originalTweet.username!, tweet),
+        status: isModerator
+          ? "approved"
+          : (this.config.global.defaultStatus as
+              | "pending"
+              | "approved"
+              | "rejected"),
+        moderationHistory: isModerator
+          ? [
+              {
+                adminId: curatorTweet.username,
+                action: "approve",
+                timestamp: new Date(),
+                tweetId: originalTweet.id!,
+                note: "Auto-approved: Submission by feed moderator",
+              },
+            ]
+          : [],
         createdAt:
           originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
         submittedAt: new Date().toISOString(),
@@ -186,7 +214,9 @@ export class SubmissionService {
       // Send acknowledgment
       const acknowledgmentTweetId = await this.twitterService.replyToTweet(
         tweet.id,
-        "Successfully submitted!",
+        isModerator
+          ? "Successfully submitted and auto-approved!"
+          : "Successfully submitted!",
       );
 
       if (acknowledgmentTweetId) {
@@ -197,6 +227,26 @@ export class SubmissionService {
         logger.info(
           `Successfully submitted. Sent reply: ${acknowledgmentTweetId}`,
         );
+
+        // If moderator, process through distribution service
+        if (isModerator) {
+          try {
+            for (const feedId of feedIds) {
+              const feed = this.config.feeds.find(
+                (f) => f.id === feedId.toLowerCase(),
+              );
+              if (feed?.outputs.stream?.enabled) {
+                await this.DistributionService.processStreamOutput(
+                  feedId.toLowerCase(),
+                  submission.tweetId,
+                  submission.content,
+                );
+              }
+            }
+          } catch (error) {
+            logger.error("Failed to process auto-approved submission:", error);
+          }
+        }
       }
     } catch (error) {
       logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
@@ -237,7 +287,7 @@ export class SubmissionService {
       action,
       timestamp: tweet.timeParsed || new Date(),
       tweetId: submission.tweetId,
-      note: this.extractNote(tweet),
+      note: this.extractNote(submission.username, tweet),
     };
 
     db.saveModerationAction(moderation);
@@ -317,8 +367,10 @@ export class SubmissionService {
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
     const hashtags = tweet.hashtags?.map((tag) => tag.toLowerCase()) || [];
-    if (hashtags.includes("approve")) return "approve";
-    if (hashtags.includes("reject")) return "reject";
+    if (tweet.text?.includes("!approve") || hashtags.includes("approve"))
+      return "approve";
+    if (tweet.text?.includes("!reject") || hashtags.includes("reject"))
+      return "reject";
     return null;
   }
 
@@ -330,22 +382,25 @@ export class SubmissionService {
     return tweet.text?.toLowerCase().includes("!submit") || false;
   }
 
-  private extractDescription(tweet: Tweet): string | undefined {
+  private extractDescription(
+    username: string,
+    tweet: Tweet,
+  ): string | undefined {
     return (
       tweet.text
         ?.replace(/!submit\s+@\w+/i, "")
-        .replace(new RegExp(`@${tweet.username}`, "i"), "")
+        .replace(new RegExp(`@${username}`, "i"), "")
         .replace(/#\w+/g, "")
         .trim() || undefined
     );
   }
 
-  private extractNote(tweet: Tweet): string | undefined {
+  private extractNote(username: string, tweet: Tweet): string | undefined {
     return (
       tweet.text
         ?.replace(/#\w+/g, "")
         .replace(new RegExp(`@${this.config.global.botId}`, "i"), "")
-        .replace(new RegExp(`@${tweet.username}`, "i"), "")
+        .replace(new RegExp(`@${username}`, "i"), "")
         .trim() || undefined
     );
   }

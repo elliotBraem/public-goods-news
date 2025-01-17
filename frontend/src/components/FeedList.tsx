@@ -24,8 +24,8 @@ const FeedList = () => {
 
   return (
     <div className="flex flex-col md:block">
-      <div className="flex justify-between items-center my-4">
-        <h1 className="text-xl font-bold">Feeds</h1>
+      <div className="flex justify-between items-center md:my-2 lg:my-4">
+        <h1 className="text-2xl font-bold md:px-2">Feeds</h1>
         {feeds.length > 0 && (
           <span className="md:hidden text-gray-400 flex items-center">
             <span className="mr-1">scroll</span>
