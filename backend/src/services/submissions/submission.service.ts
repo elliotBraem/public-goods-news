@@ -172,7 +172,7 @@ export class SubmissionService {
         curatorId: userId,
         curatorUsername: curatorTweet.username,
         content: originalTweet.text || "",
-        description: this.extractDescription(tweet),
+        description: this.extractDescription(originalTweet.username!, tweet),
         status: this.config.global.defaultStatus as
           | "pending"
           | "approved"
@@ -244,7 +244,7 @@ export class SubmissionService {
       action,
       timestamp: tweet.timeParsed || new Date(),
       tweetId: submission.tweetId,
-      note: this.extractNote(tweet),
+      note: this.extractNote(submission.username, tweet),
     };
 
     db.saveModerationAction(moderation);
@@ -324,8 +324,8 @@ export class SubmissionService {
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
     const hashtags = tweet.hashtags?.map((tag) => tag.toLowerCase()) || [];
-    if (hashtags.includes("approve")) return "approve";
-    if (hashtags.includes("reject")) return "reject";
+    if (tweet.text?.includes("!approve") || hashtags.includes("approve")) return "approve";
+    if (tweet.text?.includes("!reject") || hashtags.includes("reject")) return "reject";
     return null;
   }
 
@@ -337,22 +337,22 @@ export class SubmissionService {
     return tweet.text?.toLowerCase().includes("!submit") || false;
   }
 
-  private extractDescription(tweet: Tweet): string | undefined {
+  private extractDescription(username: string, tweet: Tweet): string | undefined {
     return (
       tweet.text
         ?.replace(/!submit\s+@\w+/i, "")
-        .replace(new RegExp(`@${tweet.username}`, "i"), "")
+        .replace(new RegExp(`@${username}`, "i"), "")
         .replace(/#\w+/g, "")
         .trim() || undefined
     );
   }
 
-  private extractNote(tweet: Tweet): string | undefined {
+  private extractNote(username: string, tweet: Tweet): string | undefined {
     return (
       tweet.text
         ?.replace(/#\w+/g, "")
         .replace(new RegExp(`@${this.config.global.botId}`, "i"), "")
-        .replace(new RegExp(`@${tweet.username}`, "i"), "")
+        .replace(new RegExp(`@${username}`, "i"), "")
         .trim() || undefined
     );
   }
