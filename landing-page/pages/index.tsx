@@ -242,12 +242,15 @@ export default function Home() {
           ))} */}
           </div>
 
-          <div
+          <Link
+            href="https://app.curate.fun/"
+            target="_blank"
+            rel="noopener noreferrer"
             id="cta-button"
-            className="text-xl bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed font-lodrina"
+            className="text-xl bg-black text-white px-4 py-2 rounded hover:bg-gray-800 font-lodrina"
           >
             DASHBOARD
-          </div>
+          </Link>
         </nav>
       </header>
 
