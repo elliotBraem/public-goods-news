@@ -28,7 +28,7 @@ const Layout = ({ children, sidebar, rightPanel }: LayoutProps) => {
         <div className="flex-1 flex relative">
           {/* Center Panel - Feed Items */}
           <div className="flex-1 panel custom-scrollbar overflow-y-auto h-full">
-            <div className="p-6 pb-20">
+            <div className="p-1 sm:p-6 pb-20">
               {/* Mobile Right Panel Toggle */}
               {rightPanel && (
                 <button

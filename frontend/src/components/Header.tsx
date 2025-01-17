@@ -10,7 +10,7 @@ const Header = () => {
   return (
     <>
       <header className="sticky top-0 flex justify-between items-center p-4 border-b-2 border-black bg-white z-10">
-        <div className="flex items-center gap-8">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-8">
           <Link
             to="/"
             className="flex items-center hover:opacity-80 transition-opacity"
