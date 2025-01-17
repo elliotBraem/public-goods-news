@@ -9,12 +9,11 @@ const getTweetUrl = (tweetId: string, username: string) => {
 const getTwitterIntentUrl = (
   tweetId: string,
   action: "approve" | "reject",
-  botId: string,
 ) => {
   const baseUrl = "https://twitter.com/intent/tweet";
   // Add in_reply_to_status_id parameter to make it a reply
   const params = new URLSearchParams({
-    text: `@${botId} #${action}`,
+    text: `!${action}`,
     in_reply_to: tweetId,
   });
   return `${baseUrl}?${params.toString()}`;
@@ -168,7 +167,6 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 href={getTwitterIntentUrl(
                   submission.acknowledgmentTweetId,
                   "approve",
-                  botId,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -180,7 +178,6 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                 href={getTwitterIntentUrl(
                   submission.acknowledgmentTweetId,
                   "reject",
-                  botId,
                 )}
                 target="_blank"
                 rel="noopener noreferrer"
