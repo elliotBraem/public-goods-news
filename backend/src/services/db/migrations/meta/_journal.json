@@ -15,6 +15,20 @@
       "when": 1737065889507,
       "tag": "0001_colorful_zaran",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1737162664131,
+      "tag": "0002_sweet_ben_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1737163062577,
+      "tag": "0003_melted_redwing",
+      "breakpoints": true
     }
   ]
 }

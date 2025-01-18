@@ -1,6 +1,8 @@
+import { SubmissionStatus } from "./twitter";
+
 export interface GlobalConfig {
   botId: string;
-  defaultStatus: string;
+  defaultStatus: SubmissionStatus;
   maxSubmissionsPerUser: number;
 }
 
@@ -12,11 +14,6 @@ export interface PluginConfig {
 export interface ModerationConfig {
   approvers: {
     twitter: string[];
-  };
-  templates?: {
-    approve?: string;
-    reject?: string;
-    acknowledge?: string;
   };
 }
 

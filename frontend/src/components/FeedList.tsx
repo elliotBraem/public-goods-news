@@ -1,17 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { FaChevronRight } from "react-icons/fa";
-
-interface Feed {
-  id: string;
-  name: string;
-  hashtag: string;
-}
+import type { FeedConfig } from "../types/config";
 
 const FeedList = () => {
   const { feedId } = useParams({ from: "/feed/$feedId" });
 
-  const { data: feeds = [] } = useQuery<Feed[]>({
+  const { data: feeds = [] } = useQuery<FeedConfig[]>({
     queryKey: ["feeds"],
     queryFn: async () => {
       const response = await fetch("/api/feeds");

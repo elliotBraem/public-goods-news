@@ -1,5 +1,25 @@
 import { mock } from "bun:test";
-import { TwitterSubmission } from "../../types/twitter";
+import { SubmissionStatus } from "../../services/db/schema";
+
+// Define interfaces to match our schema
+interface Submission {
+  tweetId: string;
+  userId: string;
+  username: string;
+  curatorId: string;
+  curatorUsername: string;
+  curatorTweetId: string;
+  content: string;
+  description?: string;
+  submittedAt?: string;
+}
+
+interface SubmissionFeed {
+  submissionId: string;
+  feedId: string;
+  status: SubmissionStatus;
+  moderationResponseTweetId?: string;
+}
 
 // Define the database interface to match our schema
 interface DbInterface {
@@ -8,32 +28,38 @@ interface DbInterface {
     name: string;
     description?: string;
   }) => void;
+  getSubmission: (tweetId: string) => Submission | null;
   getDailySubmissionCount: (userId: string) => number;
-  saveSubmission: (submission: TwitterSubmission) => void;
-  saveSubmissionToFeed: (submissionId: string, feedId: string) => void;
-  incrementDailySubmissionCount: (userId: string) => void;
-  updateSubmissionAcknowledgment: (
-    tweetId: string,
-    acknowledgmentTweetId: string,
+  saveSubmission: (submission: Submission) => void;
+  saveSubmissionToFeed: (
+    submissionId: string,
+    feedId: string,
+    status: SubmissionStatus,
+    moderationResponseTweetId?: string | null
   ) => void;
-  getSubmissionByAcknowledgmentTweetId: (
-    acknowledgmentTweetId: string,
-  ) => Promise<TwitterSubmission | null>;
-  saveModerationAction: (moderation: any) => void;
-  updateSubmissionStatus: (
-    tweetId: string,
-    status: "approved" | "rejected",
-    responseTweetId: string,
+  incrementDailySubmissionCount: (userId: string) => void;
+  saveModerationAction: (moderation: {
+    tweetId: string;
+    adminId: string;
+    action: string;
+    note?: string;
+  }) => void;
+  updateSubmissionFeedStatus: (
+    submissionId: string,
+    feedId: string,
+    status: SubmissionStatus,
+    moderationResponseTweetId?: string | null
   ) => void;
   getFeedsBySubmission: (
     submissionId: string,
-  ) => Promise<Array<{ feedId: string }>>;
+  ) => Array<SubmissionFeed>;
   removeFromSubmissionFeed: (submissionId: string, feedId: string) => void;
 }
 
 // Create mock functions for each database operation
 export const drizzleMock = {
   upsertFeed: mock<DbInterface["upsertFeed"]>(() => {}),
+  getSubmission: mock<DbInterface["getSubmission"]>(() => null),
   getDailySubmissionCount: mock<DbInterface["getDailySubmissionCount"]>(
     () => 0,
   ),
@@ -42,16 +68,10 @@ export const drizzleMock = {
   incrementDailySubmissionCount: mock<
     DbInterface["incrementDailySubmissionCount"]
   >(() => {}),
-  updateSubmissionAcknowledgment: mock<
-    DbInterface["updateSubmissionAcknowledgment"]
-  >(() => {}),
-  getSubmissionByAcknowledgmentTweetId: mock<
-    DbInterface["getSubmissionByAcknowledgmentTweetId"]
-  >(() => Promise.resolve(null)),
   saveModerationAction: mock<DbInterface["saveModerationAction"]>(() => {}),
-  updateSubmissionStatus: mock<DbInterface["updateSubmissionStatus"]>(() => {}),
+  updateSubmissionFeedStatus: mock<DbInterface["updateSubmissionFeedStatus"]>(() => {}),
   getFeedsBySubmission: mock<DbInterface["getFeedsBySubmission"]>(() =>
-    Promise.resolve([]),
+    [],
   ),
   removeFromSubmissionFeed: mock<DbInterface["removeFromSubmissionFeed"]>(
     () => {},

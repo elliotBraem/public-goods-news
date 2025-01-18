@@ -1,6 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
-import { Moderation, TwitterSubmission } from "types/twitter";
+import { SubmissionFeed, Moderation, TwitterSubmission, SubmissionStatus } from "types/twitter";
 import {
   feedPlugins,
   feeds,
@@ -35,12 +35,14 @@ export function saveSubmissionToFeed(
   db: BunSQLiteDatabase,
   submissionId: string,
   feedId: string,
+  status: SubmissionStatus = SubmissionStatus.PENDING
 ) {
   return db
     .insert(submissionFeeds)
     .values({
       submissionId,
       feedId,
+      status
     })
     .onConflictDoNothing();
 }
@@ -48,14 +50,22 @@ export function saveSubmissionToFeed(
 export function getFeedsBySubmission(
   db: BunSQLiteDatabase,
   submissionId: string,
-) {
-  return db
+): SubmissionFeed[] {
+  const results = db
     .select({
+      submissionId: submissionFeeds.submissionId,
       feedId: submissionFeeds.feedId,
+      status: submissionFeeds.status,
+      moderationResponseTweetId: submissionFeeds.moderationResponseTweetId,
     })
     .from(submissionFeeds)
     .where(eq(submissionFeeds.submissionId, submissionId))
     .all();
+
+  return results.map(result => ({
+    ...result,
+    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined
+  }));
 }
 
 export function saveSubmission(
@@ -67,8 +77,10 @@ export function saveSubmission(
     userId: submission.userId,
     username: submission.username,
     content: submission.content,
-    description: submission.description,
-    status: submission.status,
+    curatorNotes: submission.curatorNotes,
+    curatorId: submission.curatorId,
+    curatorUsername: submission.curatorUsername,
+    curatorTweetId: submission.curatorTweetId,
     createdAt: submission.createdAt,
     submittedAt: submission.submittedAt,
   });
@@ -80,6 +92,7 @@ export function saveModerationAction(
 ) {
   return db.insert(moderationHistory).values({
     tweetId: moderation.tweetId,
+    feedId: moderation.feedId,
     adminId: moderation.adminId,
     action: moderation.action,
     note: moderation.note,
@@ -87,34 +100,55 @@ export function saveModerationAction(
   });
 }
 
-export function updateSubmissionStatus(
+export function getModerationHistory(
   db: BunSQLiteDatabase,
   tweetId: string,
-  status: TwitterSubmission["status"],
+): Moderation[] {
+  const results = db
+    .select({
+      tweetId: moderationHistory.tweetId,
+      feedId: moderationHistory.feedId,
+      adminId: moderationHistory.adminId,
+      action: moderationHistory.action,
+      note: moderationHistory.note,
+      createdAt: moderationHistory.createdAt,
+    })
+    .from(moderationHistory)
+    .where(eq(moderationHistory.tweetId, tweetId))
+    .orderBy(moderationHistory.createdAt)
+    .all();
+
+  return results.map(result => ({
+    tweetId: result.tweetId,
+    feedId: result.feedId,
+    adminId: result.adminId,
+    action: result.action as "approve" | "reject",
+    note: result.note ?? undefined,
+    timestamp: new Date(result.createdAt),
+  }));
+}
+
+export function updateSubmissionFeedStatus(
+  db: BunSQLiteDatabase,
+  submissionId: string,
+  feedId: string,
+  status: SubmissionStatus,
   moderationResponseTweetId: string,
 ) {
   return db
-    .update(submissions)
+    .update(submissionFeeds)
     .set({
       status,
       moderationResponseTweetId,
       updatedAt: new Date().toISOString(),
     })
-    .where(eq(submissions.tweetId, tweetId));
+    .where(
+      and(
+        eq(submissionFeeds.submissionId, submissionId),
+        eq(submissionFeeds.feedId, feedId)
+      )
+    );
 }
-
-const moderationHistoryJson = sql<string>`json_group_array(
-  CASE 
-    WHEN ${moderationHistory.adminId} IS NULL THEN NULL
-    ELSE json_object(
-      'adminId', ${moderationHistory.adminId},
-      'action', ${moderationHistory.action},
-      'timestamp', ${moderationHistory.createdAt},
-      'tweetId', ${moderationHistory.tweetId},
-      'note', ${moderationHistory.note}
-    )
-  END
-)`;
 
 export function getSubmission(
   db: BunSQLiteDatabase,
@@ -126,103 +160,33 @@ export function getSubmission(
       userId: submissions.userId,
       username: submissions.username,
       content: submissions.content,
-      description: submissions.description,
-      status: submissions.status,
-      acknowledgmentTweetId: submissions.acknowledgmentTweetId,
-      moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorNotes: submissions.curatorNotes,
       curatorId: submissions.curatorId,
       curatorUsername: submissions.curatorUsername,
+      curatorTweetId: submissions.curatorTweetId,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
-      moderationHistory: moderationHistoryJson,
     })
     .from(submissions)
-    .leftJoin(
-      moderationHistory,
-      eq(submissions.tweetId, moderationHistory.tweetId),
-    )
     .where(eq(submissions.tweetId, tweetId))
-    .groupBy(submissions.tweetId)
     .get();
 
   if (!result) return null;
+
+  const moderationHistory = getModerationHistory(db, tweetId);
 
   return {
     tweetId: result.tweetId,
     userId: result.userId,
     username: result.username,
     content: result.content,
-    description: result.description ?? undefined,
-    status: result.status as TwitterSubmission["status"],
-    acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
-    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
+    curatorNotes: result.curatorNotes ?? undefined,
     curatorId: result.curatorId,
     curatorUsername: result.curatorUsername,
+    curatorTweetId: result.curatorTweetId,
     createdAt: result.createdAt,
     submittedAt: result.submittedAt,
-    moderationHistory: result.moderationHistory
-      ? JSON.parse(`[${result.moderationHistory}]`)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
-      : [],
-  };
-}
-
-export function getSubmissionByAcknowledgmentTweetId(
-  db: BunSQLiteDatabase,
-  acknowledgmentTweetId: string,
-): TwitterSubmission | null {
-  const result = db
-    .select({
-      tweetId: submissions.tweetId,
-      userId: submissions.userId,
-      username: submissions.username,
-      content: submissions.content,
-      description: submissions.description,
-      status: submissions.status,
-      acknowledgmentTweetId: submissions.acknowledgmentTweetId,
-      moderationResponseTweetId: submissions.moderationResponseTweetId,
-      curatorId: submissions.curatorId,
-      curatorUsername: submissions.curatorUsername,
-      createdAt: submissions.createdAt,
-      submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
-      moderationHistory: moderationHistoryJson,
-    })
-    .from(submissions)
-    .leftJoin(
-      moderationHistory,
-      eq(submissions.tweetId, moderationHistory.tweetId),
-    )
-    .where(eq(submissions.acknowledgmentTweetId, acknowledgmentTweetId))
-    .groupBy(submissions.tweetId)
-    .get();
-
-  if (!result) return null;
-
-  return {
-    tweetId: result.tweetId,
-    userId: result.userId,
-    username: result.username,
-    content: result.content,
-    description: result.description ?? undefined,
-    status: result.status as TwitterSubmission["status"],
-    acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
-    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
-    curatorId: result.curatorId,
-    curatorUsername: result.curatorUsername,
-    createdAt: result.createdAt,
-    submittedAt: result.submittedAt,
-    moderationHistory: result.moderationHistory
-      ? JSON.parse(`[${result.moderationHistory}]`)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
-      : [],
+    moderationHistory,
   };
 }
 
@@ -233,99 +197,32 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
       userId: submissions.userId,
       username: submissions.username,
       content: submissions.content,
-      description: submissions.description,
-      status: submissions.status,
-      acknowledgmentTweetId: submissions.acknowledgmentTweetId,
-      moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorNotes: submissions.curatorNotes,
       curatorId: submissions.curatorId,
       curatorUsername: submissions.curatorUsername,
+      curatorTweetId: submissions.curatorTweetId,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
-      moderationHistory: moderationHistoryJson,
     })
     .from(submissions)
-    .leftJoin(
-      moderationHistory,
-      eq(submissions.tweetId, moderationHistory.tweetId),
-    )
-    .groupBy(submissions.tweetId)
     .all();
 
-  return results.map((result) => ({
-    tweetId: result.tweetId,
-    userId: result.userId,
-    username: result.username,
-    content: result.content,
-    description: result.description ?? undefined,
-    status: result.status as TwitterSubmission["status"],
-    acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
-    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
-    curatorId: result.curatorId,
-    curatorUsername: result.curatorUsername,
-    createdAt: result.createdAt,
-    submittedAt: result.submittedAt,
-    moderationHistory: result.moderationHistory
-      ? JSON.parse(result.moderationHistory)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
-      : [],
-  }));
-}
-
-export function getSubmissionsByStatus(
-  db: BunSQLiteDatabase,
-  status: TwitterSubmission["status"],
-): TwitterSubmission[] {
-  const results = db
-    .select({
-      tweetId: submissions.tweetId,
-      userId: submissions.userId,
-      username: submissions.username,
-      content: submissions.content,
-      description: submissions.description,
-      status: submissions.status,
-      acknowledgmentTweetId: submissions.acknowledgmentTweetId,
-      moderationResponseTweetId: submissions.moderationResponseTweetId,
-      curatorId: submissions.curatorId,
-      curatorUsername: submissions.curatorUsername,
-      createdAt: submissions.createdAt,
-      submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
-      moderationHistory: moderationHistoryJson,
-    })
-    .from(submissions)
-    .leftJoin(
+  return results.map((result) => {
+    const moderationHistory = getModerationHistory(db, result.tweetId);
+    return {
+      tweetId: result.tweetId,
+      userId: result.userId,
+      username: result.username,
+      content: result.content,
+      curatorNotes: result.curatorNotes ?? undefined,
+      curatorId: result.curatorId,
+      curatorUsername: result.curatorUsername,
+      curatorTweetId: result.curatorTweetId,
+      createdAt: result.createdAt,
+      submittedAt: result.submittedAt,
       moderationHistory,
-      eq(submissions.tweetId, moderationHistory.tweetId),
-    )
-    .where(eq(submissions.status, status))
-    .groupBy(submissions.tweetId)
-    .all();
-
-  return results.map((result) => ({
-    tweetId: result.tweetId,
-    userId: result.userId,
-    username: result.username,
-    content: result.content,
-    description: result.description ?? undefined,
-    status: result.status as TwitterSubmission["status"],
-    acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
-    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
-    curatorId: result.curatorId,
-    curatorUsername: result.curatorUsername,
-    createdAt: result.createdAt,
-    submittedAt: result.submittedAt,
-    moderationHistory: result.moderationHistory
-      ? JSON.parse(result.moderationHistory)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
-      : [],
-  }));
+    };
+  });
 }
 
 export function cleanupOldSubmissionCounts(
@@ -379,20 +276,6 @@ export function incrementDailySubmissionCount(
         lastResetDate: today,
       },
     });
-}
-
-export function updateSubmissionAcknowledgment(
-  db: BunSQLiteDatabase,
-  tweetId: string,
-  acknowledgmentTweetId: string,
-) {
-  return db
-    .update(submissions)
-    .set({
-      acknowledgmentTweetId,
-      updatedAt: new Date().toISOString(),
-    })
-    .where(eq(submissions.tweetId, tweetId));
 }
 
 export function removeFromSubmissionFeed(
@@ -457,49 +340,35 @@ export function getSubmissionsByFeed(
       userId: submissions.userId,
       username: submissions.username,
       content: submissions.content,
-      description: submissions.description,
-      status: submissions.status,
-      acknowledgmentTweetId: submissions.acknowledgmentTweetId,
-      moderationResponseTweetId: submissions.moderationResponseTweetId,
+      curatorNotes: submissions.curatorNotes,
       curatorId: submissions.curatorId,
       curatorUsername: submissions.curatorUsername,
+      curatorTweetId: submissions.curatorTweetId,
       createdAt: submissions.createdAt,
       submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
-      moderationHistory: moderationHistoryJson,
     })
     .from(submissions)
     .innerJoin(
       submissionFeeds,
       eq(submissions.tweetId, submissionFeeds.submissionId),
     )
-    .leftJoin(
-      moderationHistory,
-      eq(submissions.tweetId, moderationHistory.tweetId),
-    )
     .where(eq(submissionFeeds.feedId, feedId))
-    .groupBy(submissions.tweetId)
     .all();
 
-  return results.map((result) => ({
-    tweetId: result.tweetId,
-    userId: result.userId,
-    username: result.username,
-    content: result.content,
-    description: result.description ?? undefined,
-    status: result.status as TwitterSubmission["status"],
-    acknowledgmentTweetId: result.acknowledgmentTweetId ?? undefined,
-    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
-    curatorId: result.curatorId,
-    curatorUsername: result.curatorUsername,
-    createdAt: result.createdAt,
-    submittedAt: result.submittedAt,
-    moderationHistory: result.moderationHistory
-      ? JSON.parse(result.moderationHistory)
-          .filter((m: any) => m !== null)
-          .map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
-      : [],
-  }));
+  return results.map((result) => {
+    const moderationHistory = getModerationHistory(db, result.tweetId);
+    return {
+      tweetId: result.tweetId,
+      userId: result.userId,
+      username: result.username,
+      content: result.content,
+      curatorNotes: result.curatorNotes ?? undefined,
+      curatorId: result.curatorId,
+      curatorUsername: result.curatorUsername,
+      curatorTweetId: result.curatorTweetId,
+      createdAt: result.createdAt,
+      submittedAt: result.submittedAt,
+      moderationHistory,
+    };
+  });
 }

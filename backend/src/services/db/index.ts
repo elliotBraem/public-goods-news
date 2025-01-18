@@ -8,7 +8,7 @@ import { DBOperations } from "./operations";
 import * as queries from "./queries";
 
 // Twitter & RSS
-import { Moderation, TwitterCookie, TwitterSubmission } from "types/twitter";
+import { SubmissionFeed, Moderation, TwitterCookie, TwitterSubmission, SubmissionStatus } from "types/twitter";
 import * as rssQueries from "../rss/queries";
 import * as twitterQueries from "../twitter/queries";
 export class DatabaseService {
@@ -36,15 +36,17 @@ export class DatabaseService {
     queries.saveModerationAction(this.db, moderation).run();
   }
 
-  updateSubmissionStatus(
-    tweetId: string,
-    status: TwitterSubmission["status"],
+  updateSubmissionFeedStatus(
+    submissionId: string,
+    feedId: string,
+    status: SubmissionStatus,
     moderationResponseTweetId: string,
   ): void {
     queries
-      .updateSubmissionStatus(
+      .updateSubmissionFeedStatus(
         this.db,
-        tweetId,
+        submissionId,
+        feedId,
         status,
         moderationResponseTweetId,
       )
@@ -55,23 +57,8 @@ export class DatabaseService {
     return queries.getSubmission(this.db, tweetId);
   }
 
-  getSubmissionByAcknowledgmentTweetId(
-    acknowledgmentTweetId: string,
-  ): TwitterSubmission | null {
-    return queries.getSubmissionByAcknowledgmentTweetId(
-      this.db,
-      acknowledgmentTweetId,
-    );
-  }
-
   getAllSubmissions(): TwitterSubmission[] {
     return queries.getAllSubmissions(this.db);
-  }
-
-  getSubmissionsByStatus(
-    status: TwitterSubmission["status"],
-  ): TwitterSubmission[] {
-    return queries.getSubmissionsByStatus(this.db, status);
   }
 
   getDailySubmissionCount(userId: string): number {
@@ -85,24 +72,15 @@ export class DatabaseService {
     queries.incrementDailySubmissionCount(this.db, userId).run();
   }
 
-  updateSubmissionAcknowledgment(
-    tweetId: string,
-    acknowledgmentTweetId: string,
-  ): void {
-    queries
-      .updateSubmissionAcknowledgment(this.db, tweetId, acknowledgmentTweetId)
-      .run();
-  }
-
   upsertFeed(feed: { id: string; name: string; description?: string }): void {
     queries.upsertFeed(this.db, feed).run();
   }
 
-  saveSubmissionToFeed(submissionId: string, feedId: string): void {
-    queries.saveSubmissionToFeed(this.db, submissionId, feedId).run();
+  saveSubmissionToFeed(submissionId: string, feedId: string, status: SubmissionStatus = SubmissionStatus.PENDING): void {
+    queries.saveSubmissionToFeed(this.db, submissionId, feedId, status).run();
   }
 
-  getFeedsBySubmission(submissionId: string): { feedId: string }[] {
+  getFeedsBySubmission(submissionId: string): SubmissionFeed[] {
     return queries.getFeedsBySubmission(this.db, submissionId);
   }
 
