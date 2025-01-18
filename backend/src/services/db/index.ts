@@ -148,8 +148,13 @@ export class DatabaseService {
       twitterQueries.setTwitterCacheValue(this.db, key, value).run();
     } catch (error: any) {
       // Ignore write errors on read-only replicas
-      if (error.code === 'SQLITE_READONLY_DIRECTORY' || error.message?.includes('readonly database')) {
-        logger.info(`Skipping Twitter cache write on read-only replica for key: ${key}`);
+      if (
+        error.code === "SQLITE_READONLY_DIRECTORY" ||
+        error.message?.includes("readonly database")
+      ) {
+        logger.info(
+          `Skipping Twitter cache write on read-only replica for key: ${key}`,
+        );
         return;
       }
       throw error;
