@@ -140,7 +140,7 @@ describe("SubmissionService", () => {
         content: "Original content",
         createdAt: expect.any(String),
         submittedAt: expect.any(String),
-        curatorNotes: expect.any(String)
+        curatorNotes: expect.any(String),
       });
 
       // Verify feed submissions were saved
@@ -150,12 +150,12 @@ describe("SubmissionService", () => {
       expect(drizzleMock.saveSubmissionToFeed.mock.calls[0]).toEqual([
         "original1_tweet",
         "test",
-        SubmissionStatus.PENDING
+        SubmissionStatus.PENDING,
       ]);
       expect(drizzleMock.saveSubmissionToFeed.mock.calls[1]).toEqual([
         "original1_tweet",
         "test2",
-        SubmissionStatus.PENDING
+        SubmissionStatus.PENDING,
       ]);
 
       // First feed (test) should be auto-approved since curator1 is a moderator
@@ -163,7 +163,7 @@ describe("SubmissionService", () => {
         "original1_tweet",
         "test",
         SubmissionStatus.APPROVED,
-        "curator1_reply"
+        "curator1_reply",
       );
 
       // Verify moderation history was saved for auto-approval
@@ -174,15 +174,15 @@ describe("SubmissionService", () => {
           adminId: curator1.username,
           action: "approve",
           note: expect.any(String),
-          timestamp: expect.any(Date)
-        })
+          timestamp: expect.any(Date),
+        }),
       );
 
       // Verify distribution was triggered for auto-approved feed
       expect(mockDistributionService.processedSubmissions).toHaveLength(1);
       expect(mockDistributionService.processedSubmissions[0]).toEqual({
         submissionId: "original1_tweet",
-        feedId: "test"
+        feedId: "test",
       });
     });
 
@@ -203,8 +203,8 @@ describe("SubmissionService", () => {
         {
           submissionId: "original1_tweet",
           feedId: "test2",
-          status: SubmissionStatus.PENDING
-        }
+          status: SubmissionStatus.PENDING,
+        },
       ]);
 
       // Admin approving submission
@@ -232,7 +232,7 @@ describe("SubmissionService", () => {
         "original1_tweet",
         "test2",
         SubmissionStatus.APPROVED,
-        "mod1_reply"
+        "mod1_reply",
       );
 
       // Verify moderation history was saved
@@ -243,15 +243,15 @@ describe("SubmissionService", () => {
           adminId: admin1.username,
           action: "approve",
           note: expect.any(String),
-          timestamp: expect.any(Date)
-        })
+          timestamp: expect.any(Date),
+        }),
       );
 
       // Verify distribution was triggered
       expect(mockDistributionService.processedSubmissions).toHaveLength(1);
       expect(mockDistributionService.processedSubmissions[0]).toEqual({
         submissionId: "original1_tweet",
-        feedId: "test2"
+        feedId: "test2",
       });
     });
 
@@ -272,8 +272,8 @@ describe("SubmissionService", () => {
         {
           submissionId: "original1_tweet",
           feedId: "test2",
-          status: SubmissionStatus.PENDING
-        }
+          status: SubmissionStatus.PENDING,
+        },
       ]);
 
       // Non-moderator trying to approve
@@ -320,8 +320,8 @@ describe("SubmissionService", () => {
           submissionId: "original1_tweet",
           feedId: "test",
           status: SubmissionStatus.APPROVED,
-          moderationResponseTweetId: "mod1_reply"
-        }
+          moderationResponseTweetId: "mod1_reply",
+        },
       ]);
 
       const originalTweet: Tweet = {
@@ -366,7 +366,7 @@ describe("SubmissionService", () => {
       expect(drizzleMock.saveSubmissionToFeed.mock.calls[0]).toEqual([
         "original1_tweet",
         "test2",
-        SubmissionStatus.PENDING
+        SubmissionStatus.PENDING,
       ]);
 
       // Verify no distribution occurred since the new submission is pending
@@ -390,8 +390,8 @@ describe("SubmissionService", () => {
         {
           submissionId: "original1_tweet",
           feedId: "test2",
-          status: SubmissionStatus.PENDING
-        }
+          status: SubmissionStatus.PENDING,
+        },
       ]);
 
       // Admin rejecting submission
@@ -419,7 +419,7 @@ describe("SubmissionService", () => {
         "original1_tweet",
         "test2",
         SubmissionStatus.REJECTED,
-        "mod1_reply"
+        "mod1_reply",
       );
 
       // Verify moderation history was saved
@@ -430,8 +430,8 @@ describe("SubmissionService", () => {
           adminId: admin1.username,
           action: "reject",
           note: expect.any(String),
-          timestamp: expect.any(Date)
-        })
+          timestamp: expect.any(Date),
+        }),
       );
 
       // Verify no distribution occurred for rejected submission
@@ -456,8 +456,8 @@ describe("SubmissionService", () => {
         {
           submissionId: "original1_tweet",
           feedId: "test",
-          status: SubmissionStatus.PENDING
-        }
+          status: SubmissionStatus.PENDING,
+        },
       ]);
 
       const originalTweet: Tweet = {
@@ -504,7 +504,7 @@ describe("SubmissionService", () => {
         "original1_tweet",
         "test",
         SubmissionStatus.APPROVED,
-        "curator1_reply"
+        "curator1_reply",
       );
 
       // Verify moderation history was saved
@@ -515,15 +515,15 @@ describe("SubmissionService", () => {
           adminId: curator1.username,
           action: "approve",
           note: expect.any(String),
-          timestamp: expect.any(Date)
-        })
+          timestamp: expect.any(Date),
+        }),
       );
 
       // Verify distribution was triggered since it was approved
       expect(mockDistributionService.processedSubmissions).toHaveLength(1);
       expect(mockDistributionService.processedSubmissions[0]).toEqual({
         submissionId: "original1_tweet",
-        feedId: "test"
+        feedId: "test",
       });
     });
 
@@ -589,8 +589,8 @@ describe("SubmissionService", () => {
           submissionId: "original1_tweet",
           feedId: "test2",
           status: SubmissionStatus.APPROVED,
-          moderationResponseTweetId: "mod1_reply"
-        }
+          moderationResponseTweetId: "mod1_reply",
+        },
       ]);
 
       // Another admin trying to reject already approved submission
@@ -635,8 +635,8 @@ describe("SubmissionService", () => {
         {
           submissionId: "original1_tweet",
           feedId: "test2",
-          status: SubmissionStatus.PENDING
-        }
+          status: SubmissionStatus.PENDING,
+        },
       ]);
 
       // First admin approving submission
@@ -684,7 +684,7 @@ describe("SubmissionService", () => {
         "original1_tweet",
         "test2",
         SubmissionStatus.APPROVED,
-        "mod1_reply"
+        "mod1_reply",
       );
 
       // Verify only first moderation was saved to history
@@ -696,15 +696,15 @@ describe("SubmissionService", () => {
           adminId: admin1.username,
           action: "approve",
           note: expect.any(String),
-          timestamp: expect.any(Date)
-        })
+          timestamp: expect.any(Date),
+        }),
       );
 
       // Verify distribution occurred since first response was approval
       expect(mockDistributionService.processedSubmissions).toHaveLength(1);
       expect(mockDistributionService.processedSubmissions[0]).toEqual({
         submissionId: "original1_tweet",
-        feedId: "test2"
+        feedId: "test2",
       });
     });
   });

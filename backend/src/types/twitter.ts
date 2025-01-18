@@ -44,7 +44,8 @@ export const SubmissionStatus = {
   REJECTED: "rejected",
 } as const;
 
-export type SubmissionStatus = (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
+export type SubmissionStatus =
+  (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
 
 export interface SubmissionFeed {
   submissionId: string;

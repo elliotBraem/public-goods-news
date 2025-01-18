@@ -35,7 +35,7 @@ interface DbInterface {
     submissionId: string,
     feedId: string,
     status: SubmissionStatus,
-    moderationResponseTweetId?: string | null
+    moderationResponseTweetId?: string | null,
   ) => void;
   incrementDailySubmissionCount: (userId: string) => void;
   saveModerationAction: (moderation: {
@@ -48,11 +48,9 @@ interface DbInterface {
     submissionId: string,
     feedId: string,
     status: SubmissionStatus,
-    moderationResponseTweetId?: string | null
+    moderationResponseTweetId?: string | null,
   ) => void;
-  getFeedsBySubmission: (
-    submissionId: string,
-  ) => Array<SubmissionFeed>;
+  getFeedsBySubmission: (submissionId: string) => Array<SubmissionFeed>;
   removeFromSubmissionFeed: (submissionId: string, feedId: string) => void;
 }
 
@@ -69,10 +67,10 @@ export const drizzleMock = {
     DbInterface["incrementDailySubmissionCount"]
   >(() => {}),
   saveModerationAction: mock<DbInterface["saveModerationAction"]>(() => {}),
-  updateSubmissionFeedStatus: mock<DbInterface["updateSubmissionFeedStatus"]>(() => {}),
-  getFeedsBySubmission: mock<DbInterface["getFeedsBySubmission"]>(() =>
-    [],
+  updateSubmissionFeedStatus: mock<DbInterface["updateSubmissionFeedStatus"]>(
+    () => {},
   ),
+  getFeedsBySubmission: mock<DbInterface["getFeedsBySubmission"]>(() => []),
   removeFromSubmissionFeed: mock<DbInterface["removeFromSubmissionFeed"]>(
     () => {},
   ),

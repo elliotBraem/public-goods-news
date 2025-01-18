@@ -4,7 +4,10 @@ import { SubmissionFeed, TwitterSubmission } from "../../types/twitter";
 // In-memory storage for mock database
 const storage = {
   submissions: new Map<string, TwitterSubmission>(),
-  submissionFeeds: new Map<string, Map<string, {status: string, moderationResponseTweetId?: string}>>(), // tweetId -> Map<feedId, status>
+  submissionFeeds: new Map<
+    string,
+    Map<string, { status: string; moderationResponseTweetId?: string }>
+  >(), // tweetId -> Map<feedId, status>
   dailySubmissionCounts: new Map<string, number>(), // userId -> count
   moderationResponses: new Map<string, string>(), // tweetId -> responseTweetId
 };
@@ -24,13 +27,13 @@ export const mockDb = {
     },
   ),
 
-  saveSubmissionToFeed: mock<(submissionId: string, feedId: string, status?: string) => void>(
-    (submissionId, feedId, status = "pending") => {
-      const feeds = storage.submissionFeeds.get(submissionId) || new Map();
-      feeds.set(feedId, {status});
-      storage.submissionFeeds.set(submissionId, feeds);
-    },
-  ),
+  saveSubmissionToFeed: mock<
+    (submissionId: string, feedId: string, status?: string) => void
+  >((submissionId, feedId, status = "pending") => {
+    const feeds = storage.submissionFeeds.get(submissionId) || new Map();
+    feeds.set(feedId, { status });
+    storage.submissionFeeds.set(submissionId, feeds);
+  }),
 
   incrementDailySubmissionCount: mock<(userId: string) => void>((userId) => {
     const currentCount = storage.dailySubmissionCounts.get(userId) || 0;
@@ -39,15 +42,17 @@ export const mockDb = {
 
   saveModerationAction: mock<(moderation: any) => void>(() => {}),
 
-  getFeedsBySubmission: mock<(submissionId: string) => SubmissionFeed[]>((submissionId) => {
-    const feeds = storage.submissionFeeds.get(submissionId) || new Map();
-    return Array.from(feeds.entries()).map(([feedId, data]) => ({ 
-      submissionId,
-      feedId,
-      status: data.status || "pending",
-      moderationResponseTweetId: data.moderationResponseTweetId
-    }));
-  }),
+  getFeedsBySubmission: mock<(submissionId: string) => SubmissionFeed[]>(
+    (submissionId) => {
+      const feeds = storage.submissionFeeds.get(submissionId) || new Map();
+      return Array.from(feeds.entries()).map(([feedId, data]) => ({
+        submissionId,
+        feedId,
+        status: data.status || "pending",
+        moderationResponseTweetId: data.moderationResponseTweetId,
+      }));
+    },
+  ),
 
   removeFromSubmissionFeed: mock<
     (submissionId: string, feedId: string) => void
@@ -59,15 +64,20 @@ export const mockDb = {
   }),
 
   updateSubmissionFeedStatus: mock<
-    (submissionId: string, feedId: string, status: string, moderationTweetId: string) => void
+    (
+      submissionId: string,
+      feedId: string,
+      status: string,
+      moderationTweetId: string,
+    ) => void
   >((submissionId, feedId, status, moderationTweetId) => {
     const feeds = storage.submissionFeeds.get(submissionId) || new Map();
-    feeds.set(feedId, {status, moderationResponseTweetId: moderationTweetId});
+    feeds.set(feedId, { status, moderationResponseTweetId: moderationTweetId });
     storage.submissionFeeds.set(submissionId, feeds);
   }),
 
   getSubmission: mock<(tweetId: string) => TwitterSubmission | undefined>(
-    (tweetId) => storage.submissions.get(tweetId)
+    (tweetId) => storage.submissions.get(tweetId),
   ),
 };
 

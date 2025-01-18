@@ -8,7 +8,13 @@ import { DBOperations } from "./operations";
 import * as queries from "./queries";
 
 // Twitter & RSS
-import { SubmissionFeed, Moderation, TwitterCookie, TwitterSubmission, SubmissionStatus } from "types/twitter";
+import {
+  SubmissionFeed,
+  Moderation,
+  TwitterCookie,
+  TwitterSubmission,
+  SubmissionStatus,
+} from "types/twitter";
 import * as rssQueries from "../rss/queries";
 import * as twitterQueries from "../twitter/queries";
 export class DatabaseService {
@@ -76,7 +82,11 @@ export class DatabaseService {
     queries.upsertFeed(this.db, feed).run();
   }
 
-  saveSubmissionToFeed(submissionId: string, feedId: string, status: SubmissionStatus = SubmissionStatus.PENDING): void {
+  saveSubmissionToFeed(
+    submissionId: string,
+    feedId: string,
+    status: SubmissionStatus = SubmissionStatus.PENDING,
+  ): void {
     queries.saveSubmissionToFeed(this.db, submissionId, feedId, status).run();
   }
 

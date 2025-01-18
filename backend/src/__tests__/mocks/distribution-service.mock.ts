@@ -10,7 +10,7 @@ export class MockDistributionService {
   ): Promise<void> {
     this.processedSubmissions.push({ feedId, submissionId });
   }
-  
+
   async processRecapOutput(): Promise<void> {
     // Not needed for current tests
   }

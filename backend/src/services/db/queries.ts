@@ -1,6 +1,11 @@
 import { and, eq, sql } from "drizzle-orm";
 import { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
-import { SubmissionFeed, Moderation, TwitterSubmission, SubmissionStatus } from "types/twitter";
+import {
+  SubmissionFeed,
+  Moderation,
+  TwitterSubmission,
+  SubmissionStatus,
+} from "types/twitter";
 import {
   feedPlugins,
   feeds,
@@ -35,14 +40,14 @@ export function saveSubmissionToFeed(
   db: BunSQLiteDatabase,
   submissionId: string,
   feedId: string,
-  status: SubmissionStatus = SubmissionStatus.PENDING
+  status: SubmissionStatus = SubmissionStatus.PENDING,
 ) {
   return db
     .insert(submissionFeeds)
     .values({
       submissionId,
       feedId,
-      status
+      status,
     })
     .onConflictDoNothing();
 }
@@ -62,9 +67,9 @@ export function getFeedsBySubmission(
     .where(eq(submissionFeeds.submissionId, submissionId))
     .all();
 
-  return results.map(result => ({
+  return results.map((result) => ({
     ...result,
-    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined
+    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
   }));
 }
 
@@ -118,7 +123,7 @@ export function getModerationHistory(
     .orderBy(moderationHistory.createdAt)
     .all();
 
-  return results.map(result => ({
+  return results.map((result) => ({
     tweetId: result.tweetId,
     feedId: result.feedId,
     adminId: result.adminId,
@@ -145,8 +150,8 @@ export function updateSubmissionFeedStatus(
     .where(
       and(
         eq(submissionFeeds.submissionId, submissionId),
-        eq(submissionFeeds.feedId, feedId)
-      )
+        eq(submissionFeeds.feedId, feedId),
+      ),
     );
 }
 
