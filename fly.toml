@@ -32,11 +32,12 @@ primary_region = 'den'
 
   [[services.http_checks]]
     interval = "10s"
-    grace_period = "5s"
+    grace_period = "30s"
     method = "get"
     path = "/"
     protocol = "http"
-    timeout = "2s"
+    timeout = "5s"
+    port = 3000
 
 [[vm]]
   memory = '1gb'
