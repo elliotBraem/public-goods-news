@@ -20,7 +20,6 @@ primary_region = 'den'
 [[services]]
   internal_port = 8080
   protocol = "tcp"
-  force_https = true
   auto_stop_machines = 'suspend'
   auto_start_machines = true
   min_machines_running = 0
@@ -28,7 +27,7 @@ primary_region = 'den'
 
 [[services.ports]]
     handlers = ["http"]
-    port = 3000
+    port = 8080
     force_https = true
 
 [[vm]]
