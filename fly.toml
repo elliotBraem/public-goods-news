@@ -36,7 +36,7 @@ primary_region = 'den'
     
   [[services.http_checks]]
     interval = "30s"
-    grace_period = "120s"
+    grace_period = "60s"
     method = "get"
     path = "/health"
     protocol = "http"
