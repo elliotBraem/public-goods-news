@@ -7,6 +7,7 @@
     "dev": "bunx turbo run dev",
     "build": "bunx turbo run build",
     "start": "NODE_ENV=production cd backend && bun run dist/index.js",
+    "db:up": "cd backend && bun run db:up",
     "db:push": "cd backend && bun run db:push",
     "lint": "bunx turbo run lint",
     "deploy:init": "fly launch && fly consul attach",
