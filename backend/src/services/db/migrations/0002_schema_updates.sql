@@ -41,7 +41,6 @@ SELECT
     `username`,
     `curator_id`,
     `curator_username`,
-    COALESCE(`acknowledgment_tweet_id`, ''),
     `content`,
     `description`,
     `submitted_at`,
