@@ -25,10 +25,18 @@ primary_region = 'den'
   min_machines_running = 0
   processes = ['app']
 
-[[services.ports]]
+  [[services.ports]]
     handlers = ["http"]
     port = 8080
     force_https = true
+
+  [[services.http_checks]]
+    interval = "10s"
+    grace_period = "5s"
+    method = "get"
+    path = "/"
+    protocol = "http"
+    timeout = "2s"
 
 [[vm]]
   memory = '1gb'
