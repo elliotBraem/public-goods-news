@@ -5,13 +5,11 @@ export interface TwitterSubmission {
   curatorId: string;
   curatorUsername: string;
   content: string;
-  description?: string;
-  status: "pending" | "approved" | "rejected";
-  moderationHistory: Moderation[];
-  acknowledgmentTweetId?: string; // depreciated
-  moderationResponseTweetId?: string;
+  curatorNotes?: string;
+  curatorTweetId: string;
   createdAt: string;
   submittedAt: string;
+  moderationHistory: Moderation[];
 }
 
 export interface Moderation {
@@ -19,6 +17,7 @@ export interface Moderation {
   action: "approve" | "reject";
   timestamp: Date;
   tweetId: string;
+  feedId: string;
   note?: string;
 }
 
@@ -37,4 +36,20 @@ export interface TwitterCookie {
   httpOnly?: boolean;
   secure?: boolean;
   sameSite?: "Strict" | "Lax" | "None";
+}
+
+export const SubmissionStatus = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+} as const;
+
+export type SubmissionStatus =
+  (typeof SubmissionStatus)[keyof typeof SubmissionStatus];
+
+export interface SubmissionFeed {
+  submissionId: string;
+  feedId: string;
+  status: SubmissionStatus;
+  moderationResponseTweetId?: string;
 }

@@ -1,5 +1,5 @@
 import { HiExternalLink } from "react-icons/hi";
-import { TwitterSubmission } from "../types/twitter";
+import { TwitterSubmissionWithFeedData } from "../types/twitter";
 
 const getTweetUrl = (tweetId: string, username: string) => {
   return `https://x.com/${username}/status/${tweetId}`;
@@ -22,7 +22,7 @@ const formatDate = (dateString: string) => {
 export const StatusBadge = ({
   status,
 }: {
-  status: TwitterSubmission["status"];
+  status: TwitterSubmissionWithFeedData["status"];
 }) => {
   const baseClasses = "status-badge";
   const statusClasses = {
@@ -36,7 +36,7 @@ export const StatusBadge = ({
 };
 
 interface FeedItemProps {
-  submission: TwitterSubmission;
+  submission: TwitterSubmissionWithFeedData;
 }
 
 export const FeedItem = ({ submission }: FeedItemProps) => {
@@ -149,8 +149,8 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
             )}
 
           {submission.status === "pending" &&
-            submission.description &&
-            submission.description.trim() !== "" && (
+            submission.curatorNotes &&
+            submission.curatorNotes.trim() !== "" && (
               <div className="p-4 border-2 border-gray-200 rounded-md bg-gray-50">
                 <div className="flex items-center gap-2 mb-2">
                   <h4 className="heading-3">Curator's Notes</h4>
@@ -168,7 +168,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                   </div>
                 </div>
                 <p className="body-text text-gray-700">
-                  {submission.description}
+                  {submission.curatorNotes}
                 </p>
               </div>
             )}
@@ -182,7 +182,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
             >
-              Approve
+              approve
             </a>
             <a
               href={getTwitterIntentUrl(tweetId, "reject")}
@@ -190,7 +190,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
             >
-              Reject
+              reject
             </a>
           </div>
         )}

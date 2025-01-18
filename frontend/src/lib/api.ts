@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import type { FeedConfig, AppConfig } from "../../../backend/src/types/config";
-import type { TwitterSubmission } from "../../../backend/src/types/twitter";
+import type { FeedConfig, AppConfig } from "../types/config";
+import type { TwitterSubmissionWithFeedData } from "../types/twitter";
 
 export function useFeedConfig(feedId: string) {
   return useQuery<FeedConfig>({
@@ -16,7 +16,7 @@ export function useFeedConfig(feedId: string) {
 }
 
 export function useFeedItems(feedId: string) {
-  return useQuery<TwitterSubmission[]>({
+  return useQuery<TwitterSubmissionWithFeedData[]>({
     queryKey: ["feed-items", feedId],
     queryFn: async () => {
       const response = await fetch(`/api/feed/${feedId}`);

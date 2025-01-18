@@ -1,12 +1,14 @@
 import { mock } from "bun:test";
-import { TwitterSubmission } from "../../types/twitter";
+import { SubmissionFeed, TwitterSubmission } from "../../types/twitter";
 
 // In-memory storage for mock database
 const storage = {
   submissions: new Map<string, TwitterSubmission>(),
-  submissionFeeds: new Map<string, Set<string>>(), // tweetId -> Set of feedIds
+  submissionFeeds: new Map<
+    string,
+    Map<string, { status: string; moderationResponseTweetId?: string }>
+  >(), // tweetId -> Map<feedId, status>
   dailySubmissionCounts: new Map<string, number>(), // userId -> count
-  acknowledgments: new Map<string, string>(), // tweetId -> acknowledgmentTweetId
   moderationResponses: new Map<string, string>(), // tweetId -> responseTweetId
 };
 
@@ -25,58 +27,32 @@ export const mockDb = {
     },
   ),
 
-  saveSubmissionToFeed: mock<(submissionId: string, feedId: string) => void>(
-    (submissionId, feedId) => {
-      const feeds = storage.submissionFeeds.get(submissionId) || new Set();
-      feeds.add(feedId);
-      storage.submissionFeeds.set(submissionId, feeds);
-    },
-  ),
+  saveSubmissionToFeed: mock<
+    (submissionId: string, feedId: string, status?: string) => void
+  >((submissionId, feedId, status = "pending") => {
+    const feeds = storage.submissionFeeds.get(submissionId) || new Map();
+    feeds.set(feedId, { status });
+    storage.submissionFeeds.set(submissionId, feeds);
+  }),
 
   incrementDailySubmissionCount: mock<(userId: string) => void>((userId) => {
     const currentCount = storage.dailySubmissionCounts.get(userId) || 0;
     storage.dailySubmissionCounts.set(userId, currentCount + 1);
   }),
 
-  updateSubmissionAcknowledgment: mock<
-    (tweetId: string, acknowledgmentTweetId: string) => void
-  >((tweetId, ackId) => {
-    storage.acknowledgments.set(tweetId, ackId);
-  }),
-
-  getSubmissionByAcknowledgmentTweetId: mock<
-    (acknowledgmentTweetId: string) => TwitterSubmission | null
-  >((ackId) => {
-    for (const [tweetId, storedAckId] of storage.acknowledgments.entries()) {
-      if (storedAckId === ackId) {
-        return storage.submissions.get(tweetId) || null;
-      }
-    }
-    return null;
-  }),
-
   saveModerationAction: mock<(moderation: any) => void>(() => {}),
 
-  updateSubmissionStatus: mock<
-    (
-      tweetId: string,
-      status: "approved" | "rejected",
-      responseTweetId: string,
-    ) => void
-  >((tweetId, status, responseId) => {
-    const submission = storage.submissions.get(tweetId);
-    if (submission) {
-      submission.status = status;
-      storage.moderationResponses.set(tweetId, responseId);
-    }
-  }),
-
-  getFeedsBySubmission: mock<
-    (submissionId: string) => Array<{ feedId: string }>
-  >((submissionId) => {
-    const feeds = storage.submissionFeeds.get(submissionId) || new Set();
-    return Array.from(feeds).map((feedId) => ({ feedId }));
-  }),
+  getFeedsBySubmission: mock<(submissionId: string) => SubmissionFeed[]>(
+    (submissionId) => {
+      const feeds = storage.submissionFeeds.get(submissionId) || new Map();
+      return Array.from(feeds.entries()).map(([feedId, data]) => ({
+        submissionId,
+        feedId,
+        status: data.status || "pending",
+        moderationResponseTweetId: data.moderationResponseTweetId,
+      }));
+    },
+  ),
 
   removeFromSubmissionFeed: mock<
     (submissionId: string, feedId: string) => void
@@ -86,6 +62,23 @@ export const mockDb = {
       feeds.delete(feedId);
     }
   }),
+
+  updateSubmissionFeedStatus: mock<
+    (
+      submissionId: string,
+      feedId: string,
+      status: string,
+      moderationTweetId: string,
+    ) => void
+  >((submissionId, feedId, status, moderationTweetId) => {
+    const feeds = storage.submissionFeeds.get(submissionId) || new Map();
+    feeds.set(feedId, { status, moderationResponseTweetId: moderationTweetId });
+    storage.submissionFeeds.set(submissionId, feeds);
+  }),
+
+  getSubmission: mock<(tweetId: string) => TwitterSubmission | undefined>(
+    (tweetId) => storage.submissions.get(tweetId),
+  ),
 };
 
 // Helper to reset all mock functions and storage
@@ -94,6 +87,5 @@ export const resetMockDb = () => {
   storage.submissions.clear();
   storage.submissionFeeds.clear();
   storage.dailySubmissionCounts.clear();
-  storage.acknowledgments.clear();
   storage.moderationResponses.clear();
 };

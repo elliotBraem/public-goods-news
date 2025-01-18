@@ -1,21 +1,28 @@
-import { describe, expect, it, beforeEach, afterEach } from "bun:test";
 import { Tweet } from "agent-twitter-client";
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { SubmissionService } from "../services/submissions/submission.service";
-import { MockDistributionService } from "./mocks/distribution-service.mock";
-import { MockTwitterService } from "./mocks/twitter-service.mock";
-import drizzleMock from "./mocks/drizzle.mock";
 import { AppConfig, PluginsConfig } from "../types/config";
+import { SubmissionStatus } from "../types/twitter";
+import { MockDistributionService } from "./mocks/distribution-service.mock";
+import drizzleMock from "./mocks/drizzle.mock";
+import { MockTwitterService } from "./mocks/twitter-service.mock";
 
 describe("SubmissionService", () => {
   let submissionService: SubmissionService;
   let mockTwitterService: MockTwitterService;
   let mockDistributionService: MockDistributionService;
 
+  const botAccount = { id: "test_bot_id", username: "test_bot" }; // bot
+  const admin1 = { id: "admin1_id", username: "admin1" }; // moderator
+  const curator1 = { id: "curator1_id", username: "curator1" }; // curator
+  const curator2 = { id: "curator2_id", username: "curator2" }; // curator
+  const user1 = { id: "user1_id", username: "user1" }; // submission tweet owner
+
   const mockConfig: AppConfig = {
     global: {
       botId: "test_bot",
       maxSubmissionsPerUser: 5,
-      defaultStatus: "pending",
+      defaultStatus: SubmissionStatus.PENDING,
     },
     feeds: [
       {
@@ -24,7 +31,7 @@ describe("SubmissionService", () => {
         description: "Test feed for unit tests",
         moderation: {
           approvers: {
-            twitter: ["admin1"],
+            twitter: [admin1.username, curator1.username],
           },
         },
         outputs: {
@@ -40,7 +47,7 @@ describe("SubmissionService", () => {
         description: "Second test feed",
         moderation: {
           approvers: {
-            twitter: ["admin1"],
+            twitter: [admin1.username],
           },
         },
         outputs: {
@@ -67,8 +74,11 @@ describe("SubmissionService", () => {
       mockConfig,
     );
 
-    // Setup admin user ID
-    mockTwitterService.addMockUserId("admin1", "admin1_id");
+    // Setup user IDs
+    mockTwitterService.addMockUserId(admin1.username, admin1.id);
+    mockTwitterService.addMockUserId(curator1.username, curator1.id);
+    mockTwitterService.addMockUserId(curator2.username, curator2.id);
+    mockTwitterService.addMockUserId(user1.username, user1.id);
 
     // Initialize service
     await submissionService.initialize();
@@ -78,14 +88,14 @@ describe("SubmissionService", () => {
     await submissionService.stop();
   });
 
-  describe("Submission Processing", () => {
-    it("should process new submissions correctly", async () => {
-      // Setup mock tweets
+  describe("Curator Submissions", () => {
+    it("should process curator submissions and auto-approve for feeds they moderate", async () => {
+      // Original tweet being submitted
       const originalTweet: Tweet = {
-        id: "original1",
+        id: "original1_tweet",
         text: "Original content",
-        username: "user1",
-        userId: "user1_id",
+        username: user1.username,
+        userId: user1.id,
         timeParsed: new Date(),
         hashtags: [],
         mentions: [],
@@ -95,162 +105,16 @@ describe("SubmissionService", () => {
         thread: [],
       };
 
-      const submissionTweet: Tweet = {
-        id: "submission1",
-        text: "!submit #test",
-        username: "user2",
-        userId: "user2_id",
-        inReplyToStatusId: "original1",
-        timeParsed: new Date(),
-        hashtags: ["test"],
-        mentions: [],
-        photos: [],
-        urls: [],
-        videos: [],
-        thread: [],
-      };
-
-      mockTwitterService.addMockTweet(originalTweet);
-      mockTwitterService.addMockTweet(submissionTweet);
-
-      // Trigger mentions check
-      await submissionService.startMentionsCheck();
-
-      // Wait for processing
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Verify submission was saved
-      expect(drizzleMock.saveSubmission).toHaveBeenCalledTimes(1);
-      expect(drizzleMock.saveSubmissionToFeed).toHaveBeenCalledTimes(1);
-
-      const savedSubmissionCall = drizzleMock.saveSubmission.mock.calls[0];
-      expect(savedSubmissionCall[0].tweetId).toBe("original1");
-      expect(savedSubmissionCall[0].status).toBe("pending");
-    });
-
-    it("should handle reprocessing without duplicate distributions", async () => {
-      // Setup mock tweets
-      const originalTweet: Tweet = {
-        id: "original1",
-        text: "Original content",
-        username: "user1",
-        userId: "user1_id",
-        timeParsed: new Date(),
-        hashtags: [],
-        mentions: [],
-        photos: [],
-        urls: [],
-        videos: [],
-        thread: [],
-      };
-
-      const submissionTweet: Tweet = {
-        id: "submission1",
-        text: "!submit #test",
-        username: "user2",
-        userId: "user2_id",
-        inReplyToStatusId: "original1",
-        timeParsed: new Date(),
-        hashtags: ["test"],
-        mentions: [],
-        photos: [],
-        urls: [],
-        videos: [],
-        thread: [],
-      };
-
-      // First process the submission
-      mockTwitterService.addMockTweet(originalTweet);
-      mockTwitterService.addMockTweet(submissionTweet);
-      await submissionService.startMentionsCheck();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Clear tweets and add moderation tweet
-      mockTwitterService.clearMockTweets();
-      const moderationTweet: Tweet = {
-        id: "mod1",
-        text: "#approve",
-        username: "admin1",
-        userId: "admin1_id",
-        inReplyToStatusId: "reply-submission1", // Reply to the acknowledgment tweet
-        timeParsed: new Date(),
-        hashtags: ["approve"],
-        mentions: [],
-        photos: [],
-        urls: [],
-        videos: [],
-        thread: [],
-      };
-
-      // Setup mocks for moderation
-      drizzleMock.getSubmissionByAcknowledgmentTweetId.mockResolvedValue({
-        tweetId: "original1",
-        userId: "user1_id",
-        username: "user1",
-        content: "Original content",
-        status: "pending",
-        moderationHistory: [],
-        createdAt: new Date().toISOString(),
-        submittedAt: new Date().toISOString(),
-      });
-
-      drizzleMock.getFeedsBySubmission.mockResolvedValue([{ feedId: "test" }]);
-
-      // Process moderation
-      mockTwitterService.addMockTweet(moderationTweet);
-      await submissionService.startMentionsCheck();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Verify first distribution
-      expect(mockDistributionService.processedSubmissions.length).toBe(1);
-      expect(mockDistributionService.processedSubmissions[0].submissionId).toBe(
-        "original1",
-      );
-      expect(mockDistributionService.processedSubmissions[0].feedId).toBe(
-        "test",
-      );
-
-      // Now simulate moving back lastCheckedId and reprocessing
-      mockTwitterService.clearMockTweets();
-      await mockTwitterService.setLastCheckedTweetId(null);
-      mockDistributionService.processedSubmissions = [];
-
-      // Add all tweets back and reprocess
-      mockTwitterService.addMockTweet(originalTweet);
-      mockTwitterService.addMockTweet(submissionTweet);
-      mockTwitterService.addMockTweet(moderationTweet);
-      await submissionService.startMentionsCheck();
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      // Verify no new distributions occurred
-      expect(mockDistributionService.processedSubmissions.length).toBe(0);
-    });
-
-    it("should allow submissions to multiple feeds", async () => {
-      // Setup mock tweets
-      const originalTweet: Tweet = {
-        id: "original1",
-        text: "Original content",
-        username: "user1",
-        userId: "user1_id",
-        timeParsed: new Date(),
-        hashtags: [],
-        mentions: [],
-        photos: [],
-        urls: [],
-        videos: [],
-        thread: [],
-      };
-
-      const submissionTweet: Tweet = {
-        id: "submission1",
-        text: "!submit #test #test2",
-        username: "user2",
-        userId: "user2_id",
-        inReplyToStatusId: "original1",
+      // Curator submitting to both feeds
+      const curatorTweet: Tweet = {
+        id: "curator1_reply",
+        text: "@test_bot !submit #test #test2",
+        username: curator1.username,
+        userId: curator1.id,
+        inReplyToStatusId: "original1_tweet",
         timeParsed: new Date(),
         hashtags: ["test", "test2"],
-        mentions: [],
+        mentions: [botAccount],
         photos: [],
         urls: [],
         videos: [],
@@ -258,18 +122,590 @@ describe("SubmissionService", () => {
       };
 
       mockTwitterService.addMockTweet(originalTweet);
-      mockTwitterService.addMockTweet(submissionTweet);
+      mockTwitterService.addMockTweet(curatorTweet);
 
       // Process submission
       await submissionService.startMentionsCheck();
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Verify submission was saved to both feeds
+      // Verify submission was saved
+      expect(drizzleMock.saveSubmission).toHaveBeenCalledTimes(1);
+      const savedSubmission = drizzleMock.saveSubmission.mock.calls[0][0];
+      expect(savedSubmission).toMatchObject({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        content: "Original content",
+        createdAt: expect.any(String),
+        submittedAt: expect.any(String),
+        curatorNotes: expect.any(String),
+      });
+
+      // Verify feed submissions were saved
       expect(drizzleMock.saveSubmissionToFeed).toHaveBeenCalledTimes(2);
-      const firstCall = drizzleMock.saveSubmissionToFeed.mock.calls[0];
-      const secondCall = drizzleMock.saveSubmissionToFeed.mock.calls[1];
-      expect(firstCall[1]).toBe("test");
-      expect(secondCall[1]).toBe("test2");
+
+      // Both feeds should be saved as pending initially
+      expect(drizzleMock.saveSubmissionToFeed.mock.calls[0]).toEqual([
+        "original1_tweet",
+        "test",
+        SubmissionStatus.PENDING,
+      ]);
+      expect(drizzleMock.saveSubmissionToFeed.mock.calls[1]).toEqual([
+        "original1_tweet",
+        "test2",
+        SubmissionStatus.PENDING,
+      ]);
+
+      // First feed (test) should be auto-approved since curator1 is a moderator
+      expect(drizzleMock.updateSubmissionFeedStatus).toHaveBeenCalledWith(
+        "original1_tweet",
+        "test",
+        SubmissionStatus.APPROVED,
+        "curator1_reply",
+      );
+
+      // Verify moderation history was saved for auto-approval
+      expect(drizzleMock.saveModerationAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tweetId: "original1_tweet",
+          feedId: "test",
+          adminId: curator1.username,
+          action: "approve",
+          note: expect.any(String),
+          timestamp: expect.any(Date),
+        }),
+      );
+
+      // Verify distribution was triggered for auto-approved feed
+      expect(mockDistributionService.processedSubmissions).toHaveLength(1);
+      expect(mockDistributionService.processedSubmissions[0]).toEqual({
+        submissionId: "original1_tweet",
+        feedId: "test",
+      });
+    });
+
+    it("should handle moderation responses for pending submissions", async () => {
+      // Setup existing submission
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        curatorTweetId: "curator1_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test2",
+          status: SubmissionStatus.PENDING,
+        },
+      ]);
+
+      // Admin approving submission
+      const moderationTweet: Tweet = {
+        id: "mod1_reply",
+        text: "!approve",
+        username: admin1.username,
+        userId: admin1.id,
+        inReplyToStatusId: "curator1_reply",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(moderationTweet);
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify moderation was processed
+      expect(drizzleMock.updateSubmissionFeedStatus).toHaveBeenCalledWith(
+        "original1_tweet",
+        "test2",
+        SubmissionStatus.APPROVED,
+        "mod1_reply",
+      );
+
+      // Verify moderation history was saved
+      expect(drizzleMock.saveModerationAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tweetId: "original1_tweet",
+          feedId: "test2",
+          adminId: admin1.username,
+          action: "approve",
+          note: expect.any(String),
+          timestamp: expect.any(Date),
+        }),
+      );
+
+      // Verify distribution was triggered
+      expect(mockDistributionService.processedSubmissions).toHaveLength(1);
+      expect(mockDistributionService.processedSubmissions[0]).toEqual({
+        submissionId: "original1_tweet",
+        feedId: "test2",
+      });
+    });
+
+    it("should ignore moderation responses from non-moderators", async () => {
+      // Setup existing submission
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        curatorTweetId: "curator1_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test2",
+          status: SubmissionStatus.PENDING,
+        },
+      ]);
+
+      // Non-moderator trying to approve
+      const moderationTweet: Tweet = {
+        id: "mod1_reply",
+        text: "!approve",
+        username: "random_user",
+        userId: "random_id",
+        inReplyToStatusId: "curator1_reply",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(moderationTweet);
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify no moderation changes occurred
+      expect(drizzleMock.updateSubmissionFeedStatus).not.toHaveBeenCalled();
+      expect(mockDistributionService.processedSubmissions).toHaveLength(0);
+    });
+
+    it("should handle resubmission of a tweet to different feeds", async () => {
+      // Mock that the tweet was already submitted to test feed
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        curatorTweetId: "curator1_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      // Mock that it's already in the test feed with approved status
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test",
+          status: SubmissionStatus.APPROVED,
+          moderationResponseTweetId: "mod1_reply",
+        },
+      ]);
+
+      const originalTweet: Tweet = {
+        id: "original1_tweet",
+        text: "Original content",
+        username: user1.username,
+        userId: user1.id,
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // New curator submitting to both test and test2 feeds
+      const curatorTweet: Tweet = {
+        id: "curator2_reply",
+        text: "@test_bot !submit #test #test2",
+        username: curator2.username,
+        userId: curator2.id,
+        inReplyToStatusId: "original1_tweet",
+        timeParsed: new Date(),
+        hashtags: ["test", "test2"],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(originalTweet);
+      mockTwitterService.addMockTweet(curatorTweet);
+
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify submission was not recreated but was added to test2 feed
+      expect(drizzleMock.saveSubmission).not.toHaveBeenCalled();
+      expect(drizzleMock.saveSubmissionToFeed).toHaveBeenCalledTimes(1);
+      expect(drizzleMock.saveSubmissionToFeed.mock.calls[0]).toEqual([
+        "original1_tweet",
+        "test2",
+        SubmissionStatus.PENDING,
+      ]);
+
+      // Verify no distribution occurred since the new submission is pending
+      expect(mockDistributionService.processedSubmissions).toHaveLength(0);
+    });
+
+    it("should handle rejection responses", async () => {
+      // Setup existing submission
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        curatorTweetId: "curator1_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test2",
+          status: SubmissionStatus.PENDING,
+        },
+      ]);
+
+      // Admin rejecting submission
+      const moderationTweet: Tweet = {
+        id: "mod1_reply",
+        text: "!reject",
+        userId: admin1.id,
+        username: admin1.username,
+        inReplyToStatusId: "curator1_reply",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(moderationTweet);
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify rejection was processed
+      expect(drizzleMock.updateSubmissionFeedStatus).toHaveBeenCalledWith(
+        "original1_tweet",
+        "test2",
+        SubmissionStatus.REJECTED,
+        "mod1_reply",
+      );
+
+      // Verify moderation history was saved
+      expect(drizzleMock.saveModerationAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tweetId: "original1_tweet",
+          feedId: "test2",
+          adminId: admin1.username,
+          action: "reject",
+          note: expect.any(String),
+          timestamp: expect.any(Date),
+        }),
+      );
+
+      // Verify no distribution occurred for rejected submission
+      expect(mockDistributionService.processedSubmissions).toHaveLength(0);
+    });
+
+    it("should auto-approve resubmission when curator is a moderator", async () => {
+      // Mock that the tweet was already submitted by curator2 and is pending
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator2.id,
+        curatorUsername: curator2.username,
+        curatorTweetId: "curator2_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      // Mock that it's pending in test feed from curator2's submission
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test",
+          status: SubmissionStatus.PENDING,
+        },
+      ]);
+
+      const originalTweet: Tweet = {
+        id: "original1_tweet",
+        text: "Original content",
+        username: user1.username,
+        userId: user1.id,
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // Curator1 (who is a moderator) submitting to test feed
+      const curatorTweet: Tweet = {
+        id: "curator1_reply",
+        text: "@test_bot !submit #test",
+        username: curator1.username,
+        userId: curator1.id,
+        inReplyToStatusId: "original1_tweet",
+        timeParsed: new Date(),
+        hashtags: ["test"],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(originalTweet);
+      mockTwitterService.addMockTweet(curatorTweet);
+
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify submission was not recreated
+      expect(drizzleMock.saveSubmission).not.toHaveBeenCalled();
+
+      // Verify feed submission was updated to approved since curator1 is a moderator
+      expect(drizzleMock.updateSubmissionFeedStatus).toHaveBeenCalledWith(
+        "original1_tweet",
+        "test",
+        SubmissionStatus.APPROVED,
+        "curator1_reply",
+      );
+
+      // Verify moderation history was saved
+      expect(drizzleMock.saveModerationAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tweetId: "original1_tweet",
+          feedId: "test",
+          adminId: curator1.username,
+          action: "approve",
+          note: expect.any(String),
+          timestamp: expect.any(Date),
+        }),
+      );
+
+      // Verify distribution was triggered since it was approved
+      expect(mockDistributionService.processedSubmissions).toHaveLength(1);
+      expect(mockDistributionService.processedSubmissions[0]).toEqual({
+        submissionId: "original1_tweet",
+        feedId: "test",
+      });
+    });
+
+    it("should ignore submissions to non-existent feeds", async () => {
+      const originalTweet: Tweet = {
+        id: "original1_tweet",
+        text: "Original content",
+        username: user1.username,
+        userId: user1.id,
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // Curator submitting to non-existent feed
+      const curatorTweet: Tweet = {
+        id: "curator1_reply",
+        text: "@test_bot !submit #nonexistent",
+        username: curator1.username,
+        userId: curator1.id,
+        inReplyToStatusId: "original1_tweet",
+        timeParsed: new Date(),
+        hashtags: ["nonexistent"],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(originalTweet);
+      mockTwitterService.addMockTweet(curatorTweet);
+
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify no submission was created
+      expect(drizzleMock.saveSubmission).not.toHaveBeenCalled();
+      expect(drizzleMock.saveSubmissionToFeed).not.toHaveBeenCalled();
+      expect(mockDistributionService.processedSubmissions).toHaveLength(0);
+    });
+
+    it("should ignore moderation of already moderated submissions", async () => {
+      // Setup existing submission
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        curatorTweetId: "curator1_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      // Mock that it's already approved in test2 feed
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test2",
+          status: SubmissionStatus.APPROVED,
+          moderationResponseTweetId: "mod1_reply",
+        },
+      ]);
+
+      // Another admin trying to reject already approved submission
+      const moderationTweet: Tweet = {
+        id: "mod2_reply",
+        text: "!reject",
+        username: admin1.username,
+        userId: admin1.id,
+        inReplyToStatusId: "curator1_reply",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(moderationTweet);
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify no moderation changes occurred
+      expect(drizzleMock.updateSubmissionFeedStatus).not.toHaveBeenCalled();
+      expect(mockDistributionService.processedSubmissions).toHaveLength(0);
+    });
+
+    it("should use first moderation response when multiple moderators respond", async () => {
+      // Setup existing submission
+      drizzleMock.getSubmission.mockReturnValue({
+        tweetId: "original1_tweet",
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        curatorTweetId: "curator1_reply",
+        content: "Original content",
+        submittedAt: new Date().toISOString(),
+      });
+
+      drizzleMock.getFeedsBySubmission.mockReturnValue([
+        {
+          submissionId: "original1_tweet",
+          feedId: "test2",
+          status: SubmissionStatus.PENDING,
+        },
+      ]);
+
+      // First admin approving submission
+      const firstModTweet: Tweet = {
+        id: "mod1_reply",
+        text: "!approve",
+        username: admin1.username,
+        userId: admin1.id,
+        inReplyToStatusId: "curator1_reply",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // Second admin trying to reject (should be ignored since first response wins)
+      const secondModTweet: Tweet = {
+        id: "mod2_reply",
+        text: "!reject",
+        username: curator1.username, // curator1 is also a moderator
+        userId: curator1.id,
+        inReplyToStatusId: "curator1_reply",
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // Add both moderation tweets, order matters since first one should win
+      mockTwitterService.addMockTweet(firstModTweet);
+      mockTwitterService.addMockTweet(secondModTweet);
+
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify only first moderation was processed
+      expect(drizzleMock.updateSubmissionFeedStatus).toHaveBeenCalledTimes(1);
+      expect(drizzleMock.updateSubmissionFeedStatus).toHaveBeenCalledWith(
+        "original1_tweet",
+        "test2",
+        SubmissionStatus.APPROVED,
+        "mod1_reply",
+      );
+
+      // Verify only first moderation was saved to history
+      expect(drizzleMock.saveModerationAction).toHaveBeenCalledTimes(1);
+      expect(drizzleMock.saveModerationAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tweetId: "original1_tweet",
+          feedId: "test2",
+          adminId: admin1.username,
+          action: "approve",
+          note: expect.any(String),
+          timestamp: expect.any(Date),
+        }),
+      );
+
+      // Verify distribution occurred since first response was approval
+      expect(mockDistributionService.processedSubmissions).toHaveLength(1);
+      expect(mockDistributionService.processedSubmissions[0]).toEqual({
+        submissionId: "original1_tweet",
+        feedId: "test2",
+      });
     });
   });
 });

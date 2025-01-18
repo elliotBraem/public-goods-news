@@ -40,27 +40,18 @@ export const submissions = table(
   "submissions",
   {
     tweetId: text("tweet_id").primaryKey(),
-    userId: text("user_id").notNull(),
-    username: text("username").notNull(),
-    curatorId: text("curator_id").notNull().default("system"),
-    curatorUsername: text("curator_username").notNull().default("system"),
-    content: text("content").notNull(),
-    description: text("description"),
-    status: text("status")
-      .notNull()
-      .$type<SubmissionStatus>()
-      .default(SubmissionStatus.PENDING),
-    acknowledgmentTweetId: text("acknowledgment_tweet_id").unique(),
-    moderationResponseTweetId: text("moderation_response_tweet_id"),
+    userId: text("user_id").notNull(), // Original tweet author
+    username: text("username").notNull(), // Original tweet author
+    curatorId: text("curator_id").notNull(), // Who submitted it
+    curatorUsername: text("curator_username").notNull(),
+    curatorTweetId: text("curator_tweet_id").notNull(), // The tweet where they submitted it
+    content: text("content").notNull(), // Original tweet content
+    curatorNotes: text("curator_notes"),
     submittedAt: text("submitted_at"),
     ...timestamps,
   },
   (submissions) => [
     index("submissions_user_id_idx").on(submissions.userId),
-    index("submissions_status_idx").on(submissions.status),
-    index("submissions_acknowledgment_idx").on(
-      submissions.acknowledgmentTweetId,
-    ),
     index("submissions_submitted_at_idx").on(submissions.submittedAt),
   ],
 );
@@ -74,6 +65,11 @@ export const submissionFeeds = table(
     feedId: text("feed_id")
       .notNull()
       .references(() => feeds.id, { onDelete: "cascade" }),
+    status: text("status")
+      .notNull()
+      .$type<SubmissionStatus>()
+      .default(SubmissionStatus.PENDING),
+    moderationResponseTweetId: text("moderation_response_tweet_id"),
     ...timestamps,
   },
   (table) => [
@@ -89,6 +85,9 @@ export const moderationHistory = table(
     tweetId: text("tweet_id")
       .notNull()
       .references(() => submissions.tweetId, { onDelete: "cascade" }),
+    feedId: text("feed_id")
+      .notNull()
+      .references(() => feeds.id, { onDelete: "cascade" }),
     adminId: text("admin_id").notNull(),
     action: text("action").notNull(),
     note: text("note"),
@@ -97,6 +96,7 @@ export const moderationHistory = table(
   (table) => [
     index("moderation_history_tweet_idx").on(table.tweetId),
     index("moderation_history_admin_idx").on(table.adminId),
+    index("moderation_history_feed_idx").on(table.feedId),
   ],
 );
 
