@@ -6,6 +6,7 @@ import {
   deleteOldRssItems,
 } from "../rss/queries";
 
+// These are made available for plugins
 export class DBOperations {
   constructor(private db: BunSQLiteDatabase) {}
 

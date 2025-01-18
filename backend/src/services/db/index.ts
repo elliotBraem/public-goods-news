@@ -78,8 +78,8 @@ export class DatabaseService {
     queries.incrementDailySubmissionCount(this.db, userId).run();
   }
 
-  upsertFeed(feed: { id: string; name: string; description?: string }): void {
-    queries.upsertFeed(this.db, feed).run();
+  upsertFeeds(feeds: { id: string; name: string; description?: string }[]): void {
+    queries.upsertFeeds(this.db, feeds);
   }
 
   saveSubmissionToFeed(
@@ -98,13 +98,8 @@ export class DatabaseService {
     queries.removeFromSubmissionFeed(this.db, submissionId, feedId).run();
   }
 
-  getSubmissionsByFeed(feedId: string): TwitterSubmission[] {
+  getSubmissionsByFeed(feedId: string): (TwitterSubmission & { status: SubmissionStatus })[] {
     return queries.getSubmissionsByFeed(this.db, feedId);
-  }
-
-  getContent(contentId: string): TwitterSubmission | null {
-    // For now, content is the same as submission since we're dealing with tweets
-    return this.getSubmission(contentId);
   }
 
   // Feed Plugin Management
@@ -144,21 +139,7 @@ export class DatabaseService {
 
   // Twitter Cache Management
   setTwitterCacheValue(key: string, value: string): void {
-    try {
-      twitterQueries.setTwitterCacheValue(this.db, key, value).run();
-    } catch (error: any) {
-      // Ignore write errors on read-only replicas
-      if (
-        error.code === "SQLITE_READONLY_DIRECTORY" ||
-        error.message?.includes("readonly database")
-      ) {
-        logger.info(
-          `Skipping Twitter cache write on read-only replica for key: ${key}`,
-        );
-        return;
-      }
-      throw error;
-    }
+    twitterQueries.setTwitterCacheValue(this.db, key, value).run();
   }
 
   getTwitterCacheValue(key: string): string | null {

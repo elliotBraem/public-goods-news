@@ -5,10 +5,10 @@ import dotenv from "dotenv";
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import path from "path";
-import { DistributionService } from "services/distribution/distribution.service";
 import configService, { validateEnv } from "./config/config";
 import RssPlugin from "./external/rss";
 import { db } from "./services/db";
+import { DistributionService } from "./services/distribution/distribution.service";
 import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
 import {
@@ -92,6 +92,7 @@ export async function main() {
         }),
       )
       .use(swagger())
+      .get("/health", () => new Response("OK", { status: 200 }))
       // API Routes
       .get("/api/last-tweet-id", () => {
         const lastTweetId = twitterService.getLastCheckedTweetId();
@@ -111,51 +112,40 @@ export async function main() {
           return { success: true };
         },
       )
-      .get("/api/submissions", ({ query }: { query: { status?: string } }) => {
-        const status = query?.status as
-          | "pending"
-          | "approved"
-          | "rejected"
-          | null;
-        return status
-          ? db.getSubmissionsByStatus(status)
-          : db.getAllSubmissions();
-      })
       .get(
-        "/api/submissions/:hashtagId",
-        ({ params: { hashtagId } }: { params: { hashtagId: string } }) => {
-          const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id === hashtagId);
-          if (!feed) {
-            throw new Error(`Feed not found: ${hashtagId}`);
-          }
-          // this should be pending submissions
-          return db.getSubmissionsByFeed(hashtagId);
-        },
-      )
-      .get(
-        "/api/feed/:hashtagId",
-        ({ params: { hashtagId } }: { params: { hashtagId: string } }) => {
-          const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id === hashtagId);
-          if (!feed) {
-            throw new Error(`Feed not found: ${hashtagId}`);
-          }
-
-          return db.getSubmissionsByFeed(hashtagId);
-        },
-      )
-      .get("/api/approved", () => {
-        return db.getSubmissionsByStatus("approved");
-      })
-      .get(
-        "/api/content/:contentId",
-        ({ params: { contentId } }: { params: { contentId: string } }) => {
-          const content = db.getContent(contentId);
+        "/api/submission/:submissionId",
+        ({ params: { submissionId } }: { params: { submissionId: string } }) => {
+          const content = db.getSubmission(submissionId);
           if (!content) {
-            throw new Error(`Content not found: ${contentId}`);
+            throw new Error(`Content not found: ${submissionId}`);
           }
           return content;
+        },
+      )
+      .get("/api/submissions", () => {
+        return db.getAllSubmissions();
+      })
+      .get(
+        "/api/submissions/:feedId",
+        ({ params: { feedId } }: { params: { feedId: string } }) => {
+          const config = configService.getConfig();
+          const feed = config.feeds.find((f) => f.id === feedId);
+          if (!feed) {
+            throw new Error(`Feed not found: ${feedId}`);
+          }
+          return db.getSubmissionsByFeed(feedId);
+        },
+      )
+      .get(
+        "/api/feed/:feedId",
+        ({ params: { feedId } }: { params: { feedId: string } }) => {
+          const config = configService.getConfig();
+          const feed = config.feeds.find((f) => f.id === feedId);
+          if (!feed) {
+            throw new Error(`Feed not found: ${feedId}`);
+          }
+
+          return db.getSubmissionsByFeed(feedId);
         },
       )
       .get("/api/feeds", () => {
@@ -219,7 +209,10 @@ export async function main() {
           // Get approved submissions for this feed
           const submissions = db
             .getSubmissionsByFeed(feedId)
-            .filter((sub) => sub.status === "approved");
+            .filter((sub) =>
+              db.getFeedsBySubmission(sub.tweetId)
+                .some(feed => feed.status === "approved")
+            );
 
           if (submissions.length === 0) {
             return { processed: 0 };
@@ -289,7 +282,7 @@ export async function main() {
       "env",
       "twitter-init",
       "distribution-init",
-      "twitter-mentions",
+      "submission-monitor",
       "server",
     ].forEach((key) => {
       failSpinner(key, `Failed during ${key}`);

@@ -23,32 +23,57 @@ export class SubmissionService {
   ) {}
 
   async initialize(): Promise<void> {
-    // Initialize feeds and admin cache from config
-    for (const feed of this.config.feeds) {
-      // Ensure feed exists in database
-      db.upsertFeed({
+    try {
+      // First, collect all unique admin handles
+      const adminHandles = new Set<string>();
+      
+      // Collect feeds to upsert
+      const feedsToUpsert = this.config.feeds.map(feed => ({
         id: feed.id,
         name: feed.name,
         description: feed.description,
-      });
+      }));
 
-      // Cache admin IDs
-      for (const handle of feed.moderation.approvers.twitter) {
+      // Initialize all feeds in a single transaction
+      db.upsertFeeds(feedsToUpsert);
+
+      // Collect unique admin handles
+      for (const feed of this.config.feeds) {
+        for (const handle of feed.moderation.approvers.twitter) {
+          adminHandles.add(handle);
+        }
+      }
+
+      // Fetch all admin IDs in parallel
+      const adminPromises = Array.from(adminHandles).map(async handle => {
         try {
-          const userId =
-            await this.twitterService.getUserIdByScreenName(handle);
-          this.adminIdCache.set(userId, handle);
+          const userId = await this.twitterService.getUserIdByScreenName(handle);
+          return { userId, handle };
         } catch (error) {
           logger.error(
             `Failed to fetch ID for admin handle @${handle}:`,
             error,
           );
+          return null;
+        }
+      });
+
+      // Wait for all Twitter API calls to complete
+      const results = await Promise.all(adminPromises);
+
+      // Update admin cache with successful results
+      for (const result of results) {
+        if (result) {
+          this.adminIdCache.set(result.userId, result.handle);
         }
       }
-    }
 
-    // Load last checked tweet ID
-    this.lastCheckedTweetId = this.twitterService.getLastCheckedTweetId();
+      // Load last checked tweet ID
+      this.lastCheckedTweetId = this.twitterService.getLastCheckedTweetId();
+    } catch (error) {
+      logger.error('Failed to initialize submission service:', error);
+      throw error;
+    }
   }
 
   async startMentionsCheck(): Promise<void> {
@@ -175,20 +200,21 @@ export class SubmissionService {
           return;
         }
 
-        submission = {
-          tweetId: originalTweet.id!,
-          userId: originalTweet.userId!,
-          username: originalTweet.username!,
-          curatorId: userId,
-          curatorUsername: curatorTweet.username,
-          content: originalTweet.text || "",
-          curatorNotes: this.extractDescription(originalTweet.username!, tweet),
-          curatorTweetId: tweet.id!,
-          createdAt:
-            originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
-          submittedAt: new Date().toISOString(),
-          moderationHistory: [],
-        };
+          const curatorNotes = this.extractDescription(originalTweet.username!, tweet);
+          submission = {
+            tweetId: originalTweet.id!,
+            userId: originalTweet.userId!,
+            username: originalTweet.username!,
+            curatorId: userId,
+            curatorUsername: curatorTweet.username,
+            content: originalTweet.text || "",
+            curatorNotes,
+            curatorTweetId: tweet.id!,
+            createdAt:
+              originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
+            submittedAt: new Date().toISOString(),
+            moderationHistory: [],
+          };
         db.saveSubmission(submission);
         db.incrementDailySubmissionCount(userId);
       }
@@ -216,7 +242,7 @@ export class SubmissionService {
               timestamp: curatorTweet.timeParsed || new Date(),
               tweetId: originalTweet.id!,
               feedId: lowercaseFeedId,
-              note: this.extractDescription(originalTweet.username!, tweet),
+              note: this.extractDescription(originalTweet.username!, tweet) || null,
             };
             db.saveModerationAction(moderation);
 
@@ -253,7 +279,7 @@ export class SubmissionService {
               timestamp: curatorTweet.timeParsed || new Date(),
               tweetId: originalTweet.id!,
               feedId: lowercaseFeedId,
-              note: this.extractDescription(originalTweet.username!, tweet),
+              note: this.extractDescription(originalTweet.username!, tweet) || null,
             };
             db.saveModerationAction(moderation);
 
@@ -337,7 +363,7 @@ export class SubmissionService {
         timestamp: tweet.timeParsed || new Date(),
         tweetId: submission.tweetId,
         feedId: pendingFeed.feedId,
-        note: this.extractNote(submission.username, tweet),
+        note: this.extractNote(submission.username, tweet) || null,
       };
 
       // Save moderation action
@@ -433,24 +459,22 @@ export class SubmissionService {
   private extractDescription(
     username: string,
     tweet: Tweet,
-  ): string | undefined {
-    return (
-      tweet.text
-        ?.replace(/!submit\s+@\w+/i, "")
-        .replace(new RegExp(`@${username}`, "i"), "")
-        .replace(/#\w+/g, "")
-        .trim() || undefined
-    );
+  ): string | null {
+    const text = tweet.text
+      ?.replace(/!submit\s+@\w+/i, "")
+      .replace(new RegExp(`@${username}`, "i"), "")
+      .replace(/#\w+/g, "")
+      .trim();
+    return text || null;
   }
 
-  private extractNote(username: string, tweet: Tweet): string | undefined {
-    return (
-      tweet.text
-        ?.replace(/#\w+/g, "")
-        .replace(new RegExp(`@${this.config.global.botId}`, "i"), "")
-        .replace(new RegExp(`@${username}`, "i"), "")
-        .trim() || undefined
-    );
+  private extractNote(username: string, tweet: Tweet): string | null {
+    const text = tweet.text
+      ?.replace(/#\w+/g, "")
+      .replace(new RegExp(`@${this.config.global.botId}`, "i"), "")
+      .replace(new RegExp(`@${username}`, "i"), "")
+      .trim();
+    return text || null;
   }
 
   private async setLastCheckedTweetId(tweetId: string) {

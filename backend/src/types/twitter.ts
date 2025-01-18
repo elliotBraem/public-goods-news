@@ -5,11 +5,12 @@ export interface TwitterSubmission {
   curatorId: string;
   curatorUsername: string;
   content: string;
-  curatorNotes?: string;
+  curatorNotes: string | null;
   curatorTweetId: string;
   createdAt: string;
-  submittedAt: string;
+  submittedAt: string | null;
   moderationHistory: Moderation[];
+  status?: SubmissionStatus;
 }
 
 export interface Moderation {
@@ -18,7 +19,7 @@ export interface Moderation {
   timestamp: Date;
   tweetId: string;
   feedId: string;
-  note?: string;
+  note: string | null;
 }
 
 export interface TwitterConfig {
