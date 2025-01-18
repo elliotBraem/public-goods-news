@@ -19,15 +19,20 @@ primary_region = 'den'
 
 [[services]]
   protocol = "tcp"
-  internal_port = 8080 # proxy
+  internal_port = 8080 # proxy to 3000
   auto_stop_machines = 'suspend'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
 
   [[services.ports]]
-    port = 8080
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
     handlers = ["tls", "http"]
+    port = 443
     
   [[services.http_checks]]
     interval = "30s"
