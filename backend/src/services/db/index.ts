@@ -144,7 +144,16 @@ export class DatabaseService {
 
   // Twitter Cache Management
   setTwitterCacheValue(key: string, value: string): void {
-    twitterQueries.setTwitterCacheValue(this.db, key, value).run();
+    try {
+      twitterQueries.setTwitterCacheValue(this.db, key, value).run();
+    } catch (error: any) {
+      // Ignore write errors on read-only replicas
+      if (error.code === 'SQLITE_READONLY_DIRECTORY' || error.message?.includes('readonly database')) {
+        logger.info(`Skipping Twitter cache write on read-only replica for key: ${key}`);
+        return;
+      }
+      throw error;
+    }
   }
 
   getTwitterCacheValue(key: string): string | null {

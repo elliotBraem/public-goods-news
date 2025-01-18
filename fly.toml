@@ -17,13 +17,19 @@ primary_region = 'den'
   destination = "/var/lib/litefs"
   initial_size = '1GB'
 
-[http_service]
-  internal_port = 3000
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
   force_https = true
   auto_stop_machines = 'suspend'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
+
+[[services.ports]]
+    handlers = ["http"]
+    port = 3000
+    force_https = true
 
 [[vm]]
   memory = '1gb'
