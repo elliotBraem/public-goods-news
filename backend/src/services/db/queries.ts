@@ -92,7 +92,7 @@ export function saveSubmission(
     curatorUsername: submission.curatorUsername,
     curatorTweetId: submission.curatorTweetId,
     createdAt: submission.createdAt,
-    submittedAt: submission.submittedAt,
+    submittedAt: submission.submittedAt
   });
 }
 
@@ -200,7 +200,7 @@ export function getSubmission(
 
   // Group moderation history
   const modHistory: Moderation[] = results
-    .filter((r: DbQueryResult) => r.m.adminId !== null)
+    .filter((r: DbQueryResult) => r.m && r.m.adminId !== null)
     .map((r: DbQueryResult) => ({
       tweetId,
       feedId: r.m.feedId!,
@@ -277,7 +277,7 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
       });
     }
 
-    if (result.m.adminId !== null) {
+    if (result.m && result.m.adminId !== null) {
       const submission = submissionMap.get(result.s.tweetId)!;
       submission.moderationHistory.push({
         tweetId: result.s.tweetId,
@@ -462,7 +462,7 @@ export function getSubmissionsByFeed(
       });
     }
 
-    if (result.m.adminId !== null) {
+    if (result.m && result.m.adminId !== null) {
       const submission = submissionMap.get(result.s.tweetId)!;
       submission.moderationHistory.push({
         tweetId: result.s.tweetId,

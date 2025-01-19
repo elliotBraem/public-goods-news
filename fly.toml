@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for curatedotfun on 2025-01-15T13:48:42-07:00
+# fly.toml app configuration file generated for curatedotfun-floral-sun-1539 on 2025-01-17T21:47:30-07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'curatedotfun'
+app = 'curatedotfun-floral-sun-1539'
 primary_region = 'den'
 
 [build]
@@ -13,35 +13,25 @@ primary_region = 'den'
   PORT = '3000'
 
 [[mounts]]
-  source = "litefs"
-  destination = "/var/lib/litefs"
+  source = 'litefs'
+  destination = '/var/lib/litefs'
   initial_size = '1GB'
 
-[[services]]
-  protocol = "tcp"
-  internal_port = 8080 # proxy to 3000
+[http_service]
+  internal_port = 3000
+  force_https = true
   auto_stop_machines = 'suspend'
   auto_start_machines = true
   min_machines_running = 0
   processes = ['app']
 
-  [[services.ports]]
-    force_https = true
-    handlers = ["http"]
-    port = 80
-
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-    
-  [[services.http_checks]]
-    interval = "30s"
-    grace_period = "60s"
+  [http_service.http_checks]
+    interval = 10000
+    timeout = 2000
+    grace_period = "5s"
     method = "get"
     path = "/health"
     protocol = "http"
-    port = 3000
-    timeout = "10s"
 
 [[vm]]
   memory = '1gb'
