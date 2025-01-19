@@ -27,7 +27,7 @@ const FRONTEND_DIST_PATH =
 // Configuration
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
-  "https://curatedotfun.fly.dev",
+  "https://curatedotfun-floral-sun-1539.fly.dev",
 ];
 
 export async function main() {
