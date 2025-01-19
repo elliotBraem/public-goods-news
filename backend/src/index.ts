@@ -248,7 +248,10 @@ export async function main() {
         }),
       )
       .get("/*", () => Bun.file(`${FRONTEND_DIST_PATH}/index.html`))
-      .listen(PORT);
+      .listen({
+        port: PORT,
+        hostname: '0.0.0.0'
+      });
 
     succeedSpinner("server", `Server running on port ${PORT}`);
 

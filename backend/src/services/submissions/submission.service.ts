@@ -20,13 +20,13 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) {}
+  ) { }
 
   async initialize(): Promise<void> {
     try {
       // First, collect all unique admin handles
       const adminHandles = new Set<string>();
-      
+
       // Collect feeds to upsert
       const feedsToUpsert = this.config.feeds.map(feed => ({
         id: feed.id,
@@ -82,10 +82,10 @@ export class SubmissionService {
     // Do an immediate check
     await this.checkMentions();
 
-    // Then check mentions every minute
+    // Then check mentions
     this.checkInterval = setInterval(async () => {
       await this.checkMentions();
-    }, 60000);
+    }, 60000); // every minute
   }
 
   private async checkMentions(): Promise<void> {
@@ -106,11 +106,13 @@ export class SubmissionService {
       for (const tweet of newTweets) {
         if (!tweet.id) continue;
 
+        // we have mentions, which can hold actions
+        // !submit, !approve, !reject
         try {
-          if (this.isSubmission(tweet)) {
+          if (this.isSubmission(tweet)) { // submission
             logger.info(`Received new submission: ${tweet.id}`);
             await this.handleSubmission(tweet);
-          } else if (this.isModeration(tweet)) {
+          } else if (this.isModeration(tweet)) { // or moderation
             logger.info(`Received new moderation: ${tweet.id}`);
             await this.handleModeration(tweet);
           }
@@ -140,7 +142,7 @@ export class SubmissionService {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return;
 
-    const inReplyToId = tweet.inReplyToStatusId;
+    const inReplyToId = tweet.inReplyToStatusId; // this is specific to twitter (TODO: id of { platform: twitter })
     if (!inReplyToId) {
       logger.error(`Submission ${tweet.id} is not a reply to another tweet`);
       return;
@@ -179,8 +181,8 @@ export class SubmissionService {
       const existingSubmission = db.getSubmission(originalTweet.id!);
       const existingFeeds = existingSubmission
         ? (db.getFeedsBySubmission(
-            existingSubmission.tweetId,
-          ) as SubmissionFeed[])
+          existingSubmission.tweetId,
+        ) as SubmissionFeed[])
         : [];
 
       // Create new submission if it doesn't exist
@@ -200,21 +202,30 @@ export class SubmissionService {
           return;
         }
 
-          const curatorNotes = this.extractDescription(originalTweet.username!, tweet);
-          submission = {
-            tweetId: originalTweet.id!,
-            userId: originalTweet.userId!,
-            username: originalTweet.username!,
-            curatorId: userId,
-            curatorUsername: curatorTweet.username,
-            content: originalTweet.text || "",
-            curatorNotes,
-            curatorTweetId: tweet.id!,
-            createdAt:
-              originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
-            submittedAt: new Date().toISOString(),
-            moderationHistory: [],
-          };
+        // curation
+        const curatorNotes = this.extractDescription(originalTweet.username!, tweet);
+        submission = {
+          userId: originalTweet.userId!, // user id
+          tweetId: originalTweet.id!, // ref id
+
+          // item data
+          content: originalTweet.text || "",
+          username: originalTweet.username!,
+          createdAt:
+            originalTweet.timeParsed?.toISOString() // reply to post
+            || new Date().toISOString(), // vs as self post
+
+          // curator data
+          curatorId: userId, // tweetId, userId(curator)
+          curatorUsername: curatorTweet.username,
+          // relationship with the tweet
+          curatorNotes,
+          curatorTweetId: tweet.id!,
+          submittedAt: new Date().toISOString(),
+
+          // admin data (update)
+          moderationHistory: [], // moderatorId, userId, tweetId
+        };
         db.saveSubmission(submission);
         db.incrementDailySubmissionCount(userId);
       }
@@ -322,12 +333,13 @@ export class SubmissionService {
       return;
     }
 
+    // submission is what we're replying to
     const inReplyToId = tweet.inReplyToStatusId;
     if (!inReplyToId) return;
 
     const submission = db.getSubmission(inReplyToId);
     if (!submission) return;
-
+    
     const action = this.getModerationAction(tweet);
     if (!action) return;
 
