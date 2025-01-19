@@ -114,7 +114,11 @@ export async function main() {
       )
       .get(
         "/api/submission/:submissionId",
-        ({ params: { submissionId } }: { params: { submissionId: string } }) => {
+        ({
+          params: { submissionId },
+        }: {
+          params: { submissionId: string };
+        }) => {
           const content = db.getSubmission(submissionId);
           if (!content) {
             throw new Error(`Content not found: ${submissionId}`);
@@ -210,8 +214,9 @@ export async function main() {
           const submissions = db
             .getSubmissionsByFeed(feedId)
             .filter((sub) =>
-              db.getFeedsBySubmission(sub.tweetId)
-                .some(feed => feed.status === "approved")
+              db
+                .getFeedsBySubmission(sub.tweetId)
+                .some((feed) => feed.status === "approved"),
             );
 
           if (submissions.length === 0) {
@@ -250,7 +255,7 @@ export async function main() {
       .get("/*", () => Bun.file(`${FRONTEND_DIST_PATH}/index.html`))
       .listen({
         port: PORT,
-        hostname: '0.0.0.0'
+        hostname: "0.0.0.0",
       });
 
     succeedSpinner("server", `Server running on port ${PORT}`);

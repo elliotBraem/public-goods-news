@@ -20,7 +20,7 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) { }
+  ) {}
 
   async initialize(): Promise<void> {
     try {
@@ -28,7 +28,7 @@ export class SubmissionService {
       const adminHandles = new Set<string>();
 
       // Collect feeds to upsert
-      const feedsToUpsert = this.config.feeds.map(feed => ({
+      const feedsToUpsert = this.config.feeds.map((feed) => ({
         id: feed.id,
         name: feed.name,
         description: feed.description,
@@ -45,9 +45,10 @@ export class SubmissionService {
       }
 
       // Fetch all admin IDs in parallel
-      const adminPromises = Array.from(adminHandles).map(async handle => {
+      const adminPromises = Array.from(adminHandles).map(async (handle) => {
         try {
-          const userId = await this.twitterService.getUserIdByScreenName(handle);
+          const userId =
+            await this.twitterService.getUserIdByScreenName(handle);
           return { userId, handle };
         } catch (error) {
           logger.error(
@@ -71,7 +72,7 @@ export class SubmissionService {
       // Load last checked tweet ID
       this.lastCheckedTweetId = this.twitterService.getLastCheckedTweetId();
     } catch (error) {
-      logger.error('Failed to initialize submission service:', error);
+      logger.error("Failed to initialize submission service:", error);
       throw error;
     }
   }
@@ -109,10 +110,12 @@ export class SubmissionService {
         // we have mentions, which can hold actions
         // !submit, !approve, !reject
         try {
-          if (this.isSubmission(tweet)) { // submission
+          if (this.isSubmission(tweet)) {
+            // submission
             logger.info(`Received new submission: ${tweet.id}`);
             await this.handleSubmission(tweet);
-          } else if (this.isModeration(tweet)) { // or moderation
+          } else if (this.isModeration(tweet)) {
+            // or moderation
             logger.info(`Received new moderation: ${tweet.id}`);
             await this.handleModeration(tweet);
           }
@@ -182,8 +185,8 @@ export class SubmissionService {
       const existingSubmission = db.getSubmission(originalTweet.id!);
       const existingFeeds = existingSubmission
         ? (db.getFeedsBySubmission(
-          existingSubmission.tweetId,
-        ) as SubmissionFeed[])
+            existingSubmission.tweetId,
+          ) as SubmissionFeed[])
         : [];
 
       // Create new submission if it doesn't exist
@@ -204,7 +207,10 @@ export class SubmissionService {
         }
 
         // curation
-        const curatorNotes = this.extractDescription(originalTweet.username!, tweet);
+        const curatorNotes = this.extractDescription(
+          originalTweet.username!,
+          tweet,
+        );
         submission = {
           userId: originalTweet.userId!, // user id
           tweetId: originalTweet.id!, // ref id
@@ -213,8 +219,7 @@ export class SubmissionService {
           content: originalTweet.text || "",
           username: originalTweet.username!,
           createdAt:
-            originalTweet.timeParsed?.toISOString() // reply to post
-            || new Date().toISOString(), // vs as self post
+            originalTweet.timeParsed?.toISOString() || new Date().toISOString(), // reply to post // vs as self post
 
           // curator data
           curatorId: userId, // tweetId, userId(curator)
@@ -254,7 +259,8 @@ export class SubmissionService {
               timestamp: curatorTweet.timeParsed || new Date(),
               tweetId: originalTweet.id!,
               feedId: lowercaseFeedId,
-              note: this.extractDescription(originalTweet.username!, tweet) || null,
+              note:
+                this.extractDescription(originalTweet.username!, tweet) || null,
             };
             db.saveModerationAction(moderation);
 
@@ -291,7 +297,8 @@ export class SubmissionService {
               timestamp: curatorTweet.timeParsed || new Date(),
               tweetId: originalTweet.id!,
               feedId: lowercaseFeedId,
-              note: this.extractDescription(originalTweet.username!, tweet) || null,
+              note:
+                this.extractDescription(originalTweet.username!, tweet) || null,
             };
             db.saveModerationAction(moderation);
 
@@ -340,7 +347,7 @@ export class SubmissionService {
 
     const submission = db.getSubmission(inReplyToId);
     if (!submission) return;
-    
+
     const action = this.getModerationAction(tweet);
     if (!action) return;
 
@@ -469,10 +476,7 @@ export class SubmissionService {
     return tweet.text?.toLowerCase().includes("!submit") || false;
   }
 
-  private extractDescription(
-    username: string,
-    tweet: Tweet,
-  ): string | null {
+  private extractDescription(username: string, tweet: Tweet): string | null {
     const text = tweet.text
       ?.replace(/!submit\s+@\w+/i, "")
       .replace(new RegExp(`@${username}`, "i"), "")

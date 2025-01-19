@@ -5,7 +5,7 @@ import {
   Moderation,
   TwitterSubmission,
   SubmissionStatus,
-  TwitterSubmissionWithFeedData
+  TwitterSubmissionWithFeedData,
 } from "types/twitter";
 import {
   feedPlugins,
@@ -93,7 +93,7 @@ export function saveSubmission(
     curatorUsername: submission.curatorUsername,
     curatorTweetId: submission.curatorTweetId,
     createdAt: submission.createdAt,
-    submittedAt: submission.submittedAt
+    submittedAt: submission.submittedAt,
   });
 }
 
@@ -130,8 +130,8 @@ export function getModerationHistory(
       submissionFeeds,
       and(
         eq(moderationHistory.tweetId, submissionFeeds.submissionId),
-        eq(moderationHistory.feedId, submissionFeeds.feedId)
-      )
+        eq(moderationHistory.feedId, submissionFeeds.feedId),
+      ),
     )
     .where(eq(moderationHistory.tweetId, tweetId))
     .orderBy(moderationHistory.createdAt)
@@ -174,7 +174,6 @@ export function getSubmission(
   db: BunSQLiteDatabase,
   tweetId: string,
 ): TwitterSubmission | null {
-
   const results = db
     .select({
       s: {
@@ -208,8 +207,8 @@ export function getSubmission(
       submissionFeeds,
       and(
         eq(submissions.tweetId, submissionFeeds.submissionId),
-        eq(moderationHistory.feedId, submissionFeeds.feedId)
-      )
+        eq(moderationHistory.feedId, submissionFeeds.feedId),
+      ),
     )
     .where(eq(submissions.tweetId, tweetId))
     .orderBy(moderationHistory.createdAt)
@@ -246,7 +245,6 @@ export function getSubmission(
 }
 
 export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
-
   const results = db
     .select({
       s: {
@@ -280,8 +278,8 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
       submissionFeeds,
       and(
         eq(submissions.tweetId, submissionFeeds.submissionId),
-        eq(moderationHistory.feedId, submissionFeeds.feedId)
-      )
+        eq(moderationHistory.feedId, submissionFeeds.feedId),
+      ),
     )
     .orderBy(moderationHistory.createdAt)
     .all() as DbQueryResult[];
@@ -315,7 +313,8 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
         action: result.m.action as "approve" | "reject",
         note: result.m.note,
         timestamp: new Date(result.m.createdAt!),
-        moderationResponseTweetId: result.m.moderationResponseTweetId ?? undefined,
+        moderationResponseTweetId:
+          result.m.moderationResponseTweetId ?? undefined,
       });
     }
   }
@@ -431,8 +430,10 @@ export function upsertFeedPlugin(
 export function getSubmissionsByFeed(
   db: BunSQLiteDatabase,
   feedId: string,
-): (TwitterSubmission & { status: SubmissionStatus; moderationResponseTweetId?: string })[] {
-
+): (TwitterSubmission & {
+  status: SubmissionStatus;
+  moderationResponseTweetId?: string;
+})[] {
   const results = db
     .select({
       s: {
@@ -491,7 +492,8 @@ export function getSubmissionsByFeed(
         submittedAt: result.s.submittedAt,
         moderationHistory: [],
         status: result.sf.status,
-        moderationResponseTweetId: result.m?.moderationResponseTweetId ?? undefined,
+        moderationResponseTweetId:
+          result.m?.moderationResponseTweetId ?? undefined,
       });
     }
 
@@ -504,7 +506,8 @@ export function getSubmissionsByFeed(
         action: result.m.action as "approve" | "reject",
         note: result.m.note,
         timestamp: new Date(result.m.createdAt!),
-        moderationResponseTweetId: result.m.moderationResponseTweetId ?? undefined,
+        moderationResponseTweetId:
+          result.m.moderationResponseTweetId ?? undefined,
       });
     }
   }
