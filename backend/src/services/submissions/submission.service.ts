@@ -140,7 +140,8 @@ export class SubmissionService {
 
   private async handleSubmission(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
-    if (!userId || !tweet.id) return;
+    if (!userId || !tweet.id) return; // no user or tweet
+    if (userId === this.config.global.botId) return; // if self
 
     const inReplyToId = tweet.inReplyToStatusId; // this is specific to twitter (TODO: id of { platform: twitter })
     if (!inReplyToId) {
