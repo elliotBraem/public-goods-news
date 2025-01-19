@@ -78,7 +78,9 @@ export class DatabaseService {
     queries.incrementDailySubmissionCount(this.db, userId).run();
   }
 
-  upsertFeeds(feeds: { id: string; name: string; description?: string }[]): void {
+  upsertFeeds(
+    feeds: { id: string; name: string; description?: string }[],
+  ): void {
     queries.upsertFeeds(this.db, feeds);
   }
 
@@ -98,7 +100,9 @@ export class DatabaseService {
     queries.removeFromSubmissionFeed(this.db, submissionId, feedId).run();
   }
 
-  getSubmissionsByFeed(feedId: string): (TwitterSubmission & { status: SubmissionStatus })[] {
+  getSubmissionsByFeed(
+    feedId: string,
+  ): (TwitterSubmission & { status: SubmissionStatus })[] {
     return queries.getSubmissionsByFeed(this.db, feedId);
   }
 

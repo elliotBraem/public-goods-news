@@ -27,7 +27,7 @@ const FRONTEND_DIST_PATH =
 // Configuration
 const ALLOWED_ORIGINS = [
   "http://localhost:3000",
-  "https://curatedotfun.fly.dev",
+  "https://curatedotfun-floral-sun-1539.fly.dev",
 ];
 
 export async function main() {
@@ -114,7 +114,11 @@ export async function main() {
       )
       .get(
         "/api/submission/:submissionId",
-        ({ params: { submissionId } }: { params: { submissionId: string } }) => {
+        ({
+          params: { submissionId },
+        }: {
+          params: { submissionId: string };
+        }) => {
           const content = db.getSubmission(submissionId);
           if (!content) {
             throw new Error(`Content not found: ${submissionId}`);
@@ -210,8 +214,9 @@ export async function main() {
           const submissions = db
             .getSubmissionsByFeed(feedId)
             .filter((sub) =>
-              db.getFeedsBySubmission(sub.tweetId)
-                .some(feed => feed.status === "approved")
+              db
+                .getFeedsBySubmission(sub.tweetId)
+                .some((feed) => feed.status === "approved"),
             );
 
           if (submissions.length === 0) {
@@ -248,7 +253,10 @@ export async function main() {
         }),
       )
       .get("/*", () => Bun.file(`${FRONTEND_DIST_PATH}/index.html`))
-      .listen(PORT);
+      .listen({
+        port: PORT,
+        hostname: "0.0.0.0",
+      });
 
     succeedSpinner("server", `Server running on port ${PORT}`);
 
