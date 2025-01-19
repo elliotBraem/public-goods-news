@@ -20,6 +20,7 @@ export interface DbModeration {
   action: string | null;
   note: string | null;
   createdAt: string | null;
+  moderationResponseTweetId: string | null;
 }
 
 export interface DbQueryResult {

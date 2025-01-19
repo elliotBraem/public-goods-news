@@ -44,10 +44,6 @@ interface FeedItemProps {
 }
 
 export const FeedItem = ({ submission }: FeedItemProps) => {
-  const tweetId =
-    submission.status === "pending"
-      ? submission.tweetId!
-      : submission.moderationResponseTweetId!;
 
   return (
     <div className="card">
@@ -70,7 +66,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                     @{submission.username}
                   </a>
                   <a
-                    href={getTweetUrl(tweetId, submission.username)}
+                    href={getTweetUrl(submission.tweetId, submission.username)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-600 hover:text-gray-800 transition-colors"
@@ -90,7 +86,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
         </div>
         <div>
           <a
-            href={getTweetUrl(tweetId, submission.username)}
+            href={getTweetUrl(submission.curatorTweetId, submission.curatorUsername)}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -131,7 +127,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                       <span className="text-gray-400 mx-1">·</span>
                       <a
                         href={getTweetUrl(
-                          tweetId,
+                          submission.moderationResponseTweetId!,
                           submission.moderationHistory?.[
                             submission.moderationHistory.length - 1
                           ]?.adminId,

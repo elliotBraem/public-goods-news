@@ -13,6 +13,11 @@ export interface TwitterSubmission {
   status?: SubmissionStatus;
 }
 
+export interface TwitterSubmissionWithFeedData extends TwitterSubmission {
+  status: SubmissionStatus;
+  moderationResponseTweetId?: string;
+}
+
 export interface Moderation {
   adminId: string;
   action: "approve" | "reject";
@@ -20,6 +25,7 @@ export interface Moderation {
   tweetId: string;
   feedId: string;
   note: string | null;
+  moderationResponseTweetId?: string;
 }
 
 export interface TwitterConfig {

@@ -5,6 +5,7 @@ import {
   Moderation,
   TwitterSubmission,
   SubmissionStatus,
+  TwitterSubmissionWithFeedData
 } from "types/twitter";
 import {
   feedPlugins,
@@ -122,8 +123,16 @@ export function getModerationHistory(
       action: moderationHistory.action,
       note: moderationHistory.note,
       createdAt: moderationHistory.createdAt,
+      moderationResponseTweetId: submissionFeeds.moderationResponseTweetId,
     })
     .from(moderationHistory)
+    .leftJoin(
+      submissionFeeds,
+      and(
+        eq(moderationHistory.tweetId, submissionFeeds.submissionId),
+        eq(moderationHistory.feedId, submissionFeeds.feedId)
+      )
+    )
     .where(eq(moderationHistory.tweetId, tweetId))
     .orderBy(moderationHistory.createdAt)
     .all();
@@ -135,6 +144,7 @@ export function getModerationHistory(
     action: result.action as "approve" | "reject",
     note: result.note,
     timestamp: new Date(result.createdAt),
+    moderationResponseTweetId: result.moderationResponseTweetId ?? undefined,
   }));
 }
 
@@ -180,17 +190,26 @@ export function getSubmission(
         submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       },
       m: {
+        tweetId: moderationHistory.tweetId,
         adminId: moderationHistory.adminId,
         action: moderationHistory.action,
         note: moderationHistory.note,
         createdAt: moderationHistory.createdAt,
         feedId: moderationHistory.feedId,
+        moderationResponseTweetId: submissionFeeds.moderationResponseTweetId,
       },
     })
     .from(submissions)
     .leftJoin(
       moderationHistory,
       eq(submissions.tweetId, moderationHistory.tweetId),
+    )
+    .leftJoin(
+      submissionFeeds,
+      and(
+        eq(submissions.tweetId, submissionFeeds.submissionId),
+        eq(moderationHistory.feedId, submissionFeeds.feedId)
+      )
     )
     .where(eq(submissions.tweetId, tweetId))
     .orderBy(moderationHistory.createdAt)
@@ -208,6 +227,7 @@ export function getSubmission(
       action: r.m.action as "approve" | "reject",
       note: r.m.note,
       timestamp: new Date(r.m.createdAt!),
+      moderationResponseTweetId: r.m.moderationResponseTweetId ?? undefined,
     }));
 
   return {
@@ -242,17 +262,26 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
         submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
       },
       m: {
+        tweetId: moderationHistory.tweetId,
         adminId: moderationHistory.adminId,
         action: moderationHistory.action,
         note: moderationHistory.note,
         createdAt: moderationHistory.createdAt,
         feedId: moderationHistory.feedId,
+        moderationResponseTweetId: submissionFeeds.moderationResponseTweetId,
       },
     })
     .from(submissions)
     .leftJoin(
       moderationHistory,
       eq(submissions.tweetId, moderationHistory.tweetId),
+    )
+    .leftJoin(
+      submissionFeeds,
+      and(
+        eq(submissions.tweetId, submissionFeeds.submissionId),
+        eq(moderationHistory.feedId, submissionFeeds.feedId)
+      )
     )
     .orderBy(moderationHistory.createdAt)
     .all() as DbQueryResult[];
@@ -286,6 +315,7 @@ export function getAllSubmissions(db: BunSQLiteDatabase): TwitterSubmission[] {
         action: result.m.action as "approve" | "reject",
         note: result.m.note,
         timestamp: new Date(result.m.createdAt!),
+        moderationResponseTweetId: result.m.moderationResponseTweetId ?? undefined,
       });
     }
   }
@@ -401,7 +431,7 @@ export function upsertFeedPlugin(
 export function getSubmissionsByFeed(
   db: BunSQLiteDatabase,
   feedId: string,
-): (TwitterSubmission & { status: SubmissionStatus })[] {
+): (TwitterSubmission & { status: SubmissionStatus; moderationResponseTweetId?: string })[] {
 
   const results = db
     .select({
@@ -421,11 +451,13 @@ export function getSubmissionsByFeed(
         status: submissionFeeds.status,
       },
       m: {
+        tweetId: moderationHistory.tweetId,
         adminId: moderationHistory.adminId,
         action: moderationHistory.action,
         note: moderationHistory.note,
         createdAt: moderationHistory.createdAt,
         feedId: moderationHistory.feedId,
+        moderationResponseTweetId: submissionFeeds.moderationResponseTweetId,
       },
     })
     .from(submissions)
@@ -442,7 +474,7 @@ export function getSubmissionsByFeed(
     .all() as DbFeedQueryResult[];
 
   // Group results by submission
-  const submissionMap = new Map<string, TwitterSubmission & { status: SubmissionStatus }>();
+  const submissionMap = new Map<string, TwitterSubmissionWithFeedData>();
 
   for (const result of results) {
     if (!submissionMap.has(result.s.tweetId)) {
@@ -459,6 +491,7 @@ export function getSubmissionsByFeed(
         submittedAt: result.s.submittedAt,
         moderationHistory: [],
         status: result.sf.status,
+        moderationResponseTweetId: result.m?.moderationResponseTweetId ?? undefined,
       });
     }
 
@@ -471,6 +504,7 @@ export function getSubmissionsByFeed(
         action: result.m.action as "approve" | "reject",
         note: result.m.note,
         timestamp: new Date(result.m.createdAt!),
+        moderationResponseTweetId: result.m.moderationResponseTweetId ?? undefined,
       });
     }
   }
