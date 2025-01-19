@@ -5,12 +5,16 @@ const getTweetUrl = (tweetId: string, username: string) => {
   return `https://x.com/${username}/status/${tweetId}`;
 };
 
-const getTwitterIntentUrl = (tweetId: string, action: "approve" | "reject") => {
+const getTwitterIntentUrl = (
+  submission: TwitterSubmissionWithFeedData,
+  action: "approve" | "reject",
+) => {
   const baseUrl = "https://twitter.com/intent/tweet";
   // Add in_reply_to_status_id parameter to make it a reply
+  const text = `@${submission.curatorUsername} !${action}`;
   const params = new URLSearchParams({
-    text: `!${action}`,
-    in_reply_to: tweetId,
+    text,
+    in_reply_to: submission.curatorTweetId,
   });
   return `${baseUrl}?${params.toString()}`;
 };
@@ -50,24 +54,32 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
       <div className="flex justify-between items-start">
         <div className="flex-grow">
           <div className="flex flex-col pr-2">
-            <div className="flex">
-              <a
-                href={`https://x.com/${submission.username}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-800 hover:text-gray-600 font-medium transition-colors"
-              >
-                @{submission.username}
-              </a>
-              <a
-                href={getTweetUrl(tweetId, submission.username)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 hover:text-gray-800 transition-colors"
-                title="View original post on X/Twitter"
-              >
-                <HiExternalLink className="h-4 w-4" />
-              </a>
+            <div className="flex justify-between">
+              <div className="flex items-center">
+                <span className="bg-blue-400 font-mono text-white text-xs px-1.5 py-0.5 rounded mr-2">
+                  Twitter
+                </span>
+                <div className="flex gap-2">
+                  <span className="text-gray-400">·</span>
+                  <a
+                    href={`https://x.com/${submission.username}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-800 hover:text-gray-600 font-medium transition-colors"
+                  >
+                    @{submission.username}
+                  </a>
+                  <a
+                    href={getTweetUrl(tweetId, submission.username)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-600 hover:text-gray-800 transition-colors"
+                    title="View original post on X/Twitter"
+                  >
+                    <HiExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
             </div>
             <div className="flex">
               <span className="text-gray-600">
@@ -157,14 +169,29 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
                   <span className="text-gray-400">·</span>
                   <div className="text-gray-600">
                     by{" "}
-                    <a
-                      href={`https://x.com/${submission.curatorUsername}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-800 hover:text-gray-600 transition-colors"
-                    >
-                      @{submission.curatorUsername}
-                    </a>
+                    <>
+                      <a
+                        href={`https://x.com/${submission.curatorUsername}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-800 hover:text-gray-600 transition-colors"
+                      >
+                        @{submission.curatorUsername}
+                      </a>
+                      <span className="text-gray-400 mx-1">·</span>
+                      <a
+                        href={getTweetUrl(
+                          submission.curatorTweetId!,
+                          submission.curatorUsername,
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-600 hover:text-gray-800 transition-colors"
+                        title="View curator's tweet on X/Twitter"
+                      >
+                        <HiExternalLink className="inline h-4 w-4" />
+                      </a>
+                    </>
                   </div>
                 </div>
                 <p className="body-text text-gray-700">
@@ -177,7 +204,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
         {submission.status === "pending" && (
           <div className="flex flex-col gap-2">
             <a
-              href={getTwitterIntentUrl(tweetId, "approve")}
+              href={getTwitterIntentUrl(submission, "approve")}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
@@ -185,7 +212,7 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
               approve
             </a>
             <a
-              href={getTwitterIntentUrl(tweetId, "reject")}
+              href={getTwitterIntentUrl(submission, "reject")}
               target="_blank"
               rel="noopener noreferrer"
               className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
