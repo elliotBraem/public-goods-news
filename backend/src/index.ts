@@ -105,7 +105,7 @@ export async function main() {
       .use(swagger())
       .get("/health", () => new Response("OK", { status: 200 }))
       // API Routes
-      .get("/api/last-tweet-id", () => {
+      .get("/api/twitter/last-tweet-id", () => {
         if (!twitterService) {
           throw new Error("Twitter service not available");
         }
@@ -113,7 +113,7 @@ export async function main() {
         return { lastTweetId };
       })
       .post(
-        "/api/last-tweet-id",
+        "/api/twitter/last-tweet-id",
         async ({ body }: { body: { tweetId: string } }) => {
           if (!twitterService) {
             throw new Error("Twitter service not available");
@@ -348,7 +348,7 @@ export async function main() {
 }
 
 // Start the application
-logger.info("Starting Public Goods News Bot...");
+logger.info("Starting application...");
 main().catch((error) => {
   logger.error("Unhandled Exception", error);
   process.exit(1);

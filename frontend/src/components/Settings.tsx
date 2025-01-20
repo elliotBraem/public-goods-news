@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useAppConfig, useUpdateLastTweetId, useClearCookies } from "../lib/api";
+import { useAppConfig, useUpdateLastTweetId, useClearCookies, useGetLastTweetId } from "../lib/api";
 
 export default function Settings() {
   const { data: config } = useAppConfig();
+  const { data: lastTweetData } = useGetLastTweetId();
   const updateTweetId = useUpdateLastTweetId();
   const [newTweetId, setNewTweetId] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export default function Settings() {
             <div>
               <p className="text-gray-600 mb-2">Current ID:</p>
               <code className="bg-gray-50 p-2 border-2 border-black block font-mono">
-                {"Not set"}
+                {lastTweetData?.tweetId || "Not set"}
               </code>
             </div>
 

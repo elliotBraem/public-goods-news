@@ -64,10 +64,23 @@ export function useClearCookies() {
   });
 }
 
+export function useGetLastTweetId() {
+  return useQuery<{ tweetId: string }>({
+    queryKey: ["last-tweet-id"],
+    queryFn: async () => {
+      const response = await fetch("/api/twitter/last-tweet-id");
+      if (!response.ok) {
+        throw new Error("Failed to fetch last tweet ID");
+      }
+      return response.json();
+    },
+  });
+}
+
 export function useUpdateLastTweetId() {
   return useMutation({
     mutationFn: async (tweetId: string) => {
-      const response = await fetch("/api/last-tweet-id", {
+      const response = await fetch("/api/twitter/last-tweet-id", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
