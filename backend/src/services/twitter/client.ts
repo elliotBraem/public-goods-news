@@ -156,7 +156,7 @@ export class TwitterService {
     }
   }
 
-  async fetchAllNewMentions(lastCheckedId: string | null): Promise<Tweet[]> {
+  async fetchAllNewMentions(): Promise<Tweet[]> {
     const BATCH_SIZE = 20;
     let allNewTweets: Tweet[] = [];
     let foundOldTweet = false;
@@ -181,7 +181,7 @@ export class TwitterService {
         for (const tweet of batch) {
           if (!tweet.id) continue;
 
-          if (!lastCheckedId || BigInt(tweet.id) > BigInt(lastCheckedId)) {
+          if (!this.lastCheckedTweetId || BigInt(tweet.id) > BigInt(this.lastCheckedTweetId)) {
             allNewTweets.push(tweet);
           } else {
             foundOldTweet = true;
@@ -197,11 +197,21 @@ export class TwitterService {
       }
     }
 
-    return allNewTweets.sort((a, b) => {
+    const sortedTweets = allNewTweets.sort((a, b) => {
       const aId = BigInt(a.id || "0");
       const bId = BigInt(b.id || "0");
       return aId > bId ? 1 : aId < bId ? -1 : 0;
     });
+
+    // Update the last checked tweet ID if we have new tweets
+    if (sortedTweets.length > 0) {
+      const lastTweet = sortedTweets[sortedTweets.length - 1];
+      if (lastTweet.id) {
+        await this.setLastCheckedTweetId(lastTweet.id);
+      }
+    }
+
+    return sortedTweets;
   }
 
   async setLastCheckedTweetId(tweetId: string) {

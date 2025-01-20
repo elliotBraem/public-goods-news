@@ -13,14 +13,13 @@ import { DistributionService } from "./../distribution/distribution.service";
 
 export class SubmissionService {
   private checkInterval: NodeJS.Timer | null = null;
-  private lastCheckedTweetId: string | null = null;
   private adminIdCache: Map<string, string> = new Map();
 
   constructor(
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) {}
+  ) { }
 
   async initialize(): Promise<void> {
     try {
@@ -68,9 +67,6 @@ export class SubmissionService {
           this.adminIdCache.set(result.userId, result.handle);
         }
       }
-
-      // Load last checked tweet ID
-      this.lastCheckedTweetId = this.twitterService.getLastCheckedTweetId();
     } catch (error) {
       logger.error("Failed to initialize submission service:", error);
       throw error;
@@ -92,9 +88,7 @@ export class SubmissionService {
   private async checkMentions(): Promise<void> {
     try {
       logger.info("Checking mentions...");
-      const newTweets = await this.twitterService.fetchAllNewMentions(
-        this.lastCheckedTweetId,
-      );
+      const newTweets = await this.twitterService.fetchAllNewMentions();
 
       if (newTweets.length === 0) {
         logger.info("No new mentions");
@@ -122,12 +116,6 @@ export class SubmissionService {
         } catch (error) {
           logger.error("Error processing tweet:", error);
         }
-      }
-
-      // Update the last checked tweet ID
-      const latestTweetId = newTweets[newTweets.length - 1].id;
-      if (latestTweetId) {
-        await this.setLastCheckedTweetId(latestTweetId);
       }
     } catch (error) {
       logger.error("Error checking mentions:", error);
@@ -185,8 +173,8 @@ export class SubmissionService {
       const existingSubmission = db.getSubmission(originalTweet.id!);
       const existingFeeds = existingSubmission
         ? (db.getFeedsBySubmission(
-            existingSubmission.tweetId,
-          ) as SubmissionFeed[])
+          existingSubmission.tweetId,
+        ) as SubmissionFeed[])
         : [];
 
       // Create new submission if it doesn't exist
@@ -492,10 +480,5 @@ export class SubmissionService {
       .replace(new RegExp(`@${username}`, "i"), "")
       .trim();
     return text || null;
-  }
-
-  private async setLastCheckedTweetId(tweetId: string) {
-    this.lastCheckedTweetId = tweetId;
-    await this.twitterService.setLastCheckedTweetId(tweetId);
   }
 }
