@@ -22,7 +22,7 @@ export class TwitterService {
 
   private async loadCachedCookies(): Promise<boolean> {
     try {
-      const cachedCookies = db.getTwitterCookies(this.twitterUsername);
+      const cachedCookies = this.getCookies();
       if (!cachedCookies) {
         return false;
       }
@@ -30,10 +30,8 @@ export class TwitterService {
       // Convert cached cookies to the format expected by the client
       const cookieStrings = cachedCookies.map(
         (cookie) =>
-          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-            cookie.secure ? "Secure" : ""
-          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-            cookie.sameSite || "Lax"
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
           }`,
       );
       await this.client.setCookies(cookieStrings);
@@ -77,6 +75,34 @@ export class TwitterService {
       logger.error("Login attempt failed:", error);
       return false;
     }
+  }
+
+  async setCookies(cookies: TwitterCookie[]) {
+    try {
+      logger.info("Setting Twitter cookies...");
+      // Convert cookies to the format expected by the client
+      const cookieStrings = cookies.map(
+        (cookie) =>
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
+          }`,
+      );
+      await this.client.setCookies(cookieStrings);
+      // Store cookies in database
+      db.setTwitterCookies(this.config.username, cookies);
+      // Verify the cookies work
+      if (!(await this.client.isLoggedIn())) {
+        throw new Error("Failed to verify cookies after setting");
+      }
+      return true;
+    } catch (error) {
+      logger.error("Failed to set Twitter cookies:", error);
+      throw error;
+    }
+  }
+
+  getCookies() {
+    return db.getTwitterCookies(this.twitterUsername);
   }
 
   async initialize() {
