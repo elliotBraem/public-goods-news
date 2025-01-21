@@ -1,6 +1,6 @@
 {
   "global": {
-    "botId": "{TWITTER_USERNAME}",
+    "botId": "curatedotfun",
     "defaultStatus": "pending",
     "maxSubmissionsPerUser": 15,
     "blacklist": {
