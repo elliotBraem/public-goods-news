@@ -2,7 +2,10 @@
   "global": {
     "botId": "{TWITTER_USERNAME}",
     "defaultStatus": "pending",
-    "maxSubmissionsPerUser": 5
+    "maxSubmissionsPerUser": 15,
+    "blacklist": {
+      "twitter": []
+    }
   },
   "plugins": {
     "@curatedotfun/telegram": {
@@ -427,6 +430,21 @@
       "moderation": {
         "approvers": {
           "twitter": ["plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "eliza",
+      "name": "Eliza OS",
+      "description": "Updates around eliza OS",
+      "moderation": {
+        "approvers": {
+          "twitter": ["shawmakesmagic", "plugrel"]
         }
       },
       "outputs": {

@@ -45,6 +45,10 @@ export class MockTwitterService {
     this.lastCheckedTweetId = tweetId;
   }
 
+  async likeTweet(tweetId: string): Promise<void> {
+    return;
+  }
+
   getLastCheckedTweetId(): string | null {
     return this.lastCheckedTweetId;
   }

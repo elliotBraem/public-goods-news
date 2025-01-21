@@ -3,7 +3,8 @@ import { SubmissionStatus } from "./twitter";
 export interface GlobalConfig {
   botId: string;
   defaultStatus: SubmissionStatus;
-  maxSubmissionsPerUser: number;
+  maxDailySubmissionsPerUser: number;
+  blacklist: Record<string, string[]>;
 }
 
 export interface PluginConfig {

@@ -147,7 +147,8 @@ export class SubmissionService {
   private async handleSubmission(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return; // no user or tweet
-    if (userId === this.config.global.botId) return; // if self
+    if (userId === this.config.global.botId // if self
+      || this.config.global.blacklist["twitter"].includes(userId)) return; // or blacklisted
 
     const inReplyToId = tweet.inReplyToStatusId; // this is specific to twitter (TODO: id of { platform: twitter })
     if (!inReplyToId) {
@@ -196,7 +197,7 @@ export class SubmissionService {
       let submission: TwitterSubmission | undefined;
       if (!existingSubmission) {
         const dailyCount = db.getDailySubmissionCount(userId);
-        const maxSubmissions = this.config.global.maxSubmissionsPerUser;
+        const maxSubmissions = this.config.global.maxDailySubmissionsPerUser;
 
         if (dailyCount >= maxSubmissions) {
           await this.twitterService.replyToTweet(

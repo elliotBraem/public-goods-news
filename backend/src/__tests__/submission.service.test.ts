@@ -30,8 +30,13 @@ describe("SubmissionService", () => {
   const mockConfig: AppConfig = {
     global: {
       botId: "test_bot",
-      maxSubmissionsPerUser: 5,
+      maxDailySubmissionsPerUser: 5,
       defaultStatus: SubmissionStatus.PENDING,
+      blacklist: {
+        twitter: [
+          "blocked_id"
+        ]
+      }
     },
     feeds: [
       {
@@ -715,6 +720,49 @@ describe("SubmissionService", () => {
         submissionId: TWEET_IDS.original1_tweet,
         feedId: "test2",
       });
+    });
+
+    it("should ignore submissions from blacklisted users", async () => {
+      const originalTweet: Tweet = {
+        id: TWEET_IDS.original1_tweet,
+        text: "Original content",
+        username: user1.username,
+        userId: user1.id,
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // Curator trying to submit blacklisted user's tweet
+      const curatorTweet: Tweet = {
+        id: TWEET_IDS.curator1_reply,
+        text: "@test_bot !submit #test",
+        username: "blocked_user",
+        userId: "blocked_id",
+        inReplyToStatusId: TWEET_IDS.original1_tweet,
+        timeParsed: new Date(),
+        hashtags: ["test"],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(originalTweet);
+      mockTwitterService.addMockTweet(curatorTweet);
+
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify no submission was created for blacklisted user
+      expect(drizzleMock.saveSubmission).not.toHaveBeenCalled();
+      expect(drizzleMock.saveSubmissionToFeed).not.toHaveBeenCalled();
+      expect(mockDistributionService.processedSubmissions).toHaveLength(0);
     });
   });
 });
