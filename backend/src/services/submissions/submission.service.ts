@@ -19,7 +19,7 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) {}
+  ) { }
 
   private async initializeAdminIds(): Promise<void> {
     // Try to load admin IDs from cache first
@@ -144,11 +144,6 @@ export class SubmissionService {
   private async handleSubmission(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) return; // no user or tweet
-    if (
-      userId === this.config.global.botId || // if self
-      this.config.global.blacklist["twitter"].includes(userId)
-    )
-      return; // or blacklisted
 
     const inReplyToId = tweet.inReplyToStatusId; // this is specific to twitter (TODO: id of { platform: twitter })
     if (!inReplyToId) {
@@ -157,6 +152,17 @@ export class SubmissionService {
     }
 
     try {
+      // Fetch full curator tweet data to ensure we have the username
+      const curatorTweet = await this.twitterService.getTweet(tweet.id!);
+      if (!curatorTweet || !curatorTweet.username) {
+        logger.error(`Could not fetch curator tweet details ${tweet.id}`);
+        return;
+      }
+
+      if (curatorTweet.username === this.config.global.botId || // if self
+        this.config.global.blacklist["twitter"].includes(curatorTweet.username)) // or blacklisted
+        return;
+
       // Extract feed IDs from hashtags
       const feedIds = (tweet.hashtags || []).filter((tag) =>
         this.config.feeds.some(
@@ -181,19 +187,12 @@ export class SubmissionService {
         return;
       }
 
-      // Fetch full curator tweet data to ensure we have the username
-      const curatorTweet = await this.twitterService.getTweet(tweet.id!);
-      if (!curatorTweet || !curatorTweet.username) {
-        logger.error(`Could not fetch curator tweet details ${tweet.id}`);
-        return;
-      }
-
       // Check if this tweet was already submitted
       const existingSubmission = db.getSubmission(originalTweet.id!);
       const existingFeeds = existingSubmission
         ? (db.getFeedsBySubmission(
-            existingSubmission.tweetId,
-          ) as SubmissionFeed[])
+          existingSubmission.tweetId,
+        ) as SubmissionFeed[])
         : [];
 
       // Create new submission if it doesn't exist

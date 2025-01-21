@@ -33,7 +33,7 @@ describe("SubmissionService", () => {
       maxDailySubmissionsPerUser: 5,
       defaultStatus: SubmissionStatus.PENDING,
       blacklist: {
-        twitter: ["blocked_id"],
+        twitter: ["blocked_user"],
       },
     },
     feeds: [
