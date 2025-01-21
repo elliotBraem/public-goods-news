@@ -245,7 +245,9 @@ export class SubmissionService {
       // Process each feed
       for (const feedId of feedIds) {
         const lowercaseFeedId = feedId.toLowerCase();
-        const feed = this.config.feeds.find((f) => f.id.toLowerCase() === lowercaseFeedId);
+        const feed = this.config.feeds.find(
+          (f) => f.id.toLowerCase() === lowercaseFeedId,
+        );
         if (!feed) continue;
 
         const isModerator = feed.moderation.approvers.twitter.includes(
@@ -288,7 +290,9 @@ export class SubmissionService {
           }
         } else {
           // Add new feed with pending status initially, using the correct case from config
-          const configFeed = this.config.feeds.find(f => f.id.toLowerCase() === lowercaseFeedId);
+          const configFeed = this.config.feeds.find(
+            (f) => f.id.toLowerCase() === lowercaseFeedId,
+          );
           if (configFeed) {
             db.saveSubmissionToFeed(
               originalTweet.id!,

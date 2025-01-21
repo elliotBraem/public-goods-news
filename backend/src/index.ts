@@ -149,7 +149,9 @@ export async function main() {
         "/api/submissions/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
           const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id.toLowerCase() === feedId.toLowerCase());
+          const feed = config.feeds.find(
+            (f) => f.id.toLowerCase() === feedId.toLowerCase(),
+          );
           if (!feed) {
             throw new Error(`Feed not found: ${feedId}`);
           }
@@ -160,7 +162,9 @@ export async function main() {
         "/api/feed/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
           const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id.toLowerCase() === feedId.toLowerCase());
+          const feed = config.feeds.find(
+            (f) => f.id.toLowerCase() === feedId.toLowerCase(),
+          );
           if (!feed) {
             throw new Error(`Feed not found: ${feedId}`);
           }
