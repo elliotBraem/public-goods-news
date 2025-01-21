@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { useAppConfig, useUpdateLastTweetId } from "../lib/api";
+import { useAppConfig, useUpdateLastTweetId, useClearCookies, useGetLastTweetId } from "../lib/api";
 
 export default function Settings() {
   const { data: config } = useAppConfig();
+  const { data: lastTweetData } = useGetLastTweetId();
   const updateTweetId = useUpdateLastTweetId();
   const [newTweetId, setNewTweetId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const clearCookies = useClearCookies();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +29,92 @@ export default function Settings() {
   return (
     <div className="p-8">
       <h1 className="heading-1 mb-8">Settings</h1>
+
+      {/* Top Actions Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Last Checked Tweet ID Section */}
+        <div className="card">
+          <h2 className="heading-2 mb-4">Last Checked Tweet ID</h2>
+          <div className="space-y-4">
+            <div>
+              <p className="text-gray-600 mb-2">Current ID:</p>
+              <code className="bg-gray-50 p-2 border-2 border-black block font-mono">
+                {lastTweetData?.lastTweetId || "Not set"}
+              </code>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="tweetId"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  New Tweet ID
+                </label>
+                <input
+                  type="text"
+                  id="tweetId"
+                  value={newTweetId}
+                  onChange={(e) => setNewTweetId(e.target.value)}
+                  className="w-full px-3 py-2 border-2 border-black focus:outline-none transition-colors"
+                  placeholder="Enter new tweet ID"
+                />
+              </div>
+
+              {error && <div className="text-red-600 text-sm">{error}</div>}
+              {success && (
+                <div className="text-green-600 text-sm">
+                  Successfully updated tweet ID!
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="px-3 py-1.5 bg-blue-200 hover:bg-blue-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium w-full"
+                disabled={updateTweetId.isPending}
+              >
+                {updateTweetId.isPending ? 'Updating...' : 'Update Tweet ID'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Clear Cookies Section */}
+        <div className="card">
+          <h2 className="heading-2 mb-4">Clear Cookies</h2>
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Clear all cookies associated with this site. You may need to refresh the page afterward.
+            </p>
+            
+            <button
+              onClick={async () => {
+                try {
+                  await clearCookies.mutateAsync();
+                } catch (err) {
+                  console.error('Failed to clear cookies:', err);
+                }
+              }}
+              className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium w-full"
+              disabled={clearCookies.isPending}
+            >
+              {clearCookies.isPending ? 'Clearing...' : 'Clear Cookies'}
+            </button>
+
+            {clearCookies.isError && (
+              <div className="text-red-600 text-sm">
+                Failed to clear cookies. Please try again.
+              </div>
+            )}
+            
+            {clearCookies.isSuccess && (
+              <div className="text-green-600 text-sm">
+                Successfully cleared cookies!
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Global Plugins Section */}
       <div className="card mb-8">
@@ -117,47 +205,6 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* Tweet ID Section */}
-      <div className="card">
-        <h2 className="heading-2 mb-4">Last Checked Tweet ID</h2>
-        <div className="mb-4">
-          <p className="text-gray-600 mb-2">Current ID:</p>
-          <code className="bg-gray-50 p-2 border-4 border-black block font-mono">
-            {"Not set"}
-          </code>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="tweetId"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              New Tweet ID
-            </label>
-            <input
-              type="text"
-              id="tweetId"
-              value={newTweetId}
-              onChange={(e) => setNewTweetId(e.target.value)}
-              className="w-full px-3 py-2 border-2 border-gray-800 focus:outline-none transition-colors"
-              placeholder="Enter new tweet ID"
-            />
-          </div>
-
-          {error && <div className="text-red-600 text-sm">{error}</div>}
-
-          {success && (
-            <div className="text-green-600 text-sm">
-              Successfully updated tweet ID!
-            </div>
-          )}
-
-          <button type="submit" className="btn w-full flex justify-center">
-            Update Tweet ID
-          </button>
-        </form>
-      </div>
     </div>
   );
 }

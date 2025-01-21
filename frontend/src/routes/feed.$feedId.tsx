@@ -6,6 +6,7 @@ import { useFeedConfig, useFeedItems } from "../lib/api";
 import { useState } from "react";
 import { TwitterSubmission } from "../types/twitter";
 import { useBotId } from "../lib/config";
+import { getTwitterIntentUrl } from "../lib/twitter";
 
 export const Route = createFileRoute("/feed/$feedId")({
   component: FeedPage,
@@ -37,7 +38,17 @@ function FeedPage() {
         <h3 className="text-2xl mb-4">Moderation</h3>
         <div className="space-y-4">
           <div>
-            <h4 className="font-medium mb-2">Approvers</h4>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-medium">Approvers</h4>
+              <a
+                href={getTwitterIntentUrl({ action: "apply", botId, feedId })}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+              >
+                apply
+              </a>
+            </div>
             <ul className="space-y-2">
               {feed.moderation.approvers.twitter.map((handle) => (
                 <li key={handle}>

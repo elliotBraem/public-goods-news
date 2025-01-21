@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import type { FeedConfig, AppConfig } from "../types/config";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import type { AppConfig, FeedConfig } from "../types/config";
 import type { TwitterSubmissionWithFeedData } from "../types/twitter";
 
 export function useFeedConfig(feedId: string) {
@@ -47,10 +47,40 @@ export function useAppConfig() {
   });
 }
 
+export function useClearCookies() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/clear-cookies", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to clear cookies");
+      }
+
+      return response.json();
+    },
+  });
+}
+
+export function useGetLastTweetId() {
+  return useQuery<{ lastTweetId: string }>({
+    queryKey: ["last-tweet-id"],
+    queryFn: async () => {
+      const response = await fetch("/api/twitter/last-tweet-id");
+      if (!response.ok) {
+        throw new Error("Failed to fetch last tweet ID");
+      }
+      return response.json();
+    },
+  });
+}
+
 export function useUpdateLastTweetId() {
   return useMutation({
     mutationFn: async (tweetId: string) => {
-      const response = await fetch("/api/last-tweet-id", {
+      const response = await fetch("/api/twitter/last-tweet-id", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

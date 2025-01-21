@@ -1,5 +1,6 @@
 import { mock } from "bun:test";
 import { SubmissionStatus } from "../../services/db/schema";
+import { TwitterCookie } from "../../types/twitter";
 
 // Define interfaces to match our schema
 interface Submission {
@@ -52,6 +53,11 @@ interface DbInterface {
   ) => void;
   getFeedsBySubmission: (submissionId: string) => Array<SubmissionFeed>;
   removeFromSubmissionFeed: (submissionId: string, feedId: string) => void;
+  getTwitterCookies: (username: string) => TwitterCookie[] | null;
+  setTwitterCookies: (username: string, cookies: TwitterCookie[]) => void;
+  deleteTwitterCookies: (username: string) => void;
+  getTwitterCacheValue: (key: string) => string | null;
+  setTwitterCacheValue: (key: string, value: string) => void;
 }
 
 // Create mock functions for each database operation
@@ -74,6 +80,11 @@ export const drizzleMock = {
   removeFromSubmissionFeed: mock<DbInterface["removeFromSubmissionFeed"]>(
     () => {},
   ),
+  getTwitterCookies: mock<DbInterface["getTwitterCookies"]>(() => null),
+  setTwitterCookies: mock<DbInterface["setTwitterCookies"]>(() => {}),
+  deleteTwitterCookies: mock<DbInterface["deleteTwitterCookies"]>(() => {}),
+  getTwitterCacheValue: mock<DbInterface["getTwitterCacheValue"]>(() => null),
+  setTwitterCacheValue: mock<DbInterface["setTwitterCacheValue"]>(() => {}),
 };
 
 // Mock the db module

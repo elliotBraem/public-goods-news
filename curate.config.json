@@ -2,7 +2,10 @@
   "global": {
     "botId": "{TWITTER_USERNAME}",
     "defaultStatus": "pending",
-    "maxSubmissionsPerUser": 5
+    "maxSubmissionsPerUser": 15,
+    "blacklist": {
+      "twitter": []
+    }
   },
   "plugins": {
     "@curatedotfun/telegram": {
@@ -288,8 +291,8 @@
     },
     {
       "id": "eigen",
-      "name": "Eigen Ecosystem news",
-      "description": "Eigen Layer Ecosystem",
+      "name": "Eigen Ecosystem",
+      "description": "Eigen Layer Ecosystem News",
       "moderation": {
         "approvers": {
           "twitter": [
@@ -317,8 +320,8 @@
     },
     {
       "id": "DAO",
-      "name": "All things DAO, DAO News, DAO product updates, thought leadership governance udpates etc.",
-      "description": "Eigen Layer Ecosystem",
+      "name": "DAO Latest",
+      "description": "All things DAO, DAO News, DAO product updates, thought leadership governance updates etc.",
       "moderation": {
         "approvers": {
           "twitter": [
@@ -427,6 +430,21 @@
       "moderation": {
         "approvers": {
           "twitter": ["plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "eliza",
+      "name": "Eliza OS",
+      "description": "Updates around eliza OS",
+      "moderation": {
+        "approvers": {
+          "twitter": ["shawmakesmagic", "plugrel"]
         }
       },
       "outputs": {

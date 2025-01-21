@@ -22,7 +22,7 @@ export class TwitterService {
 
   private async loadCachedCookies(): Promise<boolean> {
     try {
-      const cachedCookies = db.getTwitterCookies(this.twitterUsername);
+      const cachedCookies = this.getCookies();
       if (!cachedCookies) {
         return false;
       }
@@ -30,10 +30,8 @@ export class TwitterService {
       // Convert cached cookies to the format expected by the client
       const cookieStrings = cachedCookies.map(
         (cookie) =>
-          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-            cookie.secure ? "Secure" : ""
-          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-            cookie.sameSite || "Lax"
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
           }`,
       );
       await this.client.setCookies(cookieStrings);
@@ -77,6 +75,34 @@ export class TwitterService {
       logger.error("Login attempt failed:", error);
       return false;
     }
+  }
+
+  async setCookies(cookies: TwitterCookie[]) {
+    try {
+      logger.info("Setting Twitter cookies...");
+      // Convert cookies to the format expected by the client
+      const cookieStrings = cookies.map(
+        (cookie) =>
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
+          }`,
+      );
+      await this.client.setCookies(cookieStrings);
+      // Store cookies in database
+      db.setTwitterCookies(this.config.username, cookies);
+      // Verify the cookies work
+      if (!(await this.client.isLoggedIn())) {
+        throw new Error("Failed to verify cookies after setting");
+      }
+      return true;
+    } catch (error) {
+      logger.error("Failed to set Twitter cookies:", error);
+      throw error;
+    }
+  }
+
+  getCookies() {
+    return db.getTwitterCookies(this.twitterUsername);
   }
 
   async initialize() {
@@ -130,52 +156,62 @@ export class TwitterService {
     }
   }
 
-  async fetchAllNewMentions(lastCheckedId: string | null): Promise<Tweet[]> {
-    const BATCH_SIZE = 20;
-    let allNewTweets: Tweet[] = [];
-    let foundOldTweet = false;
-    let maxAttempts = 10; // Safety limit to prevent infinite loops
-    let attempts = 0;
-
-    while (!foundOldTweet && attempts < maxAttempts) {
-      try {
-        const batch = (
-          await this.client.fetchSearchTweets(
-            `@${this.twitterUsername}`,
-            BATCH_SIZE,
-            SearchMode.Latest,
-            allNewTweets.length > 0
-              ? allNewTweets[allNewTweets.length - 1].id
-              : undefined,
-          )
-        ).tweets;
-
-        if (batch.length === 0) break;
-
-        for (const tweet of batch) {
-          if (!tweet.id) continue;
-
-          if (!lastCheckedId || BigInt(tweet.id) > BigInt(lastCheckedId)) {
-            allNewTweets.push(tweet);
-          } else {
-            foundOldTweet = true;
-            break;
-          }
-        }
-
-        if (batch.length < BATCH_SIZE) break;
-        attempts++;
-      } catch (error) {
-        logger.error("Error fetching mentions batch:", error);
-        break;
-      }
+  async likeTweet(tweetId: string): Promise<void> {
+    try {
+      await this.client.likeTweet(tweetId);
+    } catch (error) {
+      logger.error("Error liking tweet:", error);
     }
+  }
 
-    return allNewTweets.sort((a, b) => {
-      const aId = BigInt(a.id || "0");
-      const bId = BigInt(b.id || "0");
-      return aId > bId ? 1 : aId < bId ? -1 : 0;
-    });
+  async fetchAllNewMentions(): Promise<Tweet[]> {
+    const BATCH_SIZE = 200;
+    let allNewTweets: Tweet[] = [];
+
+    // Get the last tweet ID we processed
+    const lastCheckedId = this.lastCheckedTweetId ? BigInt(this.lastCheckedTweetId) : null;
+
+    try {
+      const batch = (
+        await this.client.fetchSearchTweets(
+          `@${this.twitterUsername}`,
+          BATCH_SIZE,
+          SearchMode.Latest
+        )
+      ).tweets;
+
+      if (batch.length === 0) {
+        logger.info('No tweets found');
+        return [];
+      }
+
+      // Filter out tweets we've already processed
+      for (const tweet of batch) {
+        const tweetId = BigInt(tweet.id);
+        if (!lastCheckedId || tweetId > lastCheckedId) {
+          allNewTweets.push(tweet);
+        }
+      }
+
+      // Sort chronologically (oldest to newest)
+      allNewTweets.sort((a, b) => {
+        const aId = BigInt(a.id);
+        const bId = BigInt(b.id);
+        return aId > bId ? 1 : aId < bId ? -1 : 0;
+      });
+
+      // Only update last checked ID if we found new tweets
+      if (allNewTweets.length > 0) {
+        // Use the first tweet from the batch since it's the newest (batch comes in newest first)
+        const highestId = batch[0].id;
+        await this.setLastCheckedTweetId(highestId);
+      }
+
+      return allNewTweets;
+    } catch (error) {
+      logger.error("Error fetching mentions:", error);
+      return [];
+    }
   }
 
   async setLastCheckedTweetId(tweetId: string) {

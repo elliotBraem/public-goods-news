@@ -18,6 +18,7 @@ import {
   startSpinner,
   succeedSpinner,
 } from "./utils/logger";
+import { TwitterCookie } from "types/twitter";
 
 const PORT = Number(process.env.PORT) || 3000;
 const FRONTEND_DIST_PATH =
@@ -31,6 +32,10 @@ const ALLOWED_ORIGINS = [
 ];
 
 export async function main() {
+  let twitterService: TwitterService | null = null;
+  let submissionService: SubmissionService | null = null;
+  let distributionService: DistributionService | null = null;
+
   try {
     // Load environment variables and config
     startSpinner("env", "Loading environment variables and config...");
@@ -39,33 +44,39 @@ export async function main() {
     await configService.loadConfig();
     succeedSpinner("env", "Environment variables and config loaded");
 
-    // Initialize Twitter service
-    startSpinner("twitter-init", "Initializing Twitter service...");
-    const twitterService = new TwitterService({
-      username: process.env.TWITTER_USERNAME!,
-      password: process.env.TWITTER_PASSWORD!,
-      email: process.env.TWITTER_EMAIL!,
-      twoFactorSecret: process.env.TWITTER_2FA_SECRET,
-    });
-    await twitterService.initialize();
-    succeedSpinner("twitter-init", "Twitter service initialized");
-
     // Initialize distribution service
     startSpinner("distribution-init", "Initializing distribution service...");
-    const distributionService = new DistributionService();
+    distributionService = new DistributionService();
     const config = configService.getConfig();
     await distributionService.initialize(config.plugins);
     succeedSpinner("distribution-init", "distribution service initialized");
 
-    // Initialize submission service
-    startSpinner("submission-init", "Initializing submission service...");
-    const submissionService = new SubmissionService(
-      twitterService,
-      distributionService,
-      config,
-    );
-    await submissionService.initialize();
-    succeedSpinner("submission-init", "Submission service initialized");
+    // Try to initialize Twitter service, but continue if it fails
+    try {
+      startSpinner("twitter-init", "Initializing Twitter service...");
+      twitterService = new TwitterService({
+        username: process.env.TWITTER_USERNAME!,
+        password: process.env.TWITTER_PASSWORD!,
+        email: process.env.TWITTER_EMAIL!,
+        twoFactorSecret: process.env.TWITTER_2FA_SECRET,
+      });
+      await twitterService.initialize();
+      succeedSpinner("twitter-init", "Twitter service initialized");
+
+      // Only initialize submission service if Twitter is available
+      startSpinner("submission-init", "Initializing submission service...");
+      submissionService = new SubmissionService(
+        twitterService,
+        distributionService,
+        config,
+      );
+      await submissionService.initialize();
+      succeedSpinner("submission-init", "Submission service initialized");
+    } catch (error) {
+      failSpinner("twitter-init", "Failed to initialize Twitter service");
+      logger.warn("Twitter service initialization failed:", error);
+      logger.info("Continuing without Twitter integration");
+    }
 
     // Initialize server
     startSpinner("server", "Starting server...");
@@ -94,13 +105,19 @@ export async function main() {
       .use(swagger())
       .get("/health", () => new Response("OK", { status: 200 }))
       // API Routes
-      .get("/api/last-tweet-id", () => {
+      .get("/api/twitter/last-tweet-id", () => {
+        if (!twitterService) {
+          throw new Error("Twitter service not available");
+        }
         const lastTweetId = twitterService.getLastCheckedTweetId();
         return { lastTweetId };
       })
       .post(
-        "/api/last-tweet-id",
+        "/api/twitter/last-tweet-id",
         async ({ body }: { body: { tweetId: string } }) => {
+          if (!twitterService) {
+            throw new Error("Twitter service not available");
+          }
           if (
             !body?.tweetId ||
             typeof body.tweetId !== "string" ||
@@ -160,7 +177,27 @@ export async function main() {
         const config = configService.getConfig();
         return config;
       })
+      .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
+        if (!twitterService) {
+          throw new Error("Twitter service not available");
+        }
+        if (!Array.isArray(body)) {
+          throw new Error("Expected array of cookies");
+        }
+        await twitterService.setCookies(body);
+        return { success: true };
+      })
+      .get("/api/twitter/cookies", () => {
+        if (!twitterService) {
+          throw new Error("Twitter service not available");
+        }
+        const cookies = twitterService.getCookies();
+        return cookies || [];
+      })
       .post("/api/twitter/clear-cookies", async () => {
+        if (!twitterService) {
+          throw new Error("Twitter service not available");
+        }
         try {
           await twitterService.clearCookies();
           return {
@@ -187,6 +224,9 @@ export async function main() {
       .get(
         "/plugin/rss/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
+          if (!distributionService) {
+            throw new Error("Distribution service not available");
+          }
           const rssPlugin = distributionService.getPlugin("rss");
           if (!rssPlugin || !(rssPlugin instanceof RssPlugin)) {
             throw new Error("RSS plugin not found or invalid");
@@ -225,6 +265,9 @@ export async function main() {
 
           // Process each submission through stream output
           let processed = 0;
+          if (!distributionService) {
+            throw new Error("Distribution service not available");
+          }
           for (const submission of submissions) {
             try {
               await distributionService.processStreamOutput(
@@ -264,11 +307,12 @@ export async function main() {
     process.on("SIGINT", async () => {
       startSpinner("shutdown", "Shutting down gracefully...");
       try {
-        await Promise.all([
-          twitterService.stop(),
-          submissionService.stop(),
-          distributionService.shutdown(),
-        ]);
+        const shutdownPromises = [];
+        if (twitterService) shutdownPromises.push(twitterService.stop());
+        if (submissionService) shutdownPromises.push(submissionService.stop());
+        if (distributionService) shutdownPromises.push(distributionService.shutdown());
+        
+        await Promise.all(shutdownPromises);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);
       } catch (error) {
@@ -278,12 +322,14 @@ export async function main() {
       }
     });
 
-    logger.info("🚀 Bot is running and ready for events");
+    logger.info("🚀 Server is running and ready");
 
-    // Start checking for mentions
-    startSpinner("submission-monitor", "Starting submission monitoring...");
-    await submissionService.startMentionsCheck();
-    succeedSpinner("submission-monitor", "Submission monitoring started");
+    // Start checking for mentions only if Twitter service is available
+    if (submissionService) {
+      startSpinner("submission-monitor", "Starting submission monitoring...");
+      await submissionService.startMentionsCheck();
+      succeedSpinner("submission-monitor", "Submission monitoring started");
+    }
   } catch (error) {
     // Handle any initialization errors
     [
@@ -302,7 +348,7 @@ export async function main() {
 }
 
 // Start the application
-logger.info("Starting Public Goods News Bot...");
+logger.info("Starting application...");
 main().catch((error) => {
   logger.error("Unhandled Exception", error);
   process.exit(1);
