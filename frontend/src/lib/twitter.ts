@@ -12,16 +12,22 @@ export const getTwitterIntentUrl = (
     botId: string;
     feedId?: string;
   } & (
-    | { action: "approve" | "reject"; submission: TwitterSubmissionWithFeedData }
+    | {
+        action: "approve" | "reject";
+        submission: TwitterSubmissionWithFeedData;
+      }
     | { action: "apply"; submission?: never }
-  )
+  ),
 ) => {
   const baseUrl = "https://twitter.com/intent/tweet";
   const urlParams = new URLSearchParams();
 
   if (params.action === "apply") {
     // Apply action tags the bot and includes feed hashtag
-    urlParams.set("text", `!apply @${params.botId} #${params.feedId} I want to be a curator because...`);
+    urlParams.set(
+      "text",
+      `!apply @${params.botId} #${params.feedId} I want to be a curator because...`,
+    );
   } else {
     // Approve/reject actions are replies to submissions
     urlParams.set("text", `!${params.action}`);

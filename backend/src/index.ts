@@ -18,7 +18,6 @@ import {
   startSpinner,
   succeedSpinner,
 } from "./utils/logger";
-import { TwitterCookie } from "types/twitter";
 
 const PORT = Number(process.env.PORT) || 3000;
 const FRONTEND_DIST_PATH =
@@ -169,47 +168,31 @@ export async function main() {
           return db.getSubmissionsByFeed(feedId);
         },
       )
-      .get("/api/feeds", () => {
-        const config = configService.getConfig();
-        return config.feeds;
-      })
       .get("/api/config", () => {
         const config = configService.getConfig();
         return config;
       })
-      .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
-        if (!twitterService) {
-          throw new Error("Twitter service not available");
-        }
-        if (!Array.isArray(body)) {
-          throw new Error("Expected array of cookies");
-        }
-        await twitterService.setCookies(body);
-        return { success: true };
+      .get("/api/feeds", () => {
+        const config = configService.getConfig();
+        return config.feeds;
       })
-      .get("/api/twitter/cookies", () => {
-        if (!twitterService) {
-          throw new Error("Twitter service not available");
-        }
-        const cookies = twitterService.getCookies();
-        return cookies || [];
-      })
-      .post("/api/twitter/clear-cookies", async () => {
-        if (!twitterService) {
-          throw new Error("Twitter service not available");
-        }
-        try {
-          await twitterService.clearCookies();
-          return {
-            success: true,
-            message: "Twitter cookies cleared and reinitialized successfully",
-          };
-        } catch (error) {
-          throw new Error(
-            `Failed to clear Twitter cookies: ${error instanceof Error ? error.message : String(error)}`,
-          );
-        }
-      })
+      // .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
+      //   if (!twitterService) {
+      //     throw new Error("Twitter service not available");
+      //   }
+      //   if (!Array.isArray(body)) {
+      //     throw new Error("Expected array of cookies");
+      //   }
+      //   await twitterService.setCookies(body);
+      //   return { success: true };
+      // })
+      // .get("/api/twitter/cookies", () => {
+      //   if (!twitterService) {
+      //     throw new Error("Twitter service not available");
+      //   }
+      //   const cookies = twitterService.getCookies();
+      //   return cookies || [];
+      // })
       .get(
         "/api/config/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
@@ -240,53 +223,53 @@ export async function main() {
           return service.getItems();
         },
       )
-      .post(
-        "/api/feeds/:feedId/process",
-        async ({ params: { feedId } }: { params: { feedId: string } }) => {
-          // Get feed config
-          const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id === feedId);
-          if (!feed) {
-            throw new Error(`Feed not found: ${feedId}`);
-          }
+      // .post(
+      //   "/api/feeds/:feedId/process",
+      //   async ({ params: { feedId } }: { params: { feedId: string } }) => {
+      //     // Get feed config
+      //     const config = configService.getConfig();
+      //     const feed = config.feeds.find((f) => f.id === feedId);
+      //     if (!feed) {
+      //       throw new Error(`Feed not found: ${feedId}`);
+      //     }
 
-          // Get approved submissions for this feed
-          const submissions = db
-            .getSubmissionsByFeed(feedId)
-            .filter((sub) =>
-              db
-                .getFeedsBySubmission(sub.tweetId)
-                .some((feed) => feed.status === "approved"),
-            );
+      //     // Get approved submissions for this feed
+      //     const submissions = db
+      //       .getSubmissionsByFeed(feedId)
+      //       .filter((sub) =>
+      //         db
+      //           .getFeedsBySubmission(sub.tweetId)
+      //           .some((feed) => feed.status === "approved"),
+      //       );
 
-          if (submissions.length === 0) {
-            return { processed: 0 };
-          }
+      //     if (submissions.length === 0) {
+      //       return { processed: 0 };
+      //     }
 
-          // Process each submission through stream output
-          let processed = 0;
-          if (!distributionService) {
-            throw new Error("Distribution service not available");
-          }
-          for (const submission of submissions) {
-            try {
-              await distributionService.processStreamOutput(
-                feedId,
-                submission.tweetId,
-                submission.content,
-              );
-              processed++;
-            } catch (error) {
-              logger.error(
-                `Error processing submission ${submission.tweetId}:`,
-                error,
-              );
-            }
-          }
+      //     // Process each submission through stream output
+      //     let processed = 0;
+      //     if (!distributionService) {
+      //       throw new Error("Distribution service not available");
+      //     }
+      //     for (const submission of submissions) {
+      //       try {
+      //         await distributionService.processStreamOutput(
+      //           feedId,
+      //           submission.tweetId,
+      //           submission.content,
+      //         );
+      //         processed++;
+      //       } catch (error) {
+      //         logger.error(
+      //           `Error processing submission ${submission.tweetId}:`,
+      //           error,
+      //         );
+      //       }
+      //     }
 
-          return { processed };
-        },
-      )
+      //     return { processed };
+      //   },
+      // )
       // This was the most annoying thing to set up and debug. Serves our frontend and handles routing. alwaysStatic is essential.
       .use(
         staticPlugin({
@@ -310,8 +293,9 @@ export async function main() {
         const shutdownPromises = [];
         if (twitterService) shutdownPromises.push(twitterService.stop());
         if (submissionService) shutdownPromises.push(submissionService.stop());
-        if (distributionService) shutdownPromises.push(distributionService.shutdown());
-        
+        if (distributionService)
+          shutdownPromises.push(distributionService.shutdown());
+
         await Promise.all(shutdownPromises);
         succeedSpinner("shutdown", "Shutdown complete");
         process.exit(0);

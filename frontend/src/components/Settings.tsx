@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { useAppConfig, useUpdateLastTweetId, useClearCookies, useGetLastTweetId } from "../lib/api";
+import {
+  useAppConfig,
+  useGetLastTweetId,
+  useUpdateLastTweetId,
+} from "../lib/api";
 
 export default function Settings() {
   const { data: config } = useAppConfig();
@@ -8,7 +12,6 @@ export default function Settings() {
   const [newTweetId, setNewTweetId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const clearCookies = useClearCookies();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,45 +76,9 @@ export default function Settings() {
                 className="px-3 py-1.5 bg-blue-200 hover:bg-blue-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium w-full"
                 disabled={updateTweetId.isPending}
               >
-                {updateTweetId.isPending ? 'Updating...' : 'Update Tweet ID'}
+                {updateTweetId.isPending ? "Updating..." : "Update Tweet ID"}
               </button>
             </form>
-          </div>
-        </div>
-
-        {/* Clear Cookies Section */}
-        <div className="card">
-          <h2 className="heading-2 mb-4">Clear Cookies</h2>
-          <div className="space-y-4">
-            <p className="text-gray-600">
-              Clear all cookies associated with this site. You may need to refresh the page afterward.
-            </p>
-            
-            <button
-              onClick={async () => {
-                try {
-                  await clearCookies.mutateAsync();
-                } catch (err) {
-                  console.error('Failed to clear cookies:', err);
-                }
-              }}
-              className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium w-full"
-              disabled={clearCookies.isPending}
-            >
-              {clearCookies.isPending ? 'Clearing...' : 'Clear Cookies'}
-            </button>
-
-            {clearCookies.isError && (
-              <div className="text-red-600 text-sm">
-                Failed to clear cookies. Please try again.
-              </div>
-            )}
-            
-            {clearCookies.isSuccess && (
-              <div className="text-green-600 text-sm">
-                Successfully cleared cookies!
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -204,7 +171,6 @@ export default function Settings() {
           ))}
         </div>
       </div>
-
     </div>
   );
 }
