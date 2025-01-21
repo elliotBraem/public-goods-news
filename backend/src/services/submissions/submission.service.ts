@@ -166,10 +166,11 @@ export class SubmissionService {
 
       // If no feeds specified, reject submission
       if (feedIds.length === 0) {
-        await this.twitterService.replyToTweet(
-          tweet.id,
-          `Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)`,
-        );
+        // await this.twitterService.replyToTweet(
+        //   tweet.id,
+        //   `Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)`,
+        // );
+        logger.error("Provided invalid feeds: ", feedIds)
         return;
       }
 
@@ -202,12 +203,12 @@ export class SubmissionService {
         const maxSubmissions = this.config.global.maxDailySubmissionsPerUser;
 
         if (dailyCount >= maxSubmissions) {
-          await this.twitterService.replyToTweet(
-            tweet.id,
-            "You've reached your daily submission limit. Please try again tomorrow.",
-          );
+          // await this.twitterService.replyToTweet(
+          //   tweet.id,
+          //   "You've reached your daily submission limit. Please try again tomorrow.",
+          // );
           logger.info(
-            `User ${userId} has reached limit, replied to submission.`,
+            `User ${userId} has reached limit.`,
           );
           return;
         }
