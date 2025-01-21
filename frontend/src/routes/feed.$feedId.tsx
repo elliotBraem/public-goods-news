@@ -154,7 +154,7 @@ function FeedPage() {
             </p>
           </div>
         ) : (
-          filteredItems.map((item) => (
+          filteredItems.reverse().map((item) => (
             <FeedItem key={item.tweetId} submission={item} />
           ))
         )}
