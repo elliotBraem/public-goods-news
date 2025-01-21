@@ -134,6 +134,34 @@
         }
       }
     },
+        {
+      "id": "nouns",
+      "name": "NounsDAO",
+      "description": "All noun-ish updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "cryptoseneca",
+            "punk4156",
+            "russlive215",
+            "toady_hawk",
+            "matyETH",
+            "ProfWerder",
+            "benbodhi",
+            "BigTrav205",
+            "willyogo",
+            "carlosjmelgar",
+            "plugrel",
+            "JackWyldes"     
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
     {
       "id": "ai3",
       "name": "AI x Crypto News",
