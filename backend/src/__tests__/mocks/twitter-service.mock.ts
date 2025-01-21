@@ -1,8 +1,9 @@
-import { SearchMode, Tweet } from "agent-twitter-client";
+import { Tweet } from "agent-twitter-client";
 
 export class MockTwitterService {
   private mockTweets: Tweet[] = [];
   private mockUserIds: Map<string, string> = new Map();
+  private lastCheckedTweetId: string | null = null;
 
   public addMockTweet(tweet: Tweet) {
     this.mockTweets.push(tweet);
@@ -38,5 +39,13 @@ export class MockTwitterService {
 
   async replyToTweet(tweetId: string, message: string): Promise<string | null> {
     return `mock-reply-${Date.now()}`;
+  }
+
+  async setLastCheckedTweetId(tweetId: string): Promise<void> {
+    this.lastCheckedTweetId = tweetId;
+  }
+
+  getLastCheckedTweetId(): string | null {
+    return this.lastCheckedTweetId;
   }
 }

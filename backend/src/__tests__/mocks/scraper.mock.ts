@@ -77,23 +77,17 @@ export class MockScraper extends Scraper {
     mode: SearchMode,
     cursor?: string,
   ): Promise<{ tweets: Tweet[] }> {
-    // Sort tweets by ID in descending order (newest first)
-    const sortedTweets = [...this.mockTweets].sort((a, b) => {
-      const aId = BigInt(a.id || "0");
-      const bId = BigInt(b.id || "0");
+    // Get all valid tweets (those with IDs)
+    const validTweets = this.mockTweets.filter(t => t.id);
+
+    // Sort by ID descending (newest first) to match Twitter search behavior
+    const sortedTweets = validTweets.sort((a, b) => {
+      const aId = BigInt(a.id!);
+      const bId = BigInt(b.id!);
       return bId > aId ? 1 : bId < aId ? -1 : 0;
     });
 
-    // If cursor is provided, return tweets older than the cursor
-    if (cursor) {
-      const cursorIndex = sortedTweets.findIndex((t) => t.id === cursor);
-      if (cursorIndex !== -1) {
-        return {
-          tweets: sortedTweets.slice(cursorIndex + 1, cursorIndex + 1 + count),
-        };
-      }
-    }
-
+    // Return requested batch size
     return {
       tweets: sortedTweets.slice(0, count),
     };

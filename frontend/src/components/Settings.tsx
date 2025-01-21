@@ -39,7 +39,7 @@ export default function Settings() {
             <div>
               <p className="text-gray-600 mb-2">Current ID:</p>
               <code className="bg-gray-50 p-2 border-2 border-black block font-mono">
-                {lastTweetData?.tweetId || "Not set"}
+                {lastTweetData?.lastTweetId || "Not set"}
               </code>
             </div>
 

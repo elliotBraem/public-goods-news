@@ -21,52 +21,67 @@ export class SubmissionService {
     private readonly config: AppConfig,
   ) { }
 
+  private async initializeAdminIds(): Promise<void> {
+    // Try to load admin IDs from cache first
+    const cachedAdminIds = db.getTwitterCacheValue('admin_ids');
+    if (cachedAdminIds) {
+      try {
+        const adminMap = JSON.parse(cachedAdminIds);
+        for (const [userId, handle] of Object.entries(adminMap)) {
+          this.adminIdCache.set(userId, handle as string);
+        }
+        logger.info('Loaded admin IDs from cache');
+        return;
+      } catch (error) {
+        logger.error('Failed to parse cached admin IDs:', error);
+      }
+    }
+
+    // If no cache or parse error, fetch and cache admin IDs
+    const adminHandles = new Set<string>();
+    for (const feed of this.config.feeds) {
+      for (const handle of feed.moderation.approvers.twitter) {
+        adminHandles.add(handle);
+      }
+    }
+
+    logger.info('Fetching admin IDs for the first time...');
+    const adminMap: Record<string, string> = {};
+    
+    for (const handle of adminHandles) {
+      try {
+        const userId = await this.twitterService.getUserIdByScreenName(handle);
+        this.adminIdCache.set(userId, handle);
+        adminMap[userId] = handle;
+      } catch (error) {
+        logger.error(
+          `Failed to fetch ID for admin handle @${handle}:`,
+          error,
+        );
+      }
+    }
+
+    // Cache the admin IDs
+    db.setTwitterCacheValue('admin_ids', JSON.stringify(adminMap));
+    logger.info('Cached admin IDs for future use');
+  }
+
+  private initializeFeeds(): void {
+    const feedsToUpsert = this.config.feeds.map((feed) => ({
+      id: feed.id,
+      name: feed.name,
+      description: feed.description,
+    }));
+    db.upsertFeeds(feedsToUpsert);
+  }
+
   async initialize(): Promise<void> {
     try {
-      // First, collect all unique admin handles
-      const adminHandles = new Set<string>();
-
-      // Collect feeds to upsert
-      const feedsToUpsert = this.config.feeds.map((feed) => ({
-        id: feed.id,
-        name: feed.name,
-        description: feed.description,
-      }));
-
-      // Initialize all feeds in a single transaction
-      db.upsertFeeds(feedsToUpsert);
-
-      // Collect unique admin handles
-      for (const feed of this.config.feeds) {
-        for (const handle of feed.moderation.approvers.twitter) {
-          adminHandles.add(handle);
-        }
-      }
-
-      // Fetch all admin IDs in parallel
-      const adminPromises = Array.from(adminHandles).map(async (handle) => {
-        try {
-          const userId =
-            await this.twitterService.getUserIdByScreenName(handle);
-          return { userId, handle };
-        } catch (error) {
-          logger.error(
-            `Failed to fetch ID for admin handle @${handle}:`,
-            error,
-          );
-          return null;
-        }
-      });
-
-      // Wait for all Twitter API calls to complete
-      const results = await Promise.all(adminPromises);
-
-      // Update admin cache with successful results
-      for (const result of results) {
-        if (result) {
-          this.adminIdCache.set(result.userId, result.handle);
-        }
-      }
+      // Initialize feeds
+      this.initializeFeeds();
+      
+      // Initialize admin IDs with caching
+      await this.initializeAdminIds();
     } catch (error) {
       logger.error("Failed to initialize submission service:", error);
       throw error;
@@ -143,7 +158,7 @@ export class SubmissionService {
     try {
       // Extract feed IDs from hashtags
       const feedIds = (tweet.hashtags || []).filter((tag) =>
-        this.config.feeds.some((feed) => feed.id === tag.toLowerCase()),
+        this.config.feeds.some((feed) => (feed.id).toLowerCase() === tag.toLowerCase()),
       );
 
       // If no feeds specified, reject submission

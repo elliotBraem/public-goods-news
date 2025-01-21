@@ -157,61 +157,53 @@ export class TwitterService {
   }
 
   async fetchAllNewMentions(): Promise<Tweet[]> {
-    const BATCH_SIZE = 20;
+    const BATCH_SIZE = 200;
     let allNewTweets: Tweet[] = [];
-    let foundOldTweet = false;
-    let maxAttempts = 10; // Safety limit to prevent infinite loops
-    let attempts = 0;
+    
+    // Get the last tweet ID we processed
+    const lastCheckedId = this.lastCheckedTweetId ? BigInt(this.lastCheckedTweetId) : null;
+    
+    try {
+      const batch = (
+        await this.client.fetchSearchTweets(
+          `@${this.twitterUsername}`,
+          BATCH_SIZE,
+          SearchMode.Latest
+        )
+      ).tweets;
 
-    while (!foundOldTweet && attempts < maxAttempts) {
-      try {
-        const batch = (
-          await this.client.fetchSearchTweets(
-            `@${this.twitterUsername}`,
-            BATCH_SIZE,
-            SearchMode.Latest,
-            allNewTweets.length > 0
-              ? allNewTweets[allNewTweets.length - 1].id
-              : undefined,
-          )
-        ).tweets;
+      if (batch.length === 0) {
+        logger.info('No tweets found');
+        return [];
+      }
 
-        if (batch.length === 0) break;
-
-        for (const tweet of batch) {
-          if (!tweet.id) continue;
-
-          if (!this.lastCheckedTweetId || BigInt(tweet.id) > BigInt(this.lastCheckedTweetId)) {
-            allNewTweets.push(tweet);
-          } else {
-            foundOldTweet = true;
-            break;
-          }
+      // Filter out tweets we've already processed
+      for (const tweet of batch) {
+        const tweetId = BigInt(tweet.id);
+        if (!lastCheckedId || tweetId > lastCheckedId) {
+          allNewTweets.push(tweet);
         }
-
-        if (batch.length < BATCH_SIZE) break;
-        attempts++;
-      } catch (error) {
-        logger.error("Error fetching mentions batch:", error);
-        break;
       }
-    }
 
-    const sortedTweets = allNewTweets.sort((a, b) => {
-      const aId = BigInt(a.id || "0");
-      const bId = BigInt(b.id || "0");
-      return aId > bId ? 1 : aId < bId ? -1 : 0;
-    });
+      // Sort chronologically (oldest to newest)
+      allNewTweets.sort((a, b) => {
+        const aId = BigInt(a.id);
+        const bId = BigInt(b.id);
+        return aId > bId ? 1 : aId < bId ? -1 : 0;
+      });
 
-    // Update the last checked tweet ID if we have new tweets
-    if (sortedTweets.length > 0) {
-      const lastTweet = sortedTweets[sortedTweets.length - 1];
-      if (lastTweet.id) {
-        await this.setLastCheckedTweetId(lastTweet.id);
+      // Only update last checked ID if we found new tweets
+      if (allNewTweets.length > 0) {
+        // Use the first tweet from the batch since it's the newest (batch comes in newest first)
+        const highestId = batch[0].id;
+        await this.setLastCheckedTweetId(highestId);
       }
-    }
 
-    return sortedTweets;
+      return allNewTweets;
+    } catch (error) {
+      logger.error("Error fetching mentions:", error);
+      return [];
+    }
   }
 
   async setLastCheckedTweetId(tweetId: string) {

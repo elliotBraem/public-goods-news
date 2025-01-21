@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
-import type { FeedConfig, AppConfig } from "../types/config";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import type { AppConfig, FeedConfig } from "../types/config";
 import type { TwitterSubmissionWithFeedData } from "../types/twitter";
 
 export function useFeedConfig(feedId: string) {
@@ -65,7 +65,7 @@ export function useClearCookies() {
 }
 
 export function useGetLastTweetId() {
-  return useQuery<{ tweetId: string }>({
+  return useQuery<{ lastTweetId: string }>({
     queryKey: ["last-tweet-id"],
     queryFn: async () => {
       const response = await fetch("/api/twitter/last-tweet-id");

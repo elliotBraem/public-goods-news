@@ -140,19 +140,16 @@ describe("TwitterService", () => {
 
       const result = await twitterService.fetchAllNewMentions();
 
-      // Should be sorted by ID
+      // Should be sorted chronologically (oldest to newest)
       expect(result).toHaveLength(3);
       expect(result[0].id).toBe("1");
       expect(result[1].id).toBe("2");
       expect(result[2].id).toBe("3");
-
-      // Should update last checked tweet ID
-      expect(twitterService.getLastCheckedTweetId()).toBe("3");
     });
 
-    it("should handle pagination when there are many tweets", async () => {
-      // Create more tweets than the batch size (20)
-      const tweets: Tweet[] = Array.from({ length: 25 }, (_, i) => ({
+    it("should handle large batch of tweets", async () => {
+      // Create tweets up to the batch size (200)
+      const tweets: Tweet[] = Array.from({ length: 150 }, (_, i) => ({
         id: String(i + 1),
         text: `Tweet ${i + 1}`,
         username: `user${i + 1}`,
@@ -171,11 +168,13 @@ describe("TwitterService", () => {
 
       const result = await twitterService.fetchAllNewMentions();
 
-      // Should fetch all tweets across multiple pages
-      expect(result).toHaveLength(25);
-      // Should be sorted
+      // Should fetch all tweets in a single batch
+      expect(result).toHaveLength(150);
+      // Should be sorted chronologically (oldest to newest)
       expect(result[0].id).toBe("1");
-      expect(result[24].id).toBe("25");
+      expect(result[149].id).toBe("150");
+      // Should update last checked ID to newest tweet from original batch
+      expect(twitterService.getLastCheckedTweetId()).toBe("150");
     });
 
     it("should only fetch tweets newer than last checked ID", async () => {
@@ -241,12 +240,12 @@ describe("TwitterService", () => {
 
       const result = await twitterService.fetchAllNewMentions();
 
-      // Should only include tweets newer than ID "2"
+      // Should only include tweets newer than ID "2" (oldest to newest)
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe("3");
       expect(result[1].id).toBe("4");
       
-      // Should update last checked tweet ID to newest
+      // Should update last checked ID to newest tweet from original batch
       expect(twitterService.getLastCheckedTweetId()).toBe("4");
     });
 
@@ -345,7 +344,7 @@ describe("TwitterService", () => {
 
       const result = await twitterService.fetchAllNewMentions();
 
-      // Should only include tweets newer than ID "3"
+      // Should only include tweets newer than ID "3" (oldest to newest)
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe("4");
       expect(result[1].id).toBe("5");
@@ -434,7 +433,7 @@ describe("TwitterService", () => {
       // Now set last checked to tweet 2
       await twitterService.setLastCheckedTweetId("2");
       
-      // Should now get tweets 3, 4, and 5
+      // Should now get tweets 3, 4, and 5 (oldest to newest)
       result = await twitterService.fetchAllNewMentions();
       expect(result).toHaveLength(3);
       expect(result[0].id).toBe("3");
