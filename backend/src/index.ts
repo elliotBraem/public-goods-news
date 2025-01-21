@@ -18,7 +18,6 @@ import {
   startSpinner,
   succeedSpinner,
 } from "./utils/logger";
-import { TwitterCookie } from "types/twitter";
 
 const PORT = Number(process.env.PORT) || 3000;
 const FRONTEND_DIST_PATH =
@@ -172,6 +171,10 @@ export async function main() {
       .get("/api/config", () => {
         const config = configService.getConfig();
         return config;
+      })
+      .get("/api/feeds", () => {
+        const config = configService.getConfig();
+        return config.feeds;
       })
       // .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
       //   if (!twitterService) {
