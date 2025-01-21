@@ -15,7 +15,7 @@
   --ifm-color-primary-lightest: #0ca0ff;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  --ifm-font-family-base: 'Londrina Solid', sans-serif;
+  --ifm-font-family-base: 'Roboto', sans-serif;
   --ifm-font-family-heading: 'Londrina Solid', sans-serif;
 }
 
@@ -31,7 +31,7 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Londrina+Solid:wght@400;700&family=Roboto:wght@400;500;700&display=swap');
 
 h1, h2, h3, h4, h5, h6, .navbar__title, .navbar__logo {
   font-family: 'Londrina Solid', sans-serif;

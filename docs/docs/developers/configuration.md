@@ -1,28 +1,33 @@
 ---
-sidebar_position: 4
+sidebar_position: 1
 ---
 
-# Configuration
+# ⚙️ Configuration
 
-The application is configured through a `curate.config.json` file that defines global settings, plugins, and feed configurations.
+Configure your curate.fun instance through the `curate.config.json` file ⚡
 
-## Structure
+## 🏗️ Structure
 
-### Global Settings
+### 🌍 Global Settings
 
 ```json
 {
   "global": {
-    "botId": "curation_bot", // handle for twitter bot
+    "botId": "curatedotfun", // @handle for twitter bot
     "defaultStatus": "pending",
-    "maxSubmissionsPerUser": 5
+    "maxDailySubmissionsPerUser": 15,
+    "blacklist": { // ignore submissions according to inbound platform
+      "twitter": [
+        "blocked_id"
+      ]
+    }
   }
 }
 ```
 
-### Plugins
+### 🔌 Plugins
 
-Plugins are external modules that provide transformation or distribution capabilities:
+Plugins extend functionality with transformations and distribution capabilities:
 
 ```json
 {
@@ -30,6 +35,10 @@ Plugins are external modules that provide transformation or distribution capabil
     "@curatedotfun/telegram": {
       "type": "distributor",
       "url": "./external/telegram"
+    },
+    "@curatedotfun/rss": {
+      "type": "distributor",
+      "url": "./external/rss"
     },
     "@curatedotfun/gpt-transform": {
       "type": "transformer",
@@ -39,9 +48,9 @@ Plugins are external modules that provide transformation or distribution capabil
 }
 ```
 
-### Feeds
+### 📡 Feeds
 
-Each feed represents a distinct content stream with its own configuration:
+Each feed represents a distinct content stream:
 
 ```json
 {
@@ -52,7 +61,7 @@ Each feed represents a distinct content stream with its own configuration:
       "description": "Example feed description",
       "moderation": {
         "approvers": {
-          "twitter": ["approver1", "approver2"] // twitter handle, without @
+          "twitter": ["approver1", "approver2"] // twitter handles, without @
         }
       },
       "outputs": {
@@ -64,18 +73,25 @@ Each feed represents a distinct content stream with its own configuration:
               "prompt": "Format this update..."
             }
           },
-          "distribute": [  // Optional (can be processed later, with /api/feed/{feedId}/process)
+          "distribute": [  // Optional (can be processed later, with /api/feed/:feedId/process)
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
                 "botToken": "{TELEGRAM_BOT_TOKEN}",
                 "channelId": "{TELEGRAM_CHANNEL_ID}"
               }
+            },
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "Feed Title",
+                "path": "./public/feed.xml"
+              }
             }
           ]
         },
         "recap": {
-          "enabled": true,
+          "enabled": false,
           "schedule": "0 0 * * *",
           "transform": { // Required to summarize
             "plugin": "@curatedotfun/gpt-transform",
@@ -83,7 +99,7 @@ Each feed represents a distinct content stream with its own configuration:
               "prompt": "./prompts/recap.txt"
             }
           },
-          "distribute": [ // Required
+          "distribute": [ // Required for recap
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
@@ -99,15 +115,15 @@ Each feed represents a distinct content stream with its own configuration:
 }
 ```
 
-## Stream Configuration
+## 🔄 Stream Configuration
 
-A stream means that content will be distributed on approval. The stream output configuration itself is optional and has several optional components:
+Stream configuration controls real-time content distribution:
 
 ```typescript
 outputs: {
   stream?: {
     enabled: boolean;
-    transform?: {  // Optional transformation to content before distribution
+    transform?: {  // Optional transformation
       plugin: string;
       config: {
         prompt: string;
@@ -125,34 +141,34 @@ outputs: {
 
 When `stream` is enabled:
 
-- If `transform` is not provided, content will be distributed as-is
-- If `distribute` is not provided, approved submissions will remain in the submissions feed table (queue) until:
-  - They are distributed (if distribution is added later)
-  - The recap schedule completes (if a recap is configured)
-  - They are manually removed
+- 🔄 Without `transform`, content is distributed as-is
+- 📥 Without `distribute`, submissions stay in queue until:
+  - ✅ Distribution is added later (/api/feeds/:feedId/process)
+  - 📅 Recap schedule completes
+  - 🗑️ Manual removal
 
-This queue behavior is particularly useful when you want to:
+This queue system helps you:
 
-- Collect approved submissions without immediate distribution
-- Add distribution channels later
-- Use submissions only in recaps
+- 📦 Collect submissions for later
+- 🔌 Add distribution channels flexibly
+- 📝 Use content in recaps only
 
-## Recap Configuration
+## 📅 Recap Configuration
 
-A recap means that content within the specified time frame will be summarized (transformed) and then distributed. The recap output configuration is optional but when provided requires certain fields:
+Recap configuration handles periodic content summaries:
 
 ```typescript
 outputs: {
   recap?: {
     enabled: boolean;
     schedule: string;  // Cron expression
-    transform: {      // Required for recap
+    transform: {      // Required
       plugin: string;
       config: {
         prompt: string;
       };
     };
-    distribute: [     // Required for recap
+    distribute: [     // Required
       {
         plugin: string;
         config: Record<string, string>;
@@ -162,9 +178,9 @@ outputs: {
 }
 ```
 
-Note that unlike stream configuration:
+Key differences from stream configuration:
 
-- `transform` is required for recap (content must be summarized)
-- `distribute` is required for recap (summarized content must be distributed)
+- 🔄 `transform` is required (content must be summarized)
+- 📢 `distribute` is required (summaries must be distributed)
 
-Messages included in a recap will be removed from the submissions feed table after the recap is generated and distributed.
+📝 Note: Messages in a recap are removed from the queue after distribution.

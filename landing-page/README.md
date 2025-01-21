@@ -58,7 +58,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - [Website](https://curate.fun)
 - [Documentation](https://docs.curate.fun)
-- [Twitter](https://twitter.com/potlock_)
+- [Twitter](https://twitter.com/curatedotfun)
 - [GitHub](https://github.com/potlock/curatedotfun)
 
 ## 🏗 Built by Potlock Protocol

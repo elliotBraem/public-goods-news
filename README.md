@@ -147,8 +147,8 @@ Tests are located in the backend's `src/__tests__` directory. Run them using `bu
 
 For detailed information about configuration, submission process, and usage, please refer to our documentation:
 
-- [Configuration Guide](./docs/docs/developers/configuration.md): Feed setup, plugins, and system configuration
-- [User Guide](./docs/docs/user-guides/social_integration.md): How to submit and moderate content
+- [Configuration Guide](./docs/docs/developers/configuration): Feed setup, plugins, and system configuration
+- [User Guide](./docs/docs/user-guides/curation): How to submit and moderate content
 - [Developer Guide](./docs/docs/developers/): Technical documentation for developers
 
 ## Contributing

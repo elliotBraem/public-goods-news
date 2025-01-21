@@ -1,31 +1,31 @@
 ---
-sidebar_position: 5
+sidebar_position: 2
 ---
 
-# Deployment
+# 🚀 Deployment
 
-This guide covers deploying the application to various environments.
+Deploy your curate.fun instance to production ⚡
 
-## Deploying to Fly.io
+## 🌥️ Deploying to Fly.io
 
 The backend service can be deployed to Fly.io with SQLite support.
 
-### Prerequisites
+### 📋 Prerequisites
 
 Install the Fly CLI:
 
 ```bash
-# macOS
+# 🍎 macOS
 brew install flyctl
 
-# Windows
+# 🪟 Windows
 powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
 
-# Linux
+# 🐧 Linux
 curl -L https://fly.io/install.sh | sh
 ```
 
-### Authentication
+### 🔑 Authentication
 
 Sign up and authenticate with Fly.io:
 
@@ -35,98 +35,102 @@ fly auth signup
 fly auth login
 ```
 
-### Deployment Steps
+### 🛫 Deployment Steps
 
-1. Initialize your Fly.io application:
+1. 🎬 Initialize your Fly.io application:
 
 ```bash
 bun run deploy:init
 ```
 
-This will create the Fly App, the LiteFS volume (see [LiteFS Spreedrun](https://fly.io/docs/litefs/speedrun/) for more information), and attach Consul for LiteFS cluster management (this sets the FLY_CONSUL_URL secret for the app, which is required for LitefS leases)
+This will:
 
-2. The app will crash the first time, because your Fly App needs environment variables set (sorry, you have to do this manually):
+- 📦 Create the Fly App
+- 💾 Set up LiteFS volume ([LiteFS Speedrun](https://fly.io/docs/litefs/speedrun/))
+- 🔄 Attach Consul for LiteFS cluster management
+
+2. ⚙️ Configure environment variables:
 
 ```bash
+# 🐦 Twitter Authentication
 fly secrets set TWITTER_USERNAME=your_twitter_username
 fly secrets set TWITTER_PASSWORD=your_twitter_password
 fly secrets set TWITTER_EMAIL=your_twitter_email
-```
 
-For distribution services, these will hydrate the curate.config.json:
-
-```bash
-# Telegram
+# 📢 Distribution Services
 fly secrets set TELEGRAM_BOT_TOKEN=your_bot_token
 fly secrets set TELEGRAM_CHANNEL_ID=your_channel_id
 ```
 
-2. Then redeploy the application. Use this command for any future deployments:
+3. 🚀 Deploy the application:
 
 ```bash
 bun run deploy
 ```
 
-### Configuration
+### 🏗️ Architecture
 
-The deployment includes:
+- ✨ Distributed SQLite using LiteFS
+- 🔄 Automatic file replication across instances
+- 🎯 Primary/replica configuration using Consul
+- 🔒 HTTPS enabled by default
 
-- Distributed SQLite using LiteFS
-- Automatic file replication across instances
-- High availability with minimum 2 machines
-- Primary/replica configuration using Consul
-- HTTPS enabled by default
+#### 🔍 Details
 
-#### Architecture
+- 📍 Primary instance (LAX region) handles write operations
+- 🔄 Replicas automatically sync data from primary
+- 🎛️ Consul manages primary/replica coordination
+- ⚡ Automatic failover if primary becomes unavailable
 
-- Primary instance (LAX region) handles write operations
-- Replicas automatically sync data from primary
-- Consul manages primary/replica coordination
-- Automatic failover if primary becomes unavailable
-
-#### Key Files
+#### 📁 Key Files
 
 - `fly.toml`: Main Fly.io configuration
 - `litefs.yml`: LiteFS configuration
 - `Dockerfile`: Container and LiteFS setup
 
-### Monitoring
+### 📊 Monitoring
 
 Monitor your deployment:
 
 ```bash
-# View deployment status
+# 👀 View deployment status
 fly status
 
-# View logs
+# 📝 View logs
 fly logs
 
-# Access the Fly.io dashboard
+# 🖥️ Access dashboard
 fly dashboard
 ```
 
-### Troubleshooting
+### 🔧 Troubleshooting
 
 Common issues and solutions:
 
-1. **Database Connection Issues**
-   - Check LiteFS mount status: `fly ssh console -C "ls -la /litefs"`
-   - Verify Consul connection: `fly consul status`
-   - Check primary/replica status: `fly logs`
+1. **🗄️ Container issues**
 
-2. **File Replication Issues**
-   - Verify LiteFS FUSE mount: `fly ssh console -C "mount | grep litefs"`
-   - Check file permissions: `fly ssh console -C "ls -la /src"`
-   - Monitor LiteFS logs: `fly logs --level debug`
+   ```bash
+   # Explore container
+   fly ssh console
+   
+   # Verify Consul
+   fly consul status
+   
+   # Check status
+   fly logs
+   ```
 
-3. **Memory/CPU Issues**
-   - Monitor resource usage: `fly status`
-   - Check machine distribution: `fly scale show`
-   - Adjust VM configuration in fly.toml if needed
+3. **💻 Scale up or downtown**
 
-4. **Primary/Replica Issues**
-   - Verify Consul health: `fly consul status`
-   - Check region configuration: `fly regions list`
-   - Monitor primary elections: `fly logs --level info`
+   ```bash
+   # Increase count (# is number of machines)
+   fly scale count #
+   
+   # Check distribution
+   fly scale show
+   ```
 
-For more help, consult the [Fly.io documentation](https://fly.io/docs/) or join their [community Discord](https://fly.io/discord).
+📚 For more help:
+
+- [Fly.io Documentation](https://fly.io/docs/)
+- [Community Discord](https://fly.io/discord)

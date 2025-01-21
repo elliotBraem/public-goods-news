@@ -74,7 +74,19 @@ const config: Config = {
           type: "docSidebar",
           sidebarId: "tutorialSidebar",
           position: "left",
-          label: "Tutorial",
+          label: "📖 Overview",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "userGuideSidebar",
+          position: "left",
+          label: "👥 User Guide",
+        },
+        {
+          type: "docSidebar",
+          sidebarId: "developerGuideSidebar",
+          position: "left",
+          label: "🛠️ Developer Guide",
         },
         {
           href: "https://curate.fun",
@@ -82,7 +94,7 @@ const config: Config = {
           position: "right",
         },
         {
-          href: "https://x.com/potlock_",
+          href: "https://x.com/curatedotfun",
           label: "X",
           position: "right",
         },
@@ -100,8 +112,16 @@ const config: Config = {
           title: "📚 Docs",
           items: [
             {
-              label: "🚀 Tutorial",
+              label: "📖 Overview",
               to: "/docs/intro",
+            },
+            {
+              label: "👥 User Guide",
+              to: "/docs/user-guides/curation",
+            },
+            {
+              label: "🛠️ Developer Guide",
+              to: "/docs/developers/configuration",
             },
           ],
         },
@@ -110,11 +130,11 @@ const config: Config = {
           items: [
             {
               label: "💬 Telegram",
-              href: "https://t.me/",
+              href: "https://t.me/+UM70lvMnofk3YTVh",
             },
             {
               label: "🐦 Twitter",
-              href: "https://twitter.com/potlock_",
+              href: "https://twitter.com/curatedotfun",
             },
           ],
         },
