@@ -47,23 +47,6 @@ export function useAppConfig() {
   });
 }
 
-export function useClearCookies() {
-  return useMutation({
-    mutationFn: async () => {
-      const response = await fetch("/api/clear-cookies", {
-        method: "POST",
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to clear cookies");
-      }
-
-      return response.json();
-    },
-  });
-}
-
 export function useGetLastTweetId() {
   return useQuery<{ lastTweetId: string }>({
     queryKey: ["last-tweet-id"],

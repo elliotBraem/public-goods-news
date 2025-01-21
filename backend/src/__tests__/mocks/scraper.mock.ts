@@ -62,11 +62,6 @@ export class MockScraper extends Scraper {
     return this.cookies;
   }
 
-  async clearCookies(): Promise<void> {
-    this.cookies = [];
-    this._isLoggedIn = false;
-  }
-
   async getUserIdByScreenName(screenName: string): Promise<string> {
     return `mock-user-id-${screenName}`;
   }

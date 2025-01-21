@@ -194,22 +194,6 @@ export async function main() {
         const cookies = twitterService.getCookies();
         return cookies || [];
       })
-      .post("/api/twitter/clear-cookies", async () => {
-        if (!twitterService) {
-          throw new Error("Twitter service not available");
-        }
-        try {
-          await twitterService.clearCookies();
-          return {
-            success: true,
-            message: "Twitter cookies cleared and reinitialized successfully",
-          };
-        } catch (error) {
-          throw new Error(
-            `Failed to clear Twitter cookies: ${error instanceof Error ? error.message : String(error)}`,
-          );
-        }
-      })
       .get(
         "/api/config/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {

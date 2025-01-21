@@ -224,25 +224,6 @@ export class TwitterService {
     return this.lastCheckedTweetId;
   }
 
-  async clearCookies() {
-    try {
-      logger.info("Clearing Twitter cookies...");
-      // Clear cookies from the client
-      await this.client.clearCookies();
-      // Clear cookies from the database
-      db.deleteTwitterCookies(this.config.username);
-      // Perform a fresh login
-      const success = await this.performLogin();
-      if (!success) {
-        throw new Error("Failed to re-authenticate after clearing cookies");
-      }
-      return true;
-    } catch (error) {
-      logger.error("Failed to clear Twitter cookies:", error);
-      throw error;
-    }
-  }
-
   async stop() {
     await this.client.logout();
   }
