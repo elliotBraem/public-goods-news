@@ -156,13 +156,21 @@ export class TwitterService {
     }
   }
 
+  async likeTweet(tweetId: string): Promise<void> {
+    try {
+      await this.client.likeTweet(tweetId);
+    } catch (error) {
+      logger.error("Error liking tweet:", error);
+    }
+  }
+
   async fetchAllNewMentions(): Promise<Tweet[]> {
     const BATCH_SIZE = 200;
     let allNewTweets: Tweet[] = [];
-    
+
     // Get the last tweet ID we processed
     const lastCheckedId = this.lastCheckedTweetId ? BigInt(this.lastCheckedTweetId) : null;
-    
+
     try {
       const batch = (
         await this.client.fetchSearchTweets(

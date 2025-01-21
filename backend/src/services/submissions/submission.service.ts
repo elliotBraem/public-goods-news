@@ -47,7 +47,7 @@ export class SubmissionService {
 
     logger.info('Fetching admin IDs for the first time...');
     const adminMap: Record<string, string> = {};
-    
+
     for (const handle of adminHandles) {
       try {
         const userId = await this.twitterService.getUserIdByScreenName(handle);
@@ -79,7 +79,7 @@ export class SubmissionService {
     try {
       // Initialize feeds
       this.initializeFeeds();
-      
+
       // Initialize admin IDs with caching
       await this.initializeAdminIds();
     } catch (error) {
@@ -165,7 +165,7 @@ export class SubmissionService {
       if (feedIds.length === 0) {
         await this.twitterService.replyToTweet(
           tweet.id,
-          "Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)",
+          `Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)`,
         );
         return;
       }
@@ -324,12 +324,25 @@ export class SubmissionService {
         }
       }
 
+      await this.handleAcknowledgement(tweet);
+
       logger.info(
         `Successfully processed submission for tweet ${originalTweet.id}`,
       );
     } catch (error) {
       logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
     }
+  }
+
+  private async handleAcknowledgement(tweet: Tweet): Promise<void> {
+    // Like the tweet
+    await this.twitterService.likeTweet(tweet.id);
+
+    // // Reply to curator's tweet confirming submission
+    // await this.twitterService.replyToTweet(
+    //   tweet.id,
+    //   "Successfully submitted!"
+    // );
   }
 
   private async handleModeration(tweet: Tweet): Promise<void> {
