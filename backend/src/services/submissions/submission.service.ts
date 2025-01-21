@@ -245,14 +245,14 @@ export class SubmissionService {
       // Process each feed
       for (const feedId of feedIds) {
         const lowercaseFeedId = feedId.toLowerCase();
-        const feed = this.config.feeds.find((f) => f.id === lowercaseFeedId);
+        const feed = this.config.feeds.find((f) => f.id.toLowerCase() === lowercaseFeedId);
         if (!feed) continue;
 
         const isModerator = feed.moderation.approvers.twitter.includes(
           curatorTweet.username!,
         );
         const existingFeed = existingFeeds.find(
-          (f) => f.feedId === lowercaseFeedId,
+          (f) => f.feedId.toLowerCase() === lowercaseFeedId,
         );
 
         if (existingFeed) {
@@ -264,7 +264,7 @@ export class SubmissionService {
               action: "approve",
               timestamp: curatorTweet.timeParsed || new Date(),
               tweetId: originalTweet.id!,
-              feedId: lowercaseFeedId,
+              feedId: feed.id,
               note:
                 this.extractDescription(originalTweet.username!, tweet) || null,
             };
@@ -273,26 +273,29 @@ export class SubmissionService {
             // Then update feed status
             db.updateSubmissionFeedStatus(
               originalTweet.id!,
-              lowercaseFeedId,
+              feed.id,
               SubmissionStatus.APPROVED,
               tweet.id!,
             );
 
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
-                lowercaseFeedId,
+                feed.id,
                 originalTweet.id!,
                 originalTweet.text || "",
               );
             }
           }
         } else {
-          // Add new feed with pending status initially
-          db.saveSubmissionToFeed(
-            originalTweet.id!,
-            lowercaseFeedId,
-            this.config.global.defaultStatus,
-          );
+          // Add new feed with pending status initially, using the correct case from config
+          const configFeed = this.config.feeds.find(f => f.id.toLowerCase() === lowercaseFeedId);
+          if (configFeed) {
+            db.saveSubmissionToFeed(
+              originalTweet.id!,
+              configFeed.id,
+              this.config.global.defaultStatus,
+            );
+          }
 
           // If moderator is submitting, process as an approval
           if (isModerator) {
@@ -302,7 +305,7 @@ export class SubmissionService {
               action: "approve",
               timestamp: curatorTweet.timeParsed || new Date(),
               tweetId: originalTweet.id!,
-              feedId: lowercaseFeedId,
+              feedId: feed.id,
               note:
                 this.extractDescription(originalTweet.username!, tweet) || null,
             };
@@ -311,14 +314,14 @@ export class SubmissionService {
             // Then update feed status
             db.updateSubmissionFeedStatus(
               originalTweet.id!,
-              lowercaseFeedId,
+              feed.id,
               SubmissionStatus.APPROVED,
               tweet.id!,
             );
 
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
-                lowercaseFeedId,
+                feed.id,
                 originalTweet.id!,
                 originalTweet.text || "",
               );
