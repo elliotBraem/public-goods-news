@@ -30,8 +30,10 @@ export class TwitterService {
       // Convert cached cookies to the format expected by the client
       const cookieStrings = cachedCookies.map(
         (cookie) =>
-          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
-          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+            cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+            cookie.sameSite || "Lax"
           }`,
       );
       await this.client.setCookies(cookieStrings);
@@ -83,8 +85,10 @@ export class TwitterService {
       // Convert cookies to the format expected by the client
       const cookieStrings = cookies.map(
         (cookie) =>
-          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
-          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+            cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+            cookie.sameSite || "Lax"
           }`,
       );
       await this.client.setCookies(cookieStrings);
@@ -169,19 +173,21 @@ export class TwitterService {
     let allNewTweets: Tweet[] = [];
 
     // Get the last tweet ID we processed
-    const lastCheckedId = this.lastCheckedTweetId ? BigInt(this.lastCheckedTweetId) : null;
+    const lastCheckedId = this.lastCheckedTweetId
+      ? BigInt(this.lastCheckedTweetId)
+      : null;
 
     try {
       const batch = (
         await this.client.fetchSearchTweets(
           `@${this.twitterUsername}`,
           BATCH_SIZE,
-          SearchMode.Latest
+          SearchMode.Latest,
         )
       ).tweets;
 
       if (batch.length === 0) {
-        logger.info('No tweets found');
+        logger.info("No tweets found");
         return [];
       }
 

@@ -20,15 +20,17 @@ export class MockScraper extends Scraper {
   async login(): Promise<void> {
     this._isLoggedIn = true;
     // Set default cookies on login
-    this.cookies = [{
-      key: "mock_cookie",
-      value: "fresh_login",
-      domain: ".twitter.com",
-      path: "/",
-      secure: true,
-      httpOnly: true,
-      sameSite: "Lax"
-    }];
+    this.cookies = [
+      {
+        key: "mock_cookie",
+        value: "fresh_login",
+        domain: ".twitter.com",
+        path: "/",
+        secure: true,
+        httpOnly: true,
+        sameSite: "Lax",
+      },
+    ];
   }
 
   async logout(): Promise<void> {
@@ -42,9 +44,9 @@ export class MockScraper extends Scraper {
 
   async setCookies(cookieStrings: string[]): Promise<void> {
     // Parse cookie strings into cookie objects
-    this.cookies = cookieStrings.map(cookie => {
-      const [nameValue] = cookie.split(';');
-      const [name, value] = nameValue.split('=');
+    this.cookies = cookieStrings.map((cookie) => {
+      const [nameValue] = cookie.split(";");
+      const [name, value] = nameValue.split("=");
       return {
         key: name.trim(),
         value: value.trim(),
@@ -52,7 +54,7 @@ export class MockScraper extends Scraper {
         path: "/",
         secure: true,
         httpOnly: true,
-        sameSite: "Lax"
+        sameSite: "Lax",
       };
     });
     this._isLoggedIn = true;
@@ -73,7 +75,7 @@ export class MockScraper extends Scraper {
     cursor?: string,
   ): Promise<{ tweets: Tweet[] }> {
     // Get all valid tweets (those with IDs)
-    const validTweets = this.mockTweets.filter(t => t.id);
+    const validTweets = this.mockTweets.filter((t) => t.id);
 
     // Sort by ID descending (newest first) to match Twitter search behavior
     const sortedTweets = validTweets.sort((a, b) => {

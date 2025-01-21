@@ -95,24 +95,24 @@ const ModerationActions = ({
 }) => {
   const botId = useBotId();
   return (
-  <div className="flex flex-col gap-2 mt-4">
-    <a
-      href={getTwitterIntentUrl({ action: "approve", submission, botId })}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
-    >
-      approve
-    </a>
-    <a
-      href={getTwitterIntentUrl({ action: "reject", submission, botId })}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
-    >
-      reject
-    </a>
-  </div>
+    <div className="flex flex-col gap-2 mt-4">
+      <a
+        href={getTwitterIntentUrl({ action: "approve", submission, botId })}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+      >
+        approve
+      </a>
+      <a
+        href={getTwitterIntentUrl({ action: "reject", submission, botId })}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
+      >
+        reject
+      </a>
+    </div>
   );
 };
 

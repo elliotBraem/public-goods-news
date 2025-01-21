@@ -18,7 +18,7 @@ describe("SubmissionService", () => {
     curator1_reply: "1881064853743579530",
     curator2_reply: "1881064853743579531",
     mod1_reply: "1881064853743579532",
-    mod2_reply: "1881064853743579533"
+    mod2_reply: "1881064853743579533",
   };
 
   const botAccount = { id: "test_bot_id", username: "test_bot" }; // bot
@@ -33,10 +33,8 @@ describe("SubmissionService", () => {
       maxDailySubmissionsPerUser: 5,
       defaultStatus: SubmissionStatus.PENDING,
       blacklist: {
-        twitter: [
-          "blocked_id"
-        ]
-      }
+        twitter: ["blocked_id"],
+      },
     },
     feeds: [
       {
