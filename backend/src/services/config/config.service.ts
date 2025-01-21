@@ -22,10 +22,8 @@ export class ConfigService {
 
   public async loadConfig(): Promise<AppConfig> {
     try {
-      // This could be replaced with an API call in the future
-      const configFile = await fs.readFile(this.configPath, "utf-8");
-      const parsedConfig = JSON.parse(configFile) as AppConfig;
-      const hydratedConfig = hydrateConfigValues(parsedConfig);
+      const rawConfig = await this.getRawConfig();
+      const hydratedConfig = hydrateConfigValues(rawConfig);
       this.config = hydratedConfig;
       return hydratedConfig;
     } catch (error: unknown) {
@@ -43,6 +41,16 @@ export class ConfigService {
 
   public setConfigPath(path: string): void {
     this.configPath = path;
+  }
+
+  public async getRawConfig(): Promise<AppConfig> {
+    try {
+      const configFile = await fs.readFile(this.configPath, "utf-8");
+      return JSON.parse(configFile) as AppConfig;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to load raw config: ${message}`);
+    }
   }
 
   // Switch to a different config (if saving locally, wouldn't work in fly.io container)

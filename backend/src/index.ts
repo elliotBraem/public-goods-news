@@ -149,7 +149,7 @@ export async function main() {
         "/api/submissions/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
           const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id === feedId);
+          const feed = config.feeds.find((f) => f.id.toLowerCase() === feedId.toLowerCase());
           if (!feed) {
             throw new Error(`Feed not found: ${feedId}`);
           }
@@ -160,7 +160,7 @@ export async function main() {
         "/api/feed/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
           const config = configService.getConfig();
-          const feed = config.feeds.find((f) => f.id === feedId);
+          const feed = config.feeds.find((f) => f.id.toLowerCase() === feedId.toLowerCase());
           if (!feed) {
             throw new Error(`Feed not found: ${feedId}`);
           }
@@ -168,13 +168,13 @@ export async function main() {
           return db.getSubmissionsByFeed(feedId);
         },
       )
-      .get("/api/config", () => {
-        const config = configService.getConfig();
-        return config;
+      .get("/api/config", async () => {
+        const rawConfig = await configService.getRawConfig();
+        return rawConfig;
       })
-      .get("/api/feeds", () => {
-        const config = configService.getConfig();
-        return config.feeds;
+      .get("/api/feeds", async () => {
+        const rawConfig = await configService.getRawConfig();
+        return rawConfig.feeds;
       })
       // .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
       //   if (!twitterService) {
