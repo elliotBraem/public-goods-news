@@ -19,7 +19,7 @@ export class SubmissionService {
     private readonly twitterService: TwitterService,
     private readonly DistributionService: DistributionService,
     private readonly config: AppConfig,
-  ) { }
+  ) {}
 
   private async initializeAdminIds(): Promise<void> {
     // Try to load admin IDs from cache first
@@ -159,8 +159,11 @@ export class SubmissionService {
         return;
       }
 
-      if (curatorTweet.username === this.config.global.botId || // if self
-        this.config.global.blacklist["twitter"].includes(curatorTweet.username)) // or blacklisted
+      if (
+        curatorTweet.username === this.config.global.botId || // if self
+        this.config.global.blacklist["twitter"].includes(curatorTweet.username)
+      )
+        // or blacklisted
         return;
 
       // Extract feed IDs from hashtags
@@ -176,7 +179,7 @@ export class SubmissionService {
         //   tweet.id,
         //   `Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)`,
         // );
-        logger.error("Provided invalid feeds: ", feedIds)
+        logger.error("Provided invalid feeds: ", feedIds);
         return;
       }
 
@@ -191,8 +194,8 @@ export class SubmissionService {
       const existingSubmission = db.getSubmission(originalTweet.id!);
       const existingFeeds = existingSubmission
         ? (db.getFeedsBySubmission(
-          existingSubmission.tweetId,
-        ) as SubmissionFeed[])
+            existingSubmission.tweetId,
+          ) as SubmissionFeed[])
         : [];
 
       // Create new submission if it doesn't exist
@@ -206,9 +209,7 @@ export class SubmissionService {
           //   tweet.id,
           //   "You've reached your daily submission limit. Please try again tomorrow.",
           // );
-          logger.info(
-            `User ${userId} has reached limit.`,
-          );
+          logger.info(`User ${userId} has reached limit.`);
           return;
         }
 

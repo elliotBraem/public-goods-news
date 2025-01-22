@@ -134,7 +134,7 @@
         }
       }
     },
-        {
+    {
       "id": "nouns",
       "name": "NounsDAO",
       "description": "All noun-ish updates",
@@ -152,7 +152,7 @@
             "willyogo",
             "carlosjmelgar",
             "plugrel",
-            "JackWyldes"     
+            "JackWyldes"
           ]
         }
       },
