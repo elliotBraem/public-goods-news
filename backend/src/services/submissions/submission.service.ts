@@ -147,7 +147,7 @@ export class SubmissionService {
 
     const inReplyToId = tweet.inReplyToStatusId; // this is specific to twitter (TODO: id of { platform: twitter })
     if (!inReplyToId) {
-      logger.error(`Submission ${tweet.id} is not a reply to another tweet`);
+      logger.error(`${tweet.id}: Submission is not a reply to another tweet`);
       return;
     }
 
@@ -155,16 +155,18 @@ export class SubmissionService {
       // Fetch full curator tweet data to ensure we have the username
       const curatorTweet = await this.twitterService.getTweet(tweet.id!);
       if (!curatorTweet || !curatorTweet.username) {
-        logger.error(`Could not fetch curator tweet details ${tweet.id}`);
+        logger.error(`${tweet.id}: Could not fetch curator tweet details`);
         return;
       }
 
       if (
         curatorTweet.username === this.config.global.botId || // if self
         this.config.global.blacklist["twitter"].includes(curatorTweet.username)
-      )
+      ) {
+        logger.error(`${tweet.id}: Submitted by bot or blacklisted user`);
         // or blacklisted
         return;
+      }
 
       // Extract feed IDs from hashtags
       const feedIds = (tweet.hashtags || []).filter((tag) =>
@@ -179,14 +181,16 @@ export class SubmissionService {
         //   tweet.id,
         //   `Please specify at least one valid feed using hashtags (e.g. #grants, #ethereum, #near)`,
         // );
-        logger.error("Provided invalid feeds: ", feedIds);
+        logger.error(`${tweet.id}: Provided invalid feeds, ${feedIds}`);
         return;
       }
 
       // Fetch original tweet
       const originalTweet = await this.twitterService.getTweet(inReplyToId);
       if (!originalTweet) {
-        logger.error(`Could not fetch original tweet ${inReplyToId}`);
+        logger.error(
+          `${tweet.id}: Could not fetch original tweet ${inReplyToId}`,
+        );
         return;
       }
 
@@ -209,7 +213,7 @@ export class SubmissionService {
           //   tweet.id,
           //   "You've reached your daily submission limit. Please try again tomorrow.",
           // );
-          logger.info(`User ${userId} has reached limit.`);
+          logger.error(`${tweet.id}: User ${userId} has reached limit.`);
           return;
         }
 
@@ -249,7 +253,12 @@ export class SubmissionService {
         const feed = this.config.feeds.find(
           (f) => f.id.toLowerCase() === lowercaseFeedId,
         );
-        if (!feed) continue;
+        if (!feed) {
+          logger.error(
+            `${tweet.id}: Unable to find matching feed for ${feedId}`,
+          );
+          continue;
+        }
 
         const isModerator = feed.moderation.approvers.twitter.includes(
           curatorTweet.username!,
@@ -290,14 +299,10 @@ export class SubmissionService {
             }
           }
         } else {
-          // Add new feed with pending status initially, using the correct case from config
-          const configFeed = this.config.feeds.find(
-            (f) => f.id.toLowerCase() === lowercaseFeedId,
-          );
-          if (configFeed) {
+          if (feed) {
             db.saveSubmissionToFeed(
               originalTweet.id!,
-              configFeed.id,
+              feed.id,
               this.config.global.defaultStatus,
             );
           }
@@ -338,10 +343,10 @@ export class SubmissionService {
       await this.handleAcknowledgement(tweet);
 
       logger.info(
-        `Successfully processed submission for tweet ${originalTweet.id}`,
+        `${tweet.id}: Successfully processed submission for tweet ${originalTweet.id}`,
       );
     } catch (error) {
-      logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
+      logger.error(`${tweet.id}: Error while handling submission:`, error);
     }
   }
 
@@ -359,12 +364,12 @@ export class SubmissionService {
   private async handleModeration(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) {
-      logger.info(`User ${userId} is not admin.`);
+      logger.error(`${tweet.id}: User ${userId} is not admin.`);
       return;
     }
 
     if (!this.isAdmin(userId)) {
-      logger.info(`User ${userId} is not admin.`);
+      logger.error(`${tweet.id}: User ${userId} is not admin.`);
       return;
     }
 
@@ -373,14 +378,22 @@ export class SubmissionService {
     if (!inReplyToId) return;
 
     const submission = db.getSubmission(inReplyToId);
-    if (!submission) return;
+    if (!submission) {
+      logger.error(`${tweet.id}: Received moderation for unsaved submission`);
+      return;
+    }
 
     const action = this.getModerationAction(tweet);
-    if (!action) return;
+    if (!action) {
+      logger.error(`${tweet.id}: No valid action determined`);
+      return;
+    }
 
     const adminUsername = this.adminIdCache.get(userId);
     if (!adminUsername) {
-      logger.error(`Could not find username for admin ID ${userId}`);
+      logger.error(
+        `${tweet.id}: Could not find username for admin ID ${userId}`,
+      );
       return;
     }
 
@@ -397,7 +410,7 @@ export class SubmissionService {
 
     if (pendingFeeds.length === 0) {
       logger.info(
-        "No pending feeds found for submission that this moderator can moderate",
+        `${tweet.id}: No pending feeds found for submission that this moderator can moderate`,
       );
       return;
     }
@@ -455,7 +468,10 @@ export class SubmissionService {
         }
       }
     } catch (error) {
-      logger.error("Failed to process approved submission:", error);
+      logger.error(
+        `${submission.tweetId}: Failed to process approved submission:`,
+        error,
+      );
     }
   }
 
@@ -478,7 +494,10 @@ export class SubmissionService {
         }
       }
     } catch (error) {
-      logger.error("Failed to process rejected submission:", error);
+      logger.error(
+        `${submission.tweetId}: Failed to process rejected submission:`,
+        error,
+      );
     }
   }
 

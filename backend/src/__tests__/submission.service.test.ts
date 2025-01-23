@@ -69,6 +69,38 @@ describe("SubmissionService", () => {
           },
         },
       },
+      {
+        id: "DeSci",
+        name: "DeSci Feed",
+        description: "DeSci feed for testing",
+        moderation: {
+          approvers: {
+            twitter: [curator1.username],
+          },
+        },
+        outputs: {
+          stream: {
+            enabled: true,
+            distribute: [],
+          },
+        },
+      },
+      {
+        id: "DAO",
+        name: "DAO Feed",
+        description: "DAO feed for testing",
+        moderation: {
+          approvers: {
+            twitter: [curator1.username],
+          },
+        },
+        outputs: {
+          stream: {
+            enabled: true,
+            distribute: [],
+          },
+        },
+      },
     ],
     plugins: {} as PluginsConfig,
   };
@@ -718,6 +750,76 @@ describe("SubmissionService", () => {
         submissionId: TWEET_IDS.original1_tweet,
         feedId: "test2",
       });
+    });
+
+    it("should handle hashtags case-insensitively", async () => {
+      // Original tweet being submitted
+      const originalTweet: Tweet = {
+        id: TWEET_IDS.original1_tweet,
+        text: "Original content",
+        username: user1.username,
+        userId: user1.id,
+        timeParsed: new Date(),
+        hashtags: [],
+        mentions: [],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      // Curator submitting with differently cased hashtags
+      const curatorTweet: Tweet = {
+        id: TWEET_IDS.curator1_reply,
+        text: "@test_bot !submit #DeSci #DAO",
+        username: curator1.username,
+        userId: curator1.id,
+        inReplyToStatusId: TWEET_IDS.original1_tweet,
+        timeParsed: new Date(),
+        hashtags: ["DeSci", "DAO"],
+        mentions: [botAccount],
+        photos: [],
+        urls: [],
+        videos: [],
+        thread: [],
+      };
+
+      mockTwitterService.addMockTweet(originalTweet);
+      mockTwitterService.addMockTweet(curatorTweet);
+
+      // Process submission
+      await submissionService.startMentionsCheck();
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Verify submission was saved
+      expect(drizzleMock.saveSubmission).toHaveBeenCalledTimes(1);
+      const savedSubmission = drizzleMock.saveSubmission.mock.calls[0][0];
+      expect(savedSubmission).toMatchObject({
+        tweetId: TWEET_IDS.original1_tweet,
+        userId: user1.id,
+        username: user1.username,
+        curatorId: curator1.id,
+        curatorUsername: curator1.username,
+        content: "Original content",
+        createdAt: expect.any(String),
+        submittedAt: expect.any(String),
+        curatorNotes: expect.any(String),
+      });
+
+      // Verify feed submissions were saved with case-insensitive matching
+      expect(drizzleMock.saveSubmissionToFeed).toHaveBeenCalledTimes(2);
+
+      // Both feeds should be saved as pending initially
+      expect(drizzleMock.saveSubmissionToFeed.mock.calls[0]).toEqual([
+        TWEET_IDS.original1_tweet,
+        "DeSci", // Should match feed ID
+        SubmissionStatus.PENDING,
+      ]);
+      expect(drizzleMock.saveSubmissionToFeed.mock.calls[1]).toEqual([
+        TWEET_IDS.original1_tweet,
+        "DAO", // Should match feed ID
+        SubmissionStatus.PENDING,
+      ]);
     });
 
     it("should ignore submissions from blacklisted users", async () => {

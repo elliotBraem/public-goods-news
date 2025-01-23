@@ -258,7 +258,7 @@
       "description": "Decentralized Science updates",
       "moderation": {
         "approvers": {
-          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci"]
+          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci", "DesciWorld"]
         }
       },
       "outputs": {
@@ -488,6 +488,21 @@
       "moderation": {
         "approvers": {
           "twitter": ["shawmakesmagic", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "bitcoin",
+      "name": "Bitcoin News",
+      "description": "News about Bitcoin",
+      "moderation": {
+        "approvers": {
+          "twitter": ["Blaze0x1"]
         }
       },
       "outputs": {
