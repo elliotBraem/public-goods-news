@@ -466,6 +466,21 @@
         }
       }
     },
+        {
+      "id": "usa",
+      "name": "American Crypto",
+      "description": "$TRUMP ecosystem and American first crypto",
+      "moderation": {
+        "approvers": {
+          "twitter": ["plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
     {
       "id": "eliza",
       "name": "Eliza OS",
