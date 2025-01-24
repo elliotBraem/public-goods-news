@@ -499,10 +499,10 @@
     {
       "id": "bitcoin",
       "name": "Bitcoin News",
-      "description": "News about Bitcoin",
+      "description": "News about Bitcoin, Bitcoin devs, scaling, integrations, adoptions.",
       "moderation": {
         "approvers": {
-          "twitter": ["Blaze0x1"]
+          "twitter": ["Blaze0x1", "plugrel", "aescobarindo"]
         }
       },
       "outputs": {
