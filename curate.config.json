@@ -370,6 +370,31 @@
       }
     },
     {
+      "id": "chainabstraction",
+      "name": "Chain Abstraction",
+      "description": "Chain Abstraction ecosystem updates.",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "GUS_DAO",
+            "quadron3stat3",
+            "jarednotjerry",
+            "elliot_braem",
+            "Cameron_Dennis_",
+            "cuongdc_real",
+            "NEARQuant",
+            "_fiatisabubble",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
       "id": "morph",
       "name": "Morph Ecosystem",
       "description": "Morph L2 Ecosystem news",
