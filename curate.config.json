@@ -521,6 +521,21 @@
         }
       }
     },
+        {
+      "id": "stellar",
+      "name": "Stellar",
+      "description": "Updates around Stellar ecosystem, Soroban, & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
     {
       "id": "bitcoin",
       "name": "Bitcoin News",
