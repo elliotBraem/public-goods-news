@@ -436,6 +436,8 @@ export class SubmissionService {
     } else {
       await this.processRejection(tweet, submission, pendingFeeds);
     }
+
+    await this.handleAcknowledgement(tweet);
   }
 
   private async processApproval(

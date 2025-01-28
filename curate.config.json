@@ -521,7 +521,7 @@
         }
       }
     },
-        {
+    {
       "id": "stellar",
       "name": "Stellar",
       "description": "Updates around Stellar ecosystem, Soroban, & more",
