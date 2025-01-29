@@ -1,465 +1,152 @@
 import { Scraper, SearchMode, Tweet } from "agent-twitter-client";
-import { ADMIN_ACCOUNTS } from "config/admins";
-import { broadcastUpdate } from "index";
-import {
-  Moderation,
-  TwitterConfig,
-  TwitterSubmission,
-} from "../../types/twitter";
-import { ExportManager } from "../exports/manager";
-import {
-  TwitterCookie,
-  cacheCookies,
-  ensureCacheDirectory,
-  getCachedCookies,
-  getLastCheckedTweetId,
-  saveLastCheckedTweetId,
-} from "../../utils/cache";
+import { TwitterCookie } from "types/twitter";
 import { logger } from "../../utils/logger";
 import { db } from "../db";
 
 export class TwitterService {
   private client: Scraper;
-  private readonly DAILY_SUBMISSION_LIMIT = 10;
-  private twitterUsername: string;
-  private config: TwitterConfig;
-  private isInitialized = false;
-  private checkInterval: NodeJS.Timer | null = null;
   private lastCheckedTweetId: string | null = null;
-  private configuredTweetId: string | null = null;
-  private adminIdCache: Map<string, string> = new Map();
+  private twitterUsername: string;
 
   constructor(
-    config: TwitterConfig,
-    private readonly exportManager?: ExportManager
+    private readonly config: {
+      username: string;
+      password: string;
+      email: string;
+      twoFactorSecret?: string;
+    },
   ) {
     this.client = new Scraper();
     this.twitterUsername = config.username;
-    this.config = config;
   }
 
-  private async setCookiesFromArray(cookiesArray: TwitterCookie[]) {
-    const cookieStrings = cookiesArray.map(
-      (cookie) =>
-        `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-          cookie.secure ? "Secure" : ""
-        }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-          cookie.sameSite || "Lax"
-        }`,
-    );
-    await this.client.setCookies(cookieStrings);
-  }
-
-  private async initializeAdminIds() {
-    for (const handle of ADMIN_ACCOUNTS) {
-      try {
-        const userId = await this.client.getUserIdByScreenName(handle);
-        this.adminIdCache.set(userId, handle);
-        logger.info(`Cached admin ID for @${handle}: ${userId}`);
-      } catch (error) {
-        logger.error(`Failed to fetch ID for admin handle @${handle}:`, error);
+  private async loadCachedCookies(): Promise<boolean> {
+    try {
+      const cachedCookies = this.getCookies();
+      if (!cachedCookies) {
+        return false;
       }
+
+      // Convert cached cookies to the format expected by the client
+      const cookieStrings = cachedCookies.map(
+        (cookie) =>
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+            cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+            cookie.sameSite || "Lax"
+          }`,
+      );
+      await this.client.setCookies(cookieStrings);
+
+      // Verify the cookies are still valid
+      return await this.client.isLoggedIn();
+    } catch (error) {
+      logger.error("Error loading cached cookies:", error);
+      return false;
     }
   }
 
-  private isAdmin(userId: string): boolean {
-    return this.adminIdCache.has(userId);
+  private async performLogin(): Promise<boolean> {
+    logger.info("Performing fresh Twitter login...");
+    try {
+      await this.client.login(
+        this.config.username,
+        this.config.password,
+        this.config.email,
+        this.config.twoFactorSecret,
+      );
+
+      if (await this.client.isLoggedIn()) {
+        // Cache the new cookies
+        const cookies = await this.client.getCookies();
+        const formattedCookies = cookies.map((cookie) => ({
+          name: cookie.key,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+          secure: cookie.secure,
+          httpOnly: cookie.httpOnly,
+          sameSite: cookie.sameSite as "Strict" | "Lax" | "None" | undefined,
+        }));
+        db.setTwitterCookies(this.config.username, formattedCookies);
+        logger.info("Successfully logged in to Twitter");
+        return true;
+      }
+      return false;
+    } catch (error) {
+      logger.error("Login attempt failed:", error);
+      return false;
+    }
+  }
+
+  async setCookies(cookies: TwitterCookie[]) {
+    try {
+      logger.info("Setting Twitter cookies...");
+      // Convert cookies to the format expected by the client
+      const cookieStrings = cookies.map(
+        (cookie) =>
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
+            cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
+            cookie.sameSite || "Lax"
+          }`,
+      );
+      await this.client.setCookies(cookieStrings);
+      // Store cookies in database
+      db.setTwitterCookies(this.config.username, cookies);
+      // Verify the cookies work
+      if (!(await this.client.isLoggedIn())) {
+        throw new Error("Failed to verify cookies after setting");
+      }
+      return true;
+    } catch (error) {
+      logger.error("Failed to set Twitter cookies:", error);
+      throw error;
+    }
+  }
+
+  getCookies() {
+    return db.getTwitterCookies(this.twitterUsername);
   }
 
   async initialize() {
     try {
-      // Ensure cache directory exists
-      await ensureCacheDirectory();
-
-      // Check for cached cookies
-      const cachedCookies = await getCachedCookies(this.twitterUsername);
-      if (cachedCookies) {
-        await this.setCookiesFromArray(cachedCookies);
+      // First try to use cached cookies
+      if (await this.loadCachedCookies()) {
+        logger.info("Successfully initialized using cached cookies");
+        this.lastCheckedTweetId = db.getTwitterCacheValue("last_tweet_id");
+        return;
       }
 
-      // Load last checked tweet ID from cache if no configured ID exists
-      if (!this.configuredTweetId) {
-        this.lastCheckedTweetId = await getLastCheckedTweetId();
-        broadcastUpdate({ type: "lastTweetId", data: this.lastCheckedTweetId });
-      } else {
-        this.lastCheckedTweetId = this.configuredTweetId;
-      }
-
-      // Try to login with retries
-      logger.info("Attempting Twitter login...");
-      while (true) {
-        try {
-          await this.client.login(
-            this.config.username,
-            this.config.password,
-            this.config.email,
-          );
-
-          if (await this.client.isLoggedIn()) {
-            // Cache the new cookies
-            const cookies = await this.client.getCookies();
-            await cacheCookies(this.config.username, cookies);
-            break;
-          }
-        } catch (error) {
-          logger.error("Failed to login to Twitter, retrying...", error);
+      // If cached cookies failed or don't exist, try fresh login with retries
+      for (let attempt = 0; attempt < 3; attempt++) {
+        if (await this.performLogin()) {
+          this.lastCheckedTweetId = db.getTwitterCacheValue("last_tweet_id");
+          return;
         }
 
-        // Wait before retrying
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (attempt < 2) {
+          logger.info(`Retrying login (attempt ${attempt + 1}/3)...`);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
       }
 
-      // Initialize admin IDs after successful login (convert from handle to account id)
-      await this.initializeAdminIds();
-
-      this.isInitialized = true;
-      logger.info("Successfully logged in to Twitter");
+      throw new Error("Failed to initialize Twitter client after 3 attempts");
     } catch (error) {
       logger.error("Failed to initialize Twitter client:", error);
       throw error;
     }
   }
 
-  private async fetchAllNewMentions(): Promise<Tweet[]> {
-    const BATCH_SIZE = 20;
-    let allNewTweets: Tweet[] = [];
-    let foundOldTweet = false;
-    let maxAttempts = 10; // Safety limit to prevent infinite loops
-    let attempts = 0;
-
-    while (!foundOldTweet && attempts < maxAttempts) {
-      try {
-        const batch = (
-          await this.client.fetchSearchTweets(
-            `@${this.twitterUsername}`,
-            BATCH_SIZE,
-            SearchMode.Latest,
-            allNewTweets.length > 0
-              ? allNewTweets[allNewTweets.length - 1].id
-              : undefined,
-          )
-        ).tweets;
-
-        if (batch.length === 0) break; // No more tweets to fetch
-
-        // Check if any tweet in this batch is older than or equal to our last checked ID
-        for (const tweet of batch) {
-          if (!tweet.id) continue;
-
-          const referenceId = this.configuredTweetId || this.lastCheckedTweetId;
-          if (!referenceId || BigInt(tweet.id) > BigInt(referenceId)) {
-            allNewTweets.push(tweet);
-          } else {
-            foundOldTweet = true;
-            break;
-          }
-        }
-
-        if (batch.length < BATCH_SIZE) break; // Last batch was partial, no more to fetch
-        attempts++;
-      } catch (error) {
-        logger.error("Error fetching mentions batch:", error);
-        break;
-      }
-    }
-
-    // Sort all fetched tweets by ID (chronologically)
-    return allNewTweets.sort((a, b) => {
-      const aId = BigInt(a.id || "0");
-      const bId = BigInt(b.id || "0");
-      return aId > bId ? 1 : aId < bId ? -1 : 0;
-    });
+  async getUserIdByScreenName(screenName: string): Promise<string> {
+    return await this.client.getUserIdByScreenName(screenName);
   }
 
-  async startMentionsCheck() {
-    logger.info("Listening for mentions...");
-
-    // Check mentions every minute
-    this.checkInterval = setInterval(async () => {
-      if (!this.isInitialized) return;
-
-      try {
-        logger.info("Checking mentions...");
-
-        const newTweets = await this.fetchAllNewMentions();
-
-        if (newTweets.length === 0) {
-          logger.info("No new mentions");
-        } else {
-          logger.info(`Found ${newTweets.length} new mentions`);
-
-          // Process new tweets
-          for (const tweet of newTweets) {
-            if (!tweet.id) continue;
-
-            try {
-              if (this.isSubmission(tweet)) {
-                logger.info(
-                  `Received new submission: ${this.getTweetLink(tweet.id, tweet.username)}`,
-                );
-                await this.handleSubmission(tweet);
-              } else if (this.isModeration(tweet)) {
-                logger.info(
-                  `Received new moderation: ${this.getTweetLink(tweet.id, tweet.username)}`,
-                );
-                await this.handleModeration(tweet);
-              }
-            } catch (error) {
-              logger.error("Error processing tweet:", error);
-            }
-          }
-
-          // Update the last checked tweet ID to the most recent one
-          const latestTweetId = newTweets[newTweets.length - 1].id;
-          if (latestTweetId) {
-            await this.setLastCheckedTweetId(latestTweetId);
-          }
-        }
-      } catch (error) {
-        logger.error("Error checking mentions:", error);
-      }
-    }, 60000); // Check every minute
+  async getTweet(tweetId: string): Promise<Tweet | null> {
+    return await this.client.getTweet(tweetId);
   }
 
-  async stop() {
-    if (this.checkInterval) {
-      clearInterval(this.checkInterval);
-      this.checkInterval = null;
-    }
-    await this.client.logout();
-    this.isInitialized = false;
-  }
-
-  private async handleSubmission(tweet: Tweet): Promise<void> {
-    const userId = tweet.userId;
-    if (!userId || !tweet.id) return;
-
-    // Get the tweet being replied to
-    const inReplyToId = tweet.inReplyToStatusId;
-    if (!inReplyToId) {
-      logger.error(
-        `Submission tweet ${tweet.id} is not a reply to another tweet`,
-      );
-      return;
-    }
-
-    try {
-      // Fetch the original tweet that's being submitted
-      const originalTweet = await this.client.getTweet(inReplyToId);
-      if (!originalTweet) {
-        logger.error(`Could not fetch original tweet ${inReplyToId}`);
-        return;
-      }
-
-      // Get submission count from database
-      const dailyCount = db.getDailySubmissionCount(userId);
-
-      if (dailyCount >= this.DAILY_SUBMISSION_LIMIT) {
-        await this.replyToTweet(
-          tweet.id,
-          "You've reached your daily submission limit. Please try again tomorrow.",
-        );
-        logger.info(`User ${userId} has reached limit, replied to submission.`);
-        return;
-      }
-
-      // Extract curator handle from submission tweet
-      const submissionMatch = tweet.text?.match(/!submit\s+@(\w+)/i);
-      if (!submissionMatch) {
-        logger.error(`Invalid submission format in tweet ${tweet.id}`);
-        return;
-      }
-
-      // Extract categories from hashtags in submission tweet (excluding command hashtags)
-      const categories = (tweet.hashtags || []).filter(
-        (tag) => !["submit", "approve", "reject"].includes(tag.toLowerCase()),
-      );
-
-      // Extract description: everything after !submit @handle that's not a hashtag
-      const description =
-        tweet.text
-          ?.replace(/!submit\s+@\w+/i, "") // Remove command
-          .replace(/#\w+/g, "") // Remove hashtags
-          .trim() || undefined;
-
-      // Create submission using the original tweet's content and submission metadata
-      const submission: TwitterSubmission = {
-        tweetId: originalTweet.id!, // The tweet being submitted
-        userId: originalTweet.userId!,
-        username: originalTweet.username!,
-        content: originalTweet.text || "",
-        categories: categories,
-        description: description || undefined,
-        status: "pending",
-        moderationHistory: [],
-        createdAt:
-          originalTweet.timeParsed?.toISOString() || new Date().toISOString(),
-        submittedAt: new Date().toISOString()
-      };
-
-      // Save submission to database
-      db.saveSubmission(submission);
-      // Increment submission count in database
-      db.incrementDailySubmissionCount(userId);
-
-      // Send acknowledgment and save its ID
-      const acknowledgmentTweetId = await this.replyToTweet(
-        tweet.id, // Reply to the submission tweet
-        "Successfully submitted to publicgoods.news!",
-      );
-
-      if (acknowledgmentTweetId) {
-        db.updateSubmissionAcknowledgment(
-          originalTweet.id!,
-          acknowledgmentTweetId,
-        );
-        logger.info(
-          `Successfully submitted. Sent reply: ${this.getTweetLink(acknowledgmentTweetId)}`,
-        );
-      } else {
-        logger.error(
-          `Failed to acknowledge submission: ${this.getTweetLink(tweet.id, tweet.username)}`,
-        );
-      }
-    } catch (error) {
-      logger.error(`Error handling submission for tweet ${tweet.id}:`, error);
-    }
-  }
-
-  private async handleModeration(tweet: Tweet): Promise<void> {
-    const userId = tweet.userId;
-    if (!userId || !tweet.id) return;
-
-    // Verify admin status using cached ID
-    if (!this.isAdmin(userId)) {
-      logger.info(`User ${userId} is not admin.`);
-      return; // Silently ignore non-admin moderation attempts
-    }
-
-    // Get the tweet this is in response to (should be our acknowledgment tweet)
-    const inReplyToId = tweet.inReplyToStatusId;
-    if (!inReplyToId) return;
-
-    // Get submission by acknowledgment tweet ID
-    const submission = db.getSubmissionByAcknowledgmentTweetId(inReplyToId);
-    if (!submission) return;
-
-    // Check if submission has already been moderated by any admin
-    if (submission.status !== "pending") {
-      logger.info(
-        `Submission ${submission.tweetId} has already been moderated, ignoring new moderation attempt.`,
-      );
-      return;
-    }
-
-    const action = this.getModerationAction(tweet);
-    if (!action) return;
-
-    // Add moderation to database
-    const adminUsername = this.adminIdCache.get(userId);
-    if (!adminUsername) {
-      logger.error(`Could not find username for admin ID ${userId}`);
-      return;
-    }
-
-    // Extract categories from hashtags in moderation tweet (excluding command hashtags)
-    const categories = (tweet.hashtags || []).filter(
-      (tag) => !["submit", "approve", "reject"].includes(tag.toLowerCase()),
-    );
-
-    // Extract note: everything in the tweet that's not a hashtag
-    const note = tweet.text
-      ?.replace(/#\w+/g, "") // Remove hashtags
-      .trim() || undefined;
-
-    const moderation: Moderation = {
-      adminId: adminUsername,
-      action: action,
-      timestamp: tweet.timeParsed || new Date(),
-      tweetId: submission.tweetId, // Use the original submission's tweetId
-      categories: categories.length > 0 ? categories : undefined,
-      note: note
-    };
-    db.saveModerationAction(moderation);
-
-    // Process the moderation action
-    if (action === "approve") {
-      logger.info(
-        `Received review from Admin ${this.adminIdCache.get(userId)}, processing approval.`,
-      );
-      await this.processApproval(tweet, submission);
-    } else {
-      logger.info(
-        `Received review from Admin ${this.adminIdCache.get(userId)}, processing rejection.`,
-      );
-      await this.processRejection(tweet, submission);
-    }
-  }
-
-  private async processApproval(
-    tweet: Tweet,
-    submission: TwitterSubmission,
-  ): Promise<void> {
-    // TODO: Add NEAR integration here for approved submissions
-    const responseTweetId = await this.replyToTweet(
-      tweet.id!,
-      "Your submission has been approved and will be added to the public goods news feed!",
-    );
-    if (responseTweetId) {
-      db.updateSubmissionStatus(
-        submission.tweetId,
-        "approved",
-        responseTweetId,
-      );
-
-      // Handle exports for approved submission
-      if (this.exportManager) {
-        try {
-          await this.exportManager.handleApprovedSubmission(submission);
-        } catch (error) {
-          logger.error("Failed to handle exports for approved submission:", error);
-        }
-      }
-    }
-  }
-
-  private async processRejection(
-    tweet: Tweet,
-    submission: TwitterSubmission,
-  ): Promise<void> {
-    // TODO: Add NEAR integration here for rejected submissions
-    const responseTweetId = await this.replyToTweet(
-      tweet.id!,
-      "Your submission has been reviewed and was not accepted for the public goods news feed.",
-    );
-    if (responseTweetId) {
-      db.updateSubmissionStatus(
-        submission.tweetId,
-        "rejected",
-        responseTweetId,
-      );
-    }
-  }
-
-  private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
-    const hashtags = tweet.hashtags?.map((tag) => tag.toLowerCase()) || [];
-    if (hashtags.includes("approve")) return "approve";
-    if (hashtags.includes("reject")) return "reject";
-    return null;
-  }
-
-  private isModeration(tweet: Tweet): boolean {
-    return this.getModerationAction(tweet) !== null;
-  }
-
-  private isSubmission(tweet: Tweet): boolean {
-    return tweet.text?.toLowerCase().includes("!submit") || false;
-  }
-
-  private async replyToTweet(
-    tweetId: string,
-    message: string,
-  ): Promise<string | null> {
+  async replyToTweet(tweetId: string, message: string): Promise<string | null> {
     try {
       const response = await this.client.sendTweet(message, tweetId);
       const responseData = (await response.json()) as any;
@@ -473,22 +160,77 @@ export class TwitterService {
     }
   }
 
+  async likeTweet(tweetId: string): Promise<void> {
+    try {
+      await this.client.likeTweet(tweetId);
+    } catch (error) {
+      logger.error("Error liking tweet:", error);
+    }
+  }
+
+  async fetchAllNewMentions(): Promise<Tweet[]> {
+    const BATCH_SIZE = 200;
+    let allNewTweets: Tweet[] = [];
+
+    // Get the last tweet ID we processed
+    const lastCheckedId = this.lastCheckedTweetId
+      ? BigInt(this.lastCheckedTweetId)
+      : null;
+
+    try {
+      const batch = (
+        await this.client.fetchSearchTweets(
+          `@${this.twitterUsername}`,
+          BATCH_SIZE,
+          SearchMode.Latest,
+        )
+      ).tweets;
+
+      if (batch.length === 0) {
+        logger.info("No tweets found");
+        return [];
+      }
+
+      // Filter out tweets we've already processed
+      for (const tweet of batch) {
+        const tweetId = BigInt(tweet.id);
+        if (!lastCheckedId || tweetId > lastCheckedId) {
+          allNewTweets.push(tweet);
+        }
+      }
+
+      // Sort chronologically (oldest to newest)
+      allNewTweets.sort((a, b) => {
+        const aId = BigInt(a.id);
+        const bId = BigInt(b.id);
+        return aId > bId ? 1 : aId < bId ? -1 : 0;
+      });
+
+      // Only update last checked ID if we found new tweets
+      if (allNewTweets.length > 0) {
+        // Use the first tweet from the batch since it's the newest (batch comes in newest first)
+        const highestId = batch[0].id;
+        await this.setLastCheckedTweetId(highestId);
+      }
+
+      return allNewTweets;
+    } catch (error) {
+      logger.error("Error fetching mentions:", error);
+      return [];
+    }
+  }
+
   async setLastCheckedTweetId(tweetId: string) {
-    this.configuredTweetId = tweetId;
     this.lastCheckedTweetId = tweetId;
-    await saveLastCheckedTweetId(tweetId);
-    logger.info(`Last checked tweet ID configured to: ${tweetId}`);
-    broadcastUpdate({ type: "lastTweetId", data: tweetId });
+    db.setTwitterCacheValue("last_tweet_id", tweetId);
+    logger.info(`Last checked tweet ID updated to: ${tweetId}`);
   }
 
   getLastCheckedTweetId(): string | null {
     return this.lastCheckedTweetId;
   }
 
-  private getTweetLink(
-    tweetId: string,
-    username: string = this.twitterUsername,
-  ): string {
-    return `https://x.com/${username}/status/${tweetId}`;
+  async stop() {
+    await this.client.logout();
   }
 }

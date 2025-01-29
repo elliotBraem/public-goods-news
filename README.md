@@ -5,10 +5,10 @@
 
 <div align="center">
 
-<h1 style="font-size: 2.5rem; font-weight: bold;">Public Goods News Curation Bot</h1>
+<h1 style="font-size: 2.5rem; font-weight: bold;">curate.fun</h1>
 
   <p>
-    <strong>Bot to curate and to streamline public goods news</strong>
+    <strong>Bot to curate and to streamline to different news feeds</strong>
   </p>
 
 </div>
@@ -24,15 +24,9 @@
   - [Environment Setup](#environment-setup)
   - [Running the app](#running-the-app)
   - [Building for production](#building-for-production)
-  - [Deploying to Fly.io](#deploying-to-flyio)
+  - [Deploying](#deploying)
   - [Running tests](#running-tests)
-- [Configuration](#configuration)
-  - [Twitter Setup](#twitter-setup)
-  - [Admin Configuration](#admin-configuration)
-- [Bot Functionality](#bot-functionality)
-  - [Submission Process](#submission-process)
-  - [Moderation System](#moderation-system)
-  - [Rate Limiting](#rate-limiting)
+- [Configuration & Usage](#configuration--usage)
 - [Contributing](#contributing)
 
 </details>
@@ -46,9 +40,9 @@ This project uses a monorepo structure managed with [Turborepo](https://turbo.bu
 ```bash
 curation-bot/
 ├── frontend/          # React frontend application
-├── backend/          # Bun-powered backend service
-├── package.json      # Root package.json for shared dependencies
-└── turbo.json       # Turborepo configuration
+├── backend/           # Bun-powered backend service
+├── package.json       # Root package.json for shared dependencies
+└── turbo.json         # Turborepo configuration
 ```
 
 ### Key Components
@@ -62,27 +56,24 @@ curation-bot/
   - Bun runtime for high performance
   - Twitter bot functionality
   - API endpoints for frontend
-  - Export services for RSS and Telegram
+  - Distribution services for RSS and Telegram
 
-### Export Services
+### Available Feeds
 
-The platform supports multiple channels for content distribution:
+The platform currently supports several curated feeds:
 
-#### RSS Feed
-
-- Automatically generates an RSS feed of approved submissions
-- Configurable feed properties (title, description, max items)
-- XML-compliant output with proper escaping
-- Ideal for content aggregators and RSS readers
-
-#### Telegram Channel
-
-- Posts approved submissions to a configured Telegram channel
-- Formatted messages with submission details and source links
-- Real-time updates as content is approved
-- Requires a Telegram bot token and channel ID
-
-The export system is extensible - new export types can be added by implementing the ExportService interface in [backend/src/services/exports/types.ts](./backend/src/services/exports/types.ts).
+- **Crypto Grant Wire**: Blockchain grant updates
+- **This Week in Ethereum**: Ethereum ecosystem updates
+- **NEARWEEK**: NEAR Protocol updates
+- **AI x Crypto News**: AI and blockchain intersection
+- **AI News**: AI updates
+- **Crypto News**: General crypto updates
+- **Public Goods FM**: Public goods focus
+- **REFI DAO**: Regenerative Finance updates
+- **DeSci World**: Decentralized Science updates
+- **Network State News**: Network states & intentional communities
+- **SOL-WEEK**: Solana ecosystem updates
+- **Web3 Fundraising**: Fundraising announcements
 
 ## Getting Started
 
@@ -112,18 +103,11 @@ TWITTER_USERNAME=your_twitter_username
 TWITTER_PASSWORD=your_twitter_password
 TWITTER_EMAIL=your_twitter_email
 
-# Export Services Configuration
+# Distribution Services Configuration
+
 # Telegram (Optional)
-TELEGRAM_ENABLED=false        # Set to true to enable Telegram export
 TELEGRAM_BOT_TOKEN=          # Your Telegram bot token
 TELEGRAM_CHANNEL_ID=         # Target channel ID for posts
-
-# RSS Feed (Optional)
-RSS_ENABLED=false           # Set to true to enable RSS feed
-RSS_TITLE=                  # Title of your RSS feed
-RSS_DESCRIPTION=            # Description of your RSS feed
-RSS_FEED_PATH=             # Path where RSS feed will be generated
-RSS_MAX_ITEMS=100          # Maximum number of items to keep in feed
 ```
 
 ### Running the app
@@ -147,48 +131,9 @@ Build all packages:
 bun run build
 ```
 
-### Deploying to Fly.io
+### Deploying
 
-The backend service can be deployed to Fly.io with SQLite support. First, install the Fly CLI:
-
-```bash
-# macOS
-brew install flyctl
-
-# Windows
-powershell -Command "iwr https://fly.io/install.ps1 -useb | iex"
-
-# Linux
-curl -L https://fly.io/install.sh | sh
-```
-
-Then sign up and authenticate:
-
-```bash
-fly auth signup
-# or
-fly auth login
-```
-
-Deploy the application using the provided npm scripts:
-
-```bash
-# Initialize Fly.io app
-bun run deploy:init
-
-# Create persistent volumes for SQLite and cache
-bun run deploy:volumes
-
-# Deploy the application
-bun run deploy
-```
-
-The deployment configuration includes:
-
-- Persistent storage for SQLite database
-- Cache directory support
-- Auto-scaling configuration
-- HTTPS enabled by default
+For deployment instructions, see our [Deployment Guide](./docs/docs/developers/deployment.md).
 
 ### Running tests
 
@@ -196,66 +141,15 @@ The deployment configuration includes:
 bun run test
 ```
 
-See the full [testing guide](./playwright-tests/README.md).
+Tests are located in the backend's `src/__tests__` directory. Run them using `bun run test`.
 
-## Configuration
+## Configuration & Usage
 
-### Twitter Setup
+For detailed information about configuration, submission process, and usage, please refer to our documentation:
 
-The bot requires a Twitter account to function. Configure the following in your `.env` file:
-
-```env
-TWITTER_USERNAME=your_twitter_username
-TWITTER_PASSWORD=your_twitter_password
-TWITTER_EMAIL=your_twitter_email
-```
-
-It will use these credentials to login and cache cookies via [agent-twitter-client](https://github.com/ai16z/agent-twitter-client).
-
-### Admin Configuration
-
-Admins are Twitter accounts that have moderation privileges. Configure admin accounts in `backend/src/config/admins.ts`:
-
-```typescript
-export const ADMIN_ACCOUNTS: string[] = [
-  "admin_handle_1",
-  "admin_handle_2"
-  // Add admin Twitter handles here (without @)
-]
-```
-
-Admin accounts are automatically tagged in submission acknowledgements and can:
-
-- Approve submissions using the `#approve` hashtag
-- Reject submissions using the `#reject` hashtag
-
-Only the first moderation will be recorded.
-
-## Bot Functionality
-
-### Submission Process
-
-1. **Submit News**: Users can submit news by mentioning the bot with `!submit` in their tweet
-2. **Acknowledgment**: The bot responds with a confirmation tweet, tagging the admins for review
-3. **Moderation**: Admins will reply to the bot's acknowledgement with either #approve or #reject
-4. **Notification**: Users receive a tweet notification about their submission's status
-
-### Moderation System
-
-1. **Queue**: All submissions enter a moderation queue
-2. **Admin Review**: Admins can review submissions by replying to the bot's acknowledgment tweet
-3. **Actions**:
-   - Approve: Reply with `#approve` hashtag
-   - Reject: Reply with `#reject` hashtag
-4. **Outcome**: Users receive a notification tweet about the moderation decision
-
-### Rate Limiting
-
-To maintain quality:
-
-- Users are limited to 10 submissions per day
-- Rate limits reset daily
-- Exceeding the limit results in a notification tweet
+- [Configuration Guide](./docs/docs/developers/configuration): Feed setup, plugins, and system configuration
+- [User Guide](./docs/docs/user-guides/curation): How to submit and moderate content
+- [Developer Guide](./docs/docs/developers/): Technical documentation for developers
 
 ## Contributing
 

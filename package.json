@@ -1,15 +1,18 @@
 {
-  "name": "public-goods-news",
+  "name": "curatedotfun",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "packageManager": "bun@1.0.27",
   "scripts": {
     "dev": "bunx turbo run dev",
     "build": "bunx turbo run build",
-    "start": "NODE_ENV=production bun run backend/dist/index.js",
+    "start": "NODE_ENV=production cd backend && bun run dist/index.js",
+    "db:up": "cd backend && bun run db:up",
+    "db:push": "cd backend && bun run db:push",
+    "db:migrate": "cd backend && bun run db:migrate",
     "lint": "bunx turbo run lint",
-    "deploy:init": "fly launch",
-    "deploy:volumes": "fly volumes create sqlite --size 1 --region lax && fly volumes create cache --size 1 --region lax",
+    "deploy:init": "fly launch && fly consul attach",
     "deploy": "fly deploy",
     "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
     "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'"
@@ -21,5 +24,8 @@
   "devDependencies": {
     "turbo": "latest",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "elysia-rate-limit": "^4.1.0"
   }
 }

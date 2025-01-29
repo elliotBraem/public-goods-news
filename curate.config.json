@@ -1,0 +1,555 @@
+{
+  "global": {
+    "botId": "curatedotfun",
+    "defaultStatus": "pending",
+    "maxSubmissionsPerUser": 100,
+    "blacklist": {
+      "twitter": []
+    }
+  },
+  "plugins": {
+    "@curatedotfun/telegram": {
+      "type": "distributor",
+      "url": "./external/telegram"
+    },
+    "@curatedotfun/rss": {
+      "type": "distributor",
+      "url": "./external/rss"
+    },
+    "@curatedotfun/gpt-transform": {
+      "type": "transformer",
+      "url": "./external/gpt-transform"
+    }
+  },
+  "feeds": [
+    {
+      "id": "grants",
+      "name": "Crypto Grant Wire",
+      "description": "Blockchain grant updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "plugrel",
+            "sejal_rekhan",
+            "arlery",
+            "karmahq_",
+            "sovereignsignal",
+            "owocki",
+            "civilmonkey",
+            "TheDevanshMehta",
+            "bbeats1"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "@cryptograntwire"
+              }
+            },
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "Crypto Grant Wire",
+                "path": "./public/grants.xml"
+              }
+            }
+          ]
+        },
+        "recap": {
+          "enabled": false,
+          "schedule": "0 0 * * *",
+          "transform": {
+            "plugin": "@curatedotfun/gpt-transform",
+            "config": {
+              "prompt": "./prompts/grants_recap.txt"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "{TELEGRAM_CHANNEL_ID}"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ethereum",
+      "name": "This Week in Ethereum",
+      "description": "Ethereum ecosystem updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "owocki",
+            "TrustlessState",
+            "sassal0x",
+            "laurashin",
+            "evan_van_ness",
+            "abcoathup"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "near",
+      "name": "NEARWEEK",
+      "description": "NEAR Protocol updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "GUS_DAO",
+            "quadron3stat3",
+            "plugrel",
+            "jarednotjerry",
+            "ThePiVortex",
+            "ilblackdragon",
+            "elliot_braem",
+            "jwaup",
+            "Cameron_Dennis_",
+            "cuongdc_real",
+            "NEARQuant",
+            "_fiatisabubble",
+            "David___Mo",
+            "slimedrgn"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "nouns",
+      "name": "NounsDAO",
+      "description": "All noun-ish updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "cryptoseneca",
+            "punk4156",
+            "russlive215",
+            "toady_hawk",
+            "matyETH",
+            "ProfWerder",
+            "benbodhi",
+            "BigTrav205",
+            "willyogo",
+            "carlosjmelgar",
+            "plugrel",
+            "JackWyldes"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "ai3",
+      "name": "AI x Crypto News",
+      "description": "AI and blockchain intersection",
+      "moderation": {
+        "approvers": {
+          "twitter": ["plugrel", "Cameron_Dennis_", "dabit3"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "ai",
+      "name": "AI News",
+      "description": "AI updates",
+      "moderation": {
+        "approvers": {
+          "twitter": ["Cameron_Dennis_", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "crypto",
+      "name": "Crypto News",
+      "description": "General crypto updates",
+      "moderation": {
+        "approvers": {
+          "twitter": ["plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "publicgoods",
+      "name": "Public Goods FM",
+      "description": "Public goods focus",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "plugrel",
+            "owocki",
+            "TheDevanshMehta",
+            "niddhi",
+            "sejal_rekhan"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "refi",
+      "name": "REFI DAO",
+      "description": "Regenerative Finance updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "TrinityMorphy",
+            "TerezaBizkova",
+            "ReFiMedellin",
+            "ReFiDAOist",
+            "MontyMerlin",
+            "checkfit",
+            "civilmonkey",
+            "PaulBurg_"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "DeSci",
+      "name": "DeSci World",
+      "description": "Decentralized Science updates",
+      "moderation": {
+        "approvers": {
+          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci", "DesciWorld"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "networkstate",
+      "name": "Network State News",
+      "description": "Network states & intentional communities",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "alyriadefi",
+            "balajis",
+            "noahchonlee",
+            "JanineLeger",
+            "timourxyz",
+            "JoinEdgeCity",
+            "shanhaiwoo",
+            "SocialLayer_im"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "solana",
+      "name": "SOL-WEEK",
+      "description": "Solana ecosystem updates",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "plugrel",
+            "0xMert_",
+            "rajgokal",
+            "aeyakovenko",
+            "therealchaseeb",
+            "Austin_Federa",
+            "KyleSamani"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        },
+        "recap": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "eigen",
+      "name": "Eigen Ecosystem",
+      "description": "Eigen Layer Ecosystem News",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "dabit3",
+            "buildoneigen",
+            "tracheopteryx",
+            "mraltantutar",
+            "0xkydo",
+            "sreeramkannan",
+            "soubhik_deb",
+            "satyaki44",
+            "0xcoordinated",
+            "0xMustafa_eth",
+            "0xpratik",
+            "0xNFTy",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "DAO",
+      "name": "DAO Latest",
+      "description": "All things DAO, DAO News, DAO product updates, thought leadership governance updates etc.",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "tracheopteryx",
+            "owocki",
+            "PuncarH2D",
+            "feemschats",
+            "BryanPetes",
+            "jwaup",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "chainabstraction",
+      "name": "Chain Abstraction",
+      "description": "Chain Abstraction ecosystem updates.",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "GUS_DAO",
+            "quadron3stat3",
+            "jarednotjerry",
+            "elliot_braem",
+            "Cameron_Dennis_",
+            "cuongdc_real",
+            "NEARQuant",
+            "_fiatisabubble",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "morph",
+      "name": "Morph Ecosystem",
+      "description": "Morph L2 Ecosystem news",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "azeemk_",
+            "cecilia_hsueh",
+            "LxKus",
+            "cryptogodfatha",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "berachain",
+      "name": "Berachain Ecosystem",
+      "description": "Berachain Ecosystem news",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "camiinthisthang",
+            "BeraMVP",
+            "SmokeyTheBera",
+            "buildabera",
+            "whoiskevin",
+            "_ianchain",
+            "itsdevbear",
+            "homme0x",
+            "FWCrypto_",
+            "dablackbera",
+            "the_honeycast",
+            "pandaberaa",
+            "scaaaht",
+            "0xHunterBera",
+            "ellaqiang9",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "celo",
+      "name": "CELO Ecosystem",
+      "description": "CELO L2 Ecosystem news",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "Celo",
+            "marek_",
+            "sodofi_",
+            "RegenRene",
+            "naumannazim",
+            "CeloDevs",
+            "CeloDaily",
+            "Celo_Col",
+            "joan_drb",
+            "LuukDAO",
+            "KohCelo",
+            "CeloAfricaDao",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "cryptofundraise",
+      "name": "Web3 Fundraising",
+      "description": "Fundraising announcements",
+      "moderation": {
+        "approvers": {
+          "twitter": ["plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "usa",
+      "name": "American Crypto",
+      "description": "$TRUMP ecosystem and American first crypto",
+      "moderation": {
+        "approvers": {
+          "twitter": ["plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "eliza",
+      "name": "Eliza OS",
+      "description": "Updates around eliza OS",
+      "moderation": {
+        "approvers": {
+          "twitter": ["shawmakesmagic", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "stellar",
+      "name": "Stellar",
+      "description": "Updates around Stellar ecosystem, Soroban, & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "bitcoin",
+      "name": "Bitcoin News",
+      "description": "News about Bitcoin, Bitcoin devs, scaling, integrations, adoptions.",
+      "moderation": {
+        "approvers": {
+          "twitter": ["Blaze0x1", "plugrel", "aescobarindo"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    }
+  ]
+}

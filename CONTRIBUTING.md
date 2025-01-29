@@ -20,7 +20,7 @@ Please follow the existing code style and conventions used in the project.
 
 ## Testing
 
-This repository uses playwright tests, which can be found in [/playwright-tests](./playwright-tests/). Ensure that your changes include appropriate tests and that existing tests pass.
+This repository uses tests located in the backend's `src/__tests__` directory. Ensure that your changes include appropriate tests and that existing tests pass.
 
 ## Submitting Issues
 
