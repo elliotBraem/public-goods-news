@@ -15,7 +15,7 @@
   },
   "feeds": [
     {
-      "id": "test-feed",
+      "id": "test",
       "name": "Test Feed",
       "description": "Main feed for testing basic functionality",
       "moderation": {
@@ -30,7 +30,9 @@
             {
               "plugin": "@curatedotfun/supabase",
               "config": {
-
+                "supabaseUrl": "{SUPABASE_URL}",
+                "supabaseKey": "{SUPABASE_SECRET_KEY}",
+                "tableName": "test"
               }
             }
           ]
@@ -38,7 +40,7 @@
       }
     },
     {
-      "id": "multi-approver",
+      "id": "multi",
       "name": "Multi-Approver Test",
       "description": "Testing multiple approver scenarios",
       "moderation": {
@@ -53,7 +55,7 @@
       }
     },
     {
-      "id": "edge-cases",
+      "id": "edge",
       "name": "Edge Cases",
       "description": "Testing edge cases and error scenarios",
       "moderation": {

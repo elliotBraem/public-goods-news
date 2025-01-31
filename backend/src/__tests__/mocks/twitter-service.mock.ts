@@ -1,4 +1,4 @@
-import { Tweet } from "agent-twitter-client";
+import { SearchMode, Tweet } from "agent-twitter-client";
 import { TwitterService } from "../../services/twitter/client";
 import { logger } from "../../utils/logger";
 
@@ -8,9 +8,9 @@ export class MockTwitterService extends TwitterService {
   private tweetIdCounter: bigint = BigInt(Date.now());
 
   constructor() {
-    // Pass empty config since we're mocking
+    // Pass config with the bot's username so mentions are found
     super({
-      username: "mock_user",
+      username: "curatedotfun",
       password: "mock_pass",
       email: "mock@example.com",
     });
@@ -21,6 +21,47 @@ export class MockTwitterService extends TwitterService {
       logout: async () => {},
       getCookies: async () => [],
       setCookies: async () => {},
+      fetchSearchTweets: async (query: string, count: number, mode: SearchMode) => {
+        // Filter tweets that match the query (mentions @curatedotfun)
+        const matchingTweets = this.mockTweets.filter(tweet => 
+          tweet.text?.includes("@curatedotfun")
+        );
+
+        // Sort by ID descending (newest first) to match Twitter search behavior
+        const sortedTweets = [...matchingTweets].sort((a, b) => {
+          const aId = BigInt(a.id);
+          const bId = BigInt(b.id);
+          return bId > aId ? 1 : bId < aId ? -1 : 0;
+        });
+
+        return {
+          tweets: sortedTweets.slice(0, count),
+        };
+      },
+      likeTweet: async (tweetId: string) => {
+        logger.info(`Mock: Liked tweet ${tweetId}`);
+        return true;
+      },
+      sendTweet: async (message: string, replyToId?: string) => {
+        const newTweet = this.addMockTweet({
+          text: message,
+          username: "curatedotfun",
+          inReplyToStatusId: replyToId,
+        });
+        return {
+          json: async () => ({
+            data: {
+              create_tweet: {
+                tweet_results: {
+                  result: {
+                    rest_id: newTweet.id,
+                  },
+                },
+              },
+            },
+          }),
+        } as Response;
+      },
     };
   }
 
@@ -31,7 +72,7 @@ export class MockTwitterService extends TwitterService {
 
   public addMockTweet(tweet: Partial<Tweet> & { inReplyToStatusId?: string }) {
     const fullTweet: Tweet = {
-      id: this.getNextTweetId(),
+      id: tweet.id || this.getNextTweetId(),
       text: tweet.text || "",
       username: tweet.username || "test_user",
       userId: tweet.userId || `mock-user-id-${tweet.username || "test_user"}`,
@@ -69,86 +110,12 @@ export class MockTwitterService extends TwitterService {
   async getUserIdByScreenName(screenName: string): Promise<string> {
     return this.mockUserIds.get(screenName) || `mock-user-id-${screenName}`;
   }
-
   async fetchAllNewMentions(): Promise<Tweet[]> {
-    // Get the last tweet ID we processed
-    const lastCheckedId = this.getLastCheckedTweetId();
-    
-    // If we have tweets and no last checked ID, set it to the newest tweet
-    if (this.mockTweets.length > 0 && !lastCheckedId) {
-      const newestTweet = this.mockTweets[this.mockTweets.length - 1];
-      await this.setLastCheckedTweetId(newestTweet.id);
-      return [newestTweet];
-    }
-
-    // Filter tweets newer than last checked ID
-    const newTweets = this.mockTweets.filter(tweet => {
-      if (!lastCheckedId) return true;
-      return BigInt(tweet.id) > BigInt(lastCheckedId);
-    });
-
-    // Update last checked ID if we found new tweets
-    if (newTweets.length > 0) {
-      const newestTweet = newTweets[newTweets.length - 1];
-      await this.setLastCheckedTweetId(newestTweet.id);
-    }
-
-    return newTweets;
+    // Let the parent TwitterService handle the processing logic
+    return super.fetchAllNewMentions();
   }
-
+  
   async getTweet(tweetId: string): Promise<Tweet | null> {
     return this.mockTweets.find((t) => t.id === tweetId) || null;
-  }
-
-  async replyToTweet(tweetId: string, message: string): Promise<string | null> {
-    const replyTweet = await this.addMockTweet({
-      text: message,
-      username: "curatedotfun",
-      inReplyToStatusId: tweetId,
-    });
-    logger.info(`Mock: Replied to tweet ${tweetId} with "${message}"`);
-    return replyTweet.id;
-  }
-
-  async likeTweet(tweetId: string): Promise<void> {
-    logger.info(`Mock: Liked tweet ${tweetId}`);
-  }
-
-  // Helper methods for test scenarios
-  async simulateSubmission(contentUrl: string) {
-    // First create the content tweet
-    const contentTweet = await this.addMockTweet({
-      text: "Original content",
-      username: "content_creator",
-    });
-
-    // Then create the curator's submission as a reply
-    return this.addMockTweet({
-      text: `@curatedotfun !submit ${contentUrl}`,
-      username: "curator",
-      userId: "mock-user-id-curator",
-      timeParsed: new Date(),
-      inReplyToStatusId: contentTweet.id,
-    });
-  }
-
-  async simulateApprove(submissionTweetId: string, projectId: string) {
-    return this.addMockTweet({
-      text: `@curatedotfun !approve ${projectId}`,
-      username: "moderator",
-      userId: "mock-user-id-moderator",
-      timeParsed: new Date(),
-      inReplyToStatusId: submissionTweetId,
-    });
-  }
-
-  async simulateReject(submissionTweetId: string, projectId: string, reason: string) {
-    return this.addMockTweet({
-      text: `@curatedotfun !reject ${projectId} ${reason}`,
-      username: "moderator",
-      userId: "mock-user-id-moderator",
-      timeParsed: new Date(),
-      inReplyToStatusId: submissionTweetId,
-    });
   }
 }
