@@ -59,11 +59,11 @@ export class TwitterService {
       if (await this.client.isLoggedIn()) {
         // Cache the new cookies
         const cookies = await this.client.getCookies();
-        const formattedCookies = cookies.map((cookie) => ({
+        const formattedCookies: TwitterCookie[] = cookies.map((cookie) => ({
           name: cookie.key,
           value: cookie.value,
-          domain: cookie.domain,
-          path: cookie.path,
+          domain: cookie.domain || ".twitter.com", // Provide default if null
+          path: cookie.path || "/", // Provide default if null
           secure: cookie.secure,
           httpOnly: cookie.httpOnly,
           sameSite: cookie.sameSite as "Strict" | "Lax" | "None" | undefined,

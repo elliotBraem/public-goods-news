@@ -19,6 +19,10 @@
     "@curatedotfun/gpt-transform": {
       "type": "transformer",
       "url": "./external/gpt-transform"
+    },
+    "@curatedotfun/supabase": {
+      "type": "distributor",
+      "url": "https://unpkg.com/@curatedotfun/supabase@latest/dist/index.js"
     }
   },
   "feeds": [

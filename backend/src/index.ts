@@ -11,6 +11,7 @@ import { db } from "./services/db";
 import { DistributionService } from "./services/distribution/distribution.service";
 import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
+import { testRoutes, mockTwitterService } from "./routes/test";
 import {
   cleanup,
   failSpinner,
@@ -50,19 +51,25 @@ export async function main() {
     await distributionService.initialize(config.plugins);
     succeedSpinner("distribution-init", "distribution service initialized");
 
-    // Try to initialize Twitter service, but continue if it fails
+    // Use mock service in development, real service in production
     try {
       startSpinner("twitter-init", "Initializing Twitter service...");
-      twitterService = new TwitterService({
-        username: process.env.TWITTER_USERNAME!,
-        password: process.env.TWITTER_PASSWORD!,
-        email: process.env.TWITTER_EMAIL!,
-        twoFactorSecret: process.env.TWITTER_2FA_SECRET,
-      });
-      await twitterService.initialize();
+      if (process.env.NODE_ENV === "development") {
+        logger.info("Using mock Twitter service");
+        twitterService = mockTwitterService;
+        await twitterService.initialize();
+      } else {
+        twitterService = new TwitterService({
+          username: process.env.TWITTER_USERNAME!,
+          password: process.env.TWITTER_PASSWORD!,
+          email: process.env.TWITTER_EMAIL!,
+          twoFactorSecret: process.env.TWITTER_2FA_SECRET,
+        });
+        await twitterService.initialize();
+      }
       succeedSpinner("twitter-init", "Twitter service initialized");
 
-      // Only initialize submission service if Twitter is available
+      // Initialize submission service
       startSpinner("submission-init", "Initializing submission service...");
       submissionService = new SubmissionService(
         twitterService,
@@ -86,12 +93,12 @@ export async function main() {
           contentSecurityPolicy: {
             directives: {
               defaultSrc: ["'self'"],
-              imgSrc: ["'self'", "data:", "https:"], // Allow images from HTTPS sources
-              fontSrc: ["'self'", "data:", "https:"], // Allow fonts
+              imgSrc: ["'self'", "data:", "https:"],
+              fontSrc: ["'self'", "data:", "https:"],
             },
           },
-          crossOriginEmbedderPolicy: false, // Required for some static assets
-          crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow resources to be shared
+          crossOriginEmbedderPolicy: false,
+          crossOriginResourcePolicy: { policy: "cross-origin" },
           xFrameOptions: { action: "sameorigin" },
         }),
       )
@@ -102,6 +109,8 @@ export async function main() {
         }),
       )
       .use(swagger())
+      // Include test routes in development
+      .use(process.env.NODE_ENV === "development" ? testRoutes : new Elysia())
       .get("/health", () => new Response("OK", { status: 200 }))
       // API Routes
       .get("/api/twitter/last-tweet-id", () => {
@@ -180,23 +189,6 @@ export async function main() {
         const rawConfig = await configService.getRawConfig();
         return rawConfig.feeds;
       })
-      // .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
-      //   if (!twitterService) {
-      //     throw new Error("Twitter service not available");
-      //   }
-      //   if (!Array.isArray(body)) {
-      //     throw new Error("Expected array of cookies");
-      //   }
-      //   await twitterService.setCookies(body);
-      //   return { success: true };
-      // })
-      // .get("/api/twitter/cookies", () => {
-      //   if (!twitterService) {
-      //     throw new Error("Twitter service not available");
-      //   }
-      //   const cookies = twitterService.getCookies();
-      //   return cookies || [];
-      // })
       .get(
         "/api/config/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {

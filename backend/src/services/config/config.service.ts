@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import { AppConfig } from "../../types/config";
 import { hydrateConfigValues } from "../../utils/config";
+import { logger } from "../../utils/logger";
 
 export class ConfigService {
   private static instance: ConfigService;
@@ -9,8 +10,14 @@ export class ConfigService {
   private configPath: string;
 
   private constructor() {
-    // Always look for config relative to the distribution directory
-    this.configPath = path.resolve(__dirname, "../../../../curate.config.json");
+    // Use test config in development mode
+    if (process.env.NODE_ENV === "development") {
+      this.configPath = path.resolve(__dirname, "../../../../curate.config.test.json");
+      logger.info("Using test configuration");
+    } else {
+      this.configPath = path.resolve(__dirname, "../../../../curate.config.json");
+      logger.info("Using production configuration");
+    }
   }
 
   public static getInstance(): ConfigService {
