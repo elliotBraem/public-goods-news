@@ -1,0 +1,86 @@
+{
+  "global": {
+    "botId": "curatedotfun_test",
+    "defaultStatus": "pending",
+    "maxSubmissionsPerUser": 100,
+    "blacklist": {
+      "twitter": []
+    }
+  },
+  "plugins": {
+    "@curatedotfun/supabase": {
+      "type": "distributor",
+      "url": "@curatedotfun/supabase"
+    }
+  },
+  "feeds": [
+    {
+      "id": "test",
+      "name": "Test Feed",
+      "description": "Main feed for testing basic functionality",
+      "moderation": {
+        "approvers": {
+          "twitter": ["test_curator", "test_admin"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/supabase",
+              "config": {
+                "supabaseUrl": "{SUPABASE_URL}",
+                "supabaseKey": "{SUPABASE_SECRET_KEY}",
+                "tableName": "test"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "multi",
+      "name": "Multi-Approver Test",
+      "description": "Testing multiple approver scenarios",
+      "moderation": {
+        "approvers": {
+          "twitter": ["curator1", "curator2", "curator3"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "edge",
+      "name": "Edge Cases",
+      "description": "Testing edge cases and error scenarios",
+      "moderation": {
+        "approvers": {
+          "twitter": ["edge_curator"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true
+        },
+        "recap": {
+          "enabled": true,
+          "schedule": "*/5 * * * *",
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "Edge Cases Recap",
+                "path": "./public/edge-cases.xml"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

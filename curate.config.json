@@ -19,6 +19,10 @@
     "@curatedotfun/gpt-transform": {
       "type": "transformer",
       "url": "./external/gpt-transform"
+    },
+    "@curatedotfun/supabase": {
+      "type": "distributor",
+      "url": "@curatedotfun/supabase"
     }
   },
   "feeds": [

@@ -30,6 +30,14 @@ const Header = () => {
           >
             How It Works
           </button>
+          {process.env.NODE_ENV === "development" && (
+            <Link
+              to="/test"
+              className="text-gray-600 hover:text-black transition-colors"
+            >
+              Test Panel
+            </Link>
+          )}
         </div>
         <nav className="flex space-x-4 mx-4">
           <a
