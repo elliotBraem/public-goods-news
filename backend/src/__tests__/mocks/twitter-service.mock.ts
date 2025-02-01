@@ -22,10 +22,14 @@ export class MockTwitterService extends TwitterService {
       logout: async () => {},
       getCookies: async () => [],
       setCookies: async () => {},
-      fetchSearchTweets: async (query: string, count: number, mode: SearchMode) => {
+      fetchSearchTweets: async (
+        query: string,
+        count: number,
+        mode: SearchMode,
+      ) => {
         // Filter tweets that match the query (mentions @test_bot)
-        const matchingTweets = this.mockTweets.filter(tweet => 
-          tweet.text?.includes("@test_bot")
+        const matchingTweets = this.mockTweets.filter((tweet) =>
+          tweet.text?.includes("@test_bot"),
         );
 
         // Sort by ID descending (newest first) to match Twitter search behavior
@@ -87,7 +91,9 @@ export class MockTwitterService extends TwitterService {
       inReplyToStatusId: tweet.inReplyToStatusId,
     };
     this.mockTweets.push(fullTweet);
-    logger.info(`Mock: Added tweet "${fullTweet.text}" from @${fullTweet.username}${tweet.inReplyToStatusId ? ` as reply to ${tweet.inReplyToStatusId}` : ''}`);
+    logger.info(
+      `Mock: Added tweet "${fullTweet.text}" from @${fullTweet.username}${tweet.inReplyToStatusId ? ` as reply to ${tweet.inReplyToStatusId}` : ""}`,
+    );
     return fullTweet;
   }
 
@@ -127,7 +133,7 @@ export class MockTwitterService extends TwitterService {
         const bId = BigInt(b.id);
         return bId > aId ? -1 : bId < aId ? 1 : 0; // Descending order (newest first)
       })
-      .filter(tweet => {
+      .filter((tweet) => {
         const tweetId = BigInt(tweet.id);
         return !lastCheckedId || tweetId > lastCheckedId;
       })
@@ -139,9 +145,10 @@ export class MockTwitterService extends TwitterService {
     }
 
     // Filter for mentions
-    const newMentions = latestTweets.filter(tweet => 
-      tweet.text?.includes("@test_bot") || 
-      tweet.mentions?.some(m => m.username === "test_bot")
+    const newMentions = latestTweets.filter(
+      (tweet) =>
+        tweet.text?.includes("@test_bot") ||
+        tweet.mentions?.some((m) => m.username === "test_bot"),
     );
 
     // Sort chronologically (oldest to newest) to match real service
@@ -165,7 +172,7 @@ export class MockTwitterService extends TwitterService {
     this.testLastCheckedTweetId = tweetId;
     logger.info(`Last checked tweet ID updated to: ${tweetId}`);
   }
-  
+
   async getTweet(tweetId: string): Promise<Tweet | null> {
     return this.mockTweets.find((t) => t.id === tweetId) || null;
   }

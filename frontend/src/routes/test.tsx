@@ -8,7 +8,9 @@ export const Route = createFileRoute("/test")({
 
 function TestPage() {
   const [selectedFeed, setSelectedFeed] = useState("test");
-  const [submissionTweetId, setSubmissionTweetId] = useState<string | null>(null);
+  const [submissionTweetId, setSubmissionTweetId] = useState<string | null>(
+    null,
+  );
   const [tweetText, setTweetText] = useState("");
   const [username, setUsername] = useState("curator");
 

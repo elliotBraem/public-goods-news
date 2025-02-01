@@ -10,111 +10,111 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as TestImport } from './routes/test'
-import { Route as SettingsImport } from './routes/settings'
-import { Route as IndexImport } from './routes/index'
-import { Route as FeedFeedIdImport } from './routes/feed.$feedId'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as TestImport } from "./routes/test";
+import { Route as SettingsImport } from "./routes/settings";
+import { Route as IndexImport } from "./routes/index";
+import { Route as FeedFeedIdImport } from "./routes/feed.$feedId";
 
 // Create/Update Routes
 
 const TestRoute = TestImport.update({
-  id: '/test',
-  path: '/test',
+  id: "/test",
+  path: "/test",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const SettingsRoute = SettingsImport.update({
-  id: '/settings',
-  path: '/settings',
+  id: "/settings",
+  path: "/settings",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const FeedFeedIdRoute = FeedFeedIdImport.update({
-  id: '/feed/$feedId',
-  path: '/feed/$feedId',
+  id: "/feed/$feedId",
+  path: "/feed/$feedId",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsImport
-      parentRoute: typeof rootRoute
-    }
-    '/test': {
-      id: '/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof TestImport
-      parentRoute: typeof rootRoute
-    }
-    '/feed/$feedId': {
-      id: '/feed/$feedId'
-      path: '/feed/$feedId'
-      fullPath: '/feed/$feedId'
-      preLoaderRoute: typeof FeedFeedIdImport
-      parentRoute: typeof rootRoute
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/settings": {
+      id: "/settings";
+      path: "/settings";
+      fullPath: "/settings";
+      preLoaderRoute: typeof SettingsImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/test": {
+      id: "/test";
+      path: "/test";
+      fullPath: "/test";
+      preLoaderRoute: typeof TestImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/feed/$feedId": {
+      id: "/feed/$feedId";
+      path: "/feed/$feedId";
+      fullPath: "/feed/$feedId";
+      preLoaderRoute: typeof FeedFeedIdImport;
+      parentRoute: typeof rootRoute;
+    };
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/settings': typeof SettingsRoute
-  '/test': typeof TestRoute
-  '/feed/$feedId': typeof FeedFeedIdRoute
+  "/": typeof IndexRoute;
+  "/settings": typeof SettingsRoute;
+  "/test": typeof TestRoute;
+  "/feed/$feedId": typeof FeedFeedIdRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/settings': typeof SettingsRoute
-  '/test': typeof TestRoute
-  '/feed/$feedId': typeof FeedFeedIdRoute
+  "/": typeof IndexRoute;
+  "/settings": typeof SettingsRoute;
+  "/test": typeof TestRoute;
+  "/feed/$feedId": typeof FeedFeedIdRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/settings': typeof SettingsRoute
-  '/test': typeof TestRoute
-  '/feed/$feedId': typeof FeedFeedIdRoute
+  __root__: typeof rootRoute;
+  "/": typeof IndexRoute;
+  "/settings": typeof SettingsRoute;
+  "/test": typeof TestRoute;
+  "/feed/$feedId": typeof FeedFeedIdRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/test' | '/feed/$feedId'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/test' | '/feed/$feedId'
-  id: '__root__' | '/' | '/settings' | '/test' | '/feed/$feedId'
-  fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths: "/" | "/settings" | "/test" | "/feed/$feedId";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/" | "/settings" | "/test" | "/feed/$feedId";
+  id: "__root__" | "/" | "/settings" | "/test" | "/feed/$feedId";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  SettingsRoute: typeof SettingsRoute
-  TestRoute: typeof TestRoute
-  FeedFeedIdRoute: typeof FeedFeedIdRoute
+  IndexRoute: typeof IndexRoute;
+  SettingsRoute: typeof SettingsRoute;
+  TestRoute: typeof TestRoute;
+  FeedFeedIdRoute: typeof FeedFeedIdRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -122,11 +122,11 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   TestRoute: TestRoute,
   FeedFeedIdRoute: FeedFeedIdRoute,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {

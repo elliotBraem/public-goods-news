@@ -6,7 +6,13 @@ import { MockTwitterService } from "../__tests__/mocks/twitter-service.mock";
 const mockTwitterService = new MockTwitterService();
 
 // Helper to create a tweet object
-const createTweet = (id: string, text: string, username: string, inReplyToStatusId?: string, hashtags?: string[]): Tweet => {
+const createTweet = (
+  id: string,
+  text: string,
+  username: string,
+  inReplyToStatusId?: string,
+  hashtags?: string[],
+): Tweet => {
   return {
     id,
     text,
@@ -33,7 +39,13 @@ export const testRoutes = new Elysia({ prefix: "/api/test" })
     },
   })
   .post("/tweets", async ({ body }) => {
-    const { id, text, username, inReplyToStatusId, hashtags } = body as { id: string; text: string; username: string; inReplyToStatusId?: string; hashtags?: string[] };
+    const { id, text, username, inReplyToStatusId, hashtags } = body as {
+      id: string;
+      text: string;
+      username: string;
+      inReplyToStatusId?: string;
+      hashtags?: string[];
+    };
     const tweet = createTweet(id, text, username, inReplyToStatusId, hashtags);
     mockTwitterService.addMockTweet(tweet);
     return tweet;
