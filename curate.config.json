@@ -22,7 +22,7 @@
     },
     "@curatedotfun/supabase": {
       "type": "distributor",
-      "url": "https://unpkg.com/@curatedotfun/supabase@latest/dist/index.js"
+      "url": "@curatedotfun/supabase"
     }
   },
   "feeds": [
