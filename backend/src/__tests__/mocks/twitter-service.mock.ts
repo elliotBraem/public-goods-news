@@ -6,11 +6,12 @@ export class MockTwitterService extends TwitterService {
   private mockTweets: Tweet[] = [];
   private mockUserIds: Map<string, string> = new Map();
   private tweetIdCounter: bigint = BigInt(Date.now());
+  private testLastCheckedTweetId: string | null = null;
 
   constructor() {
     // Pass config with the bot's username so mentions are found
     super({
-      username: "curatedotfun",
+      username: "test_bot",
       password: "mock_pass",
       email: "mock@example.com",
     });
@@ -22,9 +23,9 @@ export class MockTwitterService extends TwitterService {
       getCookies: async () => [],
       setCookies: async () => {},
       fetchSearchTweets: async (query: string, count: number, mode: SearchMode) => {
-        // Filter tweets that match the query (mentions @curatedotfun)
+        // Filter tweets that match the query (mentions @test_bot)
         const matchingTweets = this.mockTweets.filter(tweet => 
-          tweet.text?.includes("@curatedotfun")
+          tweet.text?.includes("@test_bot")
         );
 
         // Sort by ID descending (newest first) to match Twitter search behavior
@@ -45,7 +46,7 @@ export class MockTwitterService extends TwitterService {
       sendTweet: async (message: string, replyToId?: string) => {
         const newTweet = this.addMockTweet({
           text: message,
-          username: "curatedotfun",
+          username: "test_bot",
           inReplyToStatusId: replyToId,
         });
         return {
@@ -110,9 +111,59 @@ export class MockTwitterService extends TwitterService {
   async getUserIdByScreenName(screenName: string): Promise<string> {
     return this.mockUserIds.get(screenName) || `mock-user-id-${screenName}`;
   }
+
   async fetchAllNewMentions(): Promise<Tweet[]> {
-    // Let the parent TwitterService handle the processing logic
-    return super.fetchAllNewMentions();
+    const BATCH_SIZE = 200;
+
+    // Get the last tweet ID we processed
+    const lastCheckedId = this.testLastCheckedTweetId
+      ? BigInt(this.testLastCheckedTweetId)
+      : null;
+
+    // Get latest tweets first (up to batch size), excluding already checked tweets
+    const latestTweets = [...this.mockTweets]
+      .sort((a, b) => {
+        const aId = BigInt(a.id);
+        const bId = BigInt(b.id);
+        return bId > aId ? -1 : bId < aId ? 1 : 0; // Descending order (newest first)
+      })
+      .filter(tweet => {
+        const tweetId = BigInt(tweet.id);
+        return !lastCheckedId || tweetId > lastCheckedId;
+      })
+      .slice(0, BATCH_SIZE);
+
+    if (latestTweets.length === 0) {
+      logger.info("No tweets found");
+      return [];
+    }
+
+    // Filter for mentions
+    const newMentions = latestTweets.filter(tweet => 
+      tweet.text?.includes("@test_bot") || 
+      tweet.mentions?.some(m => m.username === "test_bot")
+    );
+
+    // Sort chronologically (oldest to newest) to match real service
+    newMentions.sort((a, b) => {
+      const aId = BigInt(a.id);
+      const bId = BigInt(b.id);
+      return aId > bId ? 1 : aId < bId ? -1 : 0;
+    });
+
+    // Update last checked ID if we found new tweets
+    if (latestTweets.length > 0) {
+      // Use the first tweet from latestTweets since it's the newest (they're in descending order)
+      const highestId = latestTweets[0].id;
+      await this.setLastCheckedTweetId(highestId);
+    }
+
+    return newMentions;
+  }
+
+  async setLastCheckedTweetId(tweetId: string) {
+    this.testLastCheckedTweetId = tweetId;
+    logger.info(`Last checked tweet ID updated to: ${tweetId}`);
   }
   
   async getTweet(tweetId: string): Promise<Tweet | null> {

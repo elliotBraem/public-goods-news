@@ -13,7 +13,7 @@ function TestPage() {
   const [username, setUsername] = useState("curator");
 
   const prepareSubmit = () => {
-    setTweetText(`@curatedotfun !submit #${selectedFeed}`);
+    setTweetText(`@test_bot !submit #${selectedFeed}`);
     setUsername("curator");
   };
 
@@ -22,7 +22,7 @@ function TestPage() {
       alert("Please submit content first");
       return;
     }
-    setTweetText(`!approve @curatedotfun #${selectedFeed}`);
+    setTweetText(`!approve @test_bot #${selectedFeed}`);
     setUsername("moderator");
   };
 
@@ -31,7 +31,7 @@ function TestPage() {
       alert("Please submit content first");
       return;
     }
-    setTweetText(`!reject @curatedotfun #${selectedFeed} spam`);
+    setTweetText(`!reject @test_bot #${selectedFeed} spam`);
     setUsername("moderator");
   };
 
