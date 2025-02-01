@@ -4,23 +4,35 @@ export default class TelegramPlugin implements DistributorPlugin {
   name = "telegram";
   private botToken: string | null = null;
   private channelId: string | null = null;
+  private messageThreadId: string | null = null;
 
   async initialize(
     feedId: string,
     config: Record<string, string>,
   ): Promise<void> {
     // Validate required config
-    if (!config.botToken || !config.channelId) {
-      throw new Error("Telegram plugin requires botToken and channelId");
+    if (!config.botToken) {
+      throw new Error("Telegram plugin requires botToken");
+    }
+    if (!config.channelId && !config.messageThreadId) {
+      throw new Error(
+        "Telegram plugin requires either channelId or messageThreadId",
+      );
+    }
+    if (config.messageThreadId && !config.channelId) {
+      throw new Error(
+        "Telegram plugin requires channelId when messageThreadId is provided",
+      );
     }
 
     this.botToken = config.botToken;
-    this.channelId = config.channelId;
+    this.channelId = config.channelId || null;
+    this.messageThreadId = config.messageThreadId || null;
 
     try {
       // Validate credentials
       const response = await fetch(
-        `https://api.telegram.org/bot${this.botToken}/getChat?chat_id=${this.channelId}`,
+        `https://api.telegram.org/bot${this.botToken}/getChat?chat_id=${this.channelId || this.messageThreadId}`,
       );
       if (!response.ok) {
         throw new Error("Failed to validate Telegram credentials");
@@ -32,7 +44,7 @@ export default class TelegramPlugin implements DistributorPlugin {
   }
 
   async distribute(feedId: string, content: string): Promise<void> {
-    if (!this.botToken || !this.channelId) {
+    if (!this.botToken || (!this.channelId && !this.messageThreadId)) {
       throw new Error("Telegram plugin not initialized");
     }
 
@@ -46,6 +58,16 @@ export default class TelegramPlugin implements DistributorPlugin {
   }
 
   private async sendMessage(text: string): Promise<void> {
+    const messageData: Record<string, any> = {
+      chat_id: this.channelId || this.messageThreadId,
+      text,
+      parse_mode: "HTML",
+    };
+
+    if (this.messageThreadId) {
+      messageData.message_thread_id = this.messageThreadId;
+    }
+
     const response = await fetch(
       `https://api.telegram.org/bot${this.botToken}/sendMessage`,
       {
@@ -53,17 +75,12 @@ export default class TelegramPlugin implements DistributorPlugin {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          chat_id: this.channelId,
-          text,
-          parse_mode: "HTML",
-        }),
+        body: JSON.stringify(messageData),
       },
     );
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(`Telegram API error: ${JSON.stringify(error)}`);
     }
   }
 }

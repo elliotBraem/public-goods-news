@@ -31,6 +31,11 @@ const sidebars: SidebarsConfig = {
       label: "Integration",
       items: ["developers/plugins"],
     },
+    {
+      type: "category",
+      label: "Plugins",
+      items: ["plugins/telegram"],
+    },
   ],
 };
 
