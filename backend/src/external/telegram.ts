@@ -15,10 +15,14 @@ export default class TelegramPlugin implements DistributorPlugin {
       throw new Error("Telegram plugin requires botToken");
     }
     if (!config.channelId && !config.messageThreadId) {
-      throw new Error("Telegram plugin requires either channelId or messageThreadId");
+      throw new Error(
+        "Telegram plugin requires either channelId or messageThreadId",
+      );
     }
     if (config.messageThreadId && !config.channelId) {
-      throw new Error("Telegram plugin requires channelId when messageThreadId is provided");
+      throw new Error(
+        "Telegram plugin requires channelId when messageThreadId is provided",
+      );
     }
 
     this.botToken = config.botToken;
