@@ -143,7 +143,7 @@
             {
               "plugin": "@curatedotfun/simple-transform",
               "config": {
-                "format": "new curation by {CURATOR}\n{CONTENT}\nsource: https://x.com/x/status/{SUBMISSION_ID}"
+                "format": "📝 new curation by *{CURATOR}*\n{CONTENT}\n📌 source: [View Post](https://x.com/x/status/{SUBMISSION_ID})"
               }
             }
           ],
