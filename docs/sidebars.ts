@@ -38,7 +38,7 @@ const sidebars: SidebarsConfig = {
         {
           type: "doc",
           id: "plugins/index",
-          label: "📖 Overview"
+          label: "📖 Overview",
         },
         {
           type: "category",
@@ -47,9 +47,9 @@ const sidebars: SidebarsConfig = {
             {
               type: "doc",
               id: "plugins/distributors/telegram",
-              label: "📱 Telegram"
-            }
-          ]
+              label: "📱 Telegram",
+            },
+          ],
         },
         {
           type: "category",
@@ -58,14 +58,14 @@ const sidebars: SidebarsConfig = {
             {
               type: "doc",
               id: "plugins/transformers/gpt-transform",
-              label: "🤖 GPT Transform"
+              label: "🤖 GPT Transform",
             },
             {
               type: "doc",
               id: "plugins/transformers/simple-transform",
-              label: "📝 Simple Transform"
-            }
-          ]
+              label: "📝 Simple Transform",
+            },
+          ],
         },
         {
           type: "doc",

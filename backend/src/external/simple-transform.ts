@@ -20,7 +20,7 @@ export default class SimpleTransformer implements TransformerPlugin {
       result = result.replace("{CURATOR}", submission.curatorUsername);
       result = result.replace("{CURATOR_NOTES}", submission.curatorNotes || "");
       result = result.replace("{SUBMISSION_ID}", submission.tweetId || "");
-      submission.username
+      submission.username;
 
       return result;
     } catch (error: unknown) {
