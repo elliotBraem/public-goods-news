@@ -1,3 +1,4 @@
+import { TwitterSubmission } from "types/twitter";
 import { TransformerPlugin } from "../types/plugin";
 
 interface Message {
@@ -29,11 +30,11 @@ export default class GPTTransformer implements TransformerPlugin {
     this.apiKey = config.apiKey;
   }
 
-  async transform(content: string): Promise<string> {
+  async transform(submission: TwitterSubmission): Promise<string> {
     try {
       const messages: Message[] = [
         { role: "system", content: this.prompt },
-        { role: "user", content },
+        { role: "user", content: submission.content },
       ];
 
       const response = await fetch(

@@ -293,8 +293,7 @@ export class SubmissionService {
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
                 feed.id,
-                originalTweet.id!,
-                originalTweet.text || "",
+                submission!,
               );
             }
           }
@@ -332,8 +331,7 @@ export class SubmissionService {
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
                 feed.id,
-                originalTweet.id!,
-                originalTweet.text || "",
+                submission!,
               );
             }
           }
@@ -463,8 +461,7 @@ export class SubmissionService {
           if (feed.outputs.stream?.enabled) {
             await this.DistributionService.processStreamOutput(
               pendingFeed.feedId,
-              submission.tweetId,
-              submission.content,
+              submission,
             );
           }
         }

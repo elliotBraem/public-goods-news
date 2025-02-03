@@ -1,3 +1,4 @@
+import { TwitterSubmission } from "types/twitter";
 import { AppConfig, PluginConfig, PluginsConfig } from "../../types/config";
 import { Plugin, PluginModule } from "../../types/plugin";
 import { logger } from "../../utils/logger";
@@ -41,8 +42,8 @@ export class DistributionService {
 
   async transformContent(
     pluginName: string,
-    content: string,
-    config: { prompt: string },
+    submission: TwitterSubmission,
+    config: any,
   ): Promise<string> {
     const plugin = this.plugins.get(pluginName);
     if (!plugin || !("transform" in plugin)) {
@@ -51,7 +52,7 @@ export class DistributionService {
 
     try {
       await plugin.initialize(config);
-      return await plugin.transform(content);
+      return await plugin.transform(submission);
     } catch (error) {
       logger.error(
         `Error transforming content with plugin ${pluginName}:`,
@@ -96,8 +97,7 @@ export class DistributionService {
 
   async processStreamOutput(
     feedId: string,
-    submissionId: string,
-    content: string,
+    submission: TwitterSubmission,
   ): Promise<void> {
     const config = await this.getConfig();
     const feed = config.feeds.find((f) => f.id === feedId);
@@ -115,11 +115,11 @@ export class DistributionService {
     }
 
     // Transform content if configured
-    let processedContent = content;
+    let processedContent = submission.content;
     if (transform) {
       processedContent = await this.transformContent(
         transform.plugin,
-        content,
+        submission,
         transform.config,
       );
     }

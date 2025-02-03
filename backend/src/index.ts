@@ -7,11 +7,11 @@ import { helmet } from "elysia-helmet";
 import path from "path";
 import configService, { validateEnv } from "./config/config";
 import RssPlugin from "./external/rss";
+import { mockTwitterService, testRoutes } from "./routes/test";
 import { db } from "./services/db";
 import { DistributionService } from "./services/distribution/distribution.service";
 import { SubmissionService } from "./services/submissions/submission.service";
 import { TwitterService } from "./services/twitter/client";
-import { testRoutes, mockTwitterService } from "./routes/test";
 import {
   cleanup,
   failSpinner,
@@ -249,11 +249,7 @@ export async function main() {
           }
           for (const submission of submissions) {
             try {
-              await distributionService.processStreamOutput(
-                feedId,
-                submission.tweetId,
-                submission.content,
-              );
+              await distributionService.processStreamOutput(feedId, submission);
               processed++;
             } catch (error) {
               logger.error(
