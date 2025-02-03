@@ -133,10 +133,6 @@ export class DistributionService {
         dist.config,
       );
     }
-    if (!feed?.outputs.recap?.enabled) {
-      // Remove from submission feed after successful distribution if no recap
-      db.removeFromSubmissionFeed(submissionId, feedId);
-    }
   }
 
   // TODO: adjust recap, needs to be called from cron job.
