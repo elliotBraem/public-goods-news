@@ -47,28 +47,14 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
-            {
-              "plugin": "@curatedotfun/telegram",
-              "config": {
-                "botToken": "{TELEGRAM_BOT_TOKEN}",
-                "channelId": "@cryptograntwire"
-              }
-            },
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
                 "botToken": "{TELEGRAM_BOT_TOKEN}",
                 "channelId": "-1002472938420",
                 "messageThreadId": "11"
-              }
-            },
-            {
-              "plugin": "@curatedotfun/rss",
-              "config": {
-                "title": "Crypto Grant Wire",
-                "path": "./public/grants.xml"
               }
             }
           ]
@@ -112,7 +98,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -152,7 +138,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -205,7 +191,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -230,7 +216,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -300,7 +286,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -325,7 +311,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -382,7 +368,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -579,7 +565,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
@@ -604,7 +590,7 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
