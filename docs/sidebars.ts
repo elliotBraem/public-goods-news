@@ -34,7 +34,19 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Plugins",
-      items: ["plugins/telegram"],
+      items: [
+        "plugins/index",
+        {
+          type: "category",
+          label: "Distributors",
+          items: ["plugins/distributors/telegram"]
+        },
+        {
+          type: "category",
+          label: "Transformers",
+          items: ["plugins/transformers/gpt-transform", "plugins/transformers/simple-transform"]
+        }
+      ],
     },
   ],
 };
