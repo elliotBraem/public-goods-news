@@ -156,7 +156,7 @@ export async function main() {
       })
       .get(
         "/api/submissions/:feedId",
-        ({ params: { feedId } }: { params: { feedId: string } }) => {
+        ({ params: { feedId }, query: { status } }: { params: { feedId: string }, query: { status?: string } }) => {
           const config = configService.getConfig();
           const feed = config.feeds.find(
             (f) => f.id.toLowerCase() === feedId.toLowerCase(),
@@ -164,7 +164,11 @@ export async function main() {
           if (!feed) {
             throw new Error(`Feed not found: ${feedId}`);
           }
-          return db.getSubmissionsByFeed(feedId);
+          let submissions = db.getSubmissionsByFeed(feedId);
+          if (status) {
+            submissions = submissions.filter(sub => sub.status === status);
+          }
+          return submissions;
         },
       )
       .get(
