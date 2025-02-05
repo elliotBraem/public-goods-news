@@ -1,6 +1,6 @@
 {
   "global": {
-    "botId": "curatedotfun_test",
+    "botId": "test_bot",
     "defaultStatus": "pending",
     "maxSubmissionsPerUser": 100,
     "blacklist": {
@@ -8,9 +8,13 @@
     }
   },
   "plugins": {
-    "@curatedotfun/supabase": {
+    "@curatedotfun/telegram": {
       "type": "distributor",
-      "url": "@curatedotfun/supabase"
+      "url": "./external/telegram"
+    },
+    "@curatedotfun/notion": {
+      "type": "distributor",
+      "url": "./external/notion"
     }
   },
   "feeds": [
@@ -28,11 +32,17 @@
           "enabled": true,
           "distribute": [
             {
-              "plugin": "@curatedotfun/supabase",
+              "plugin": "@curatedotfun/notion",
               "config": {
-                "supabaseUrl": "{SUPABASE_URL}",
-                "supabaseKey": "{SUPABASE_SECRET_KEY}",
-                "tableName": "test"
+                "token": "{CRYPTOGRANTWIRE_NOTION_TOKEN}",
+                "databaseId": "191000c0d5908055bdb7d6ec9bef599c"
+              }
+            },
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "@test_curation"
               }
             }
           ]

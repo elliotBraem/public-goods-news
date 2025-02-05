@@ -362,7 +362,7 @@ export class SubmissionService {
   private async handleModeration(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) {
-      logger.error(`${tweet.id}: User ${userId} is not admin.`);
+      logger.error(`${tweet.id} or ${userId} is not valid.`);
       return;
     }
 
