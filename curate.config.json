@@ -42,9 +42,10 @@
             "arlery",
             "karmahq_",
             "sovereignsignal",
-            "owocki",
+            "owoki",
             "civilmonkey",
             "TheDevanshMehta",
+            "potlock_",
             "bbeats1"
           ]
         }
@@ -91,11 +92,13 @@
       "moderation": {
         "approvers": {
           "twitter": [
-            "owocki",
+            "owoki",
             "TrustlessState",
             "sassal0x",
             "laurashin",
             "evan_van_ness",
+            "plugrel",
+            "potlock",
             "abcoathup"
           ]
         }
@@ -134,6 +137,7 @@
             "Cameron_Dennis_",
             "cuongdc_real",
             "NEARQuant",
+            "potlock_",
             "_fiatisabubble",
             "David___Mo",
             "slimedrgn"
@@ -264,9 +268,11 @@
         "approvers": {
           "twitter": [
             "plugrel",
-            "owocki",
+            "owoki",
             "TheDevanshMehta",
             "niddhi",
+            "potlock_",
+            "publicgoodsfm",
             "sejal_rekhan"
           ]
         }
@@ -291,6 +297,8 @@
             "MontyMerlin",
             "checkfit",
             "civilmonkey",
+            "potlock_",
+            "plutgrel",
             "PaulBurg_"
           ]
         }
@@ -350,6 +358,8 @@
             "timourxyz",
             "JoinEdgeCity",
             "shanhaiwoo",
+            "potlock_",
+            "plugrel",
             "SocialLayer_im"
           ]
         }
@@ -433,7 +443,7 @@
         "approvers": {
           "twitter": [
             "tracheopteryx",
-            "owocki",
+            "owoki",
             "PuncarH2D",
             "feemschats",
             "BryanPetes",
@@ -602,7 +612,7 @@
       "description": "$TRUMP ecosystem and American first crypto",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel"]
+          "twitter": ["plugrel", "0xAmerican", "potlock_"]
         }
       },
       "outputs": {
