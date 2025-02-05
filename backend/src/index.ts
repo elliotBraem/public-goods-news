@@ -7,7 +7,7 @@ import { helmet } from "elysia-helmet";
 import path from "path";
 import RssPlugin from "./external/rss";
 import { mockTwitterService, testRoutes } from "./routes/test";
-import { ConfigService } from './services/config/config.service';
+import { ConfigService } from "./services/config/config.service";
 import { db } from "./services/db";
 import { DistributionService } from "./services/distribution/distribution.service";
 import { SubmissionService } from "./services/submissions/submission.service";
