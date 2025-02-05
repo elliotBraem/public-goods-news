@@ -44,7 +44,10 @@ export default class TelegramPlugin implements DistributorPlugin {
     }
   }
 
-  async distribute(feedId: string, submission: TwitterSubmission): Promise<void> {
+  async distribute(
+    feedId: string,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     if (!this.botToken || (!this.channelId && !this.messageThreadId)) {
       throw new Error("Telegram plugin not initialized");
     }

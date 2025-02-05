@@ -64,7 +64,9 @@ interface DbInterface {
 // Create mock functions for each database operation
 export const drizzleMock = {
   upsertFeed: mock<DbInterface["upsertFeed"]>(() => {}),
-  getSubmissionByCuratorTweetId: mock<DbInterface["getSubmissionByCuratorTweetId"]>(() => null),
+  getSubmissionByCuratorTweetId: mock<
+    DbInterface["getSubmissionByCuratorTweetId"]
+  >(() => null),
   getSubmission: mock<DbInterface["getSubmission"]>(() => null),
   getDailySubmissionCount: mock<DbInterface["getDailySubmissionCount"]>(
     () => 0,
