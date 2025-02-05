@@ -176,16 +176,18 @@ export const FeedItem = ({ submission }: FeedItemProps) => {
             />
           )}
 
-        {/* Curator Notes */}
-        {submission.status === "pending" && submission.curatorNotes?.trim() && (
+        {/* Curator Notes and Moderation Actions */}
+        {submission.status === "pending" && (
           <div className="flex gap-8">
             <div className="flex-col flex-grow">
-              <NotesSection
-                title="Curator's Notes"
-                username={submission.curatorUsername}
-                tweetId={submission.curatorTweetId}
-                note={submission.curatorNotes}
-              />
+              {submission.curatorNotes?.trim() && (
+                <NotesSection
+                  title="Curator's Notes"
+                  username={submission.curatorUsername}
+                  tweetId={submission.curatorTweetId}
+                  note={submission.curatorNotes}
+                />
+              )}
             </div>
             <div className="flex-col">
               <div className="flex">
