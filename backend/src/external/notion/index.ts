@@ -7,7 +7,10 @@ export default class NotionPlugin implements DistributorPlugin {
   private client: Client | null = null;
   private databaseId: string | null = null;
 
-  async initialize(feedId: string, config: Record<string, string>): Promise<void> {
+  async initialize(
+    feedId: string,
+    config: Record<string, string>,
+  ): Promise<void> {
     // Validate required config
     if (!config.token) {
       throw new Error("Notion plugin requires token");
@@ -30,7 +33,10 @@ export default class NotionPlugin implements DistributorPlugin {
     }
   }
 
-  async distribute(feedId: string, submission: TwitterSubmission): Promise<void> {
+  async distribute(
+    feedId: string,
+    submission: TwitterSubmission,
+  ): Promise<void> {
     if (!this.client || !this.databaseId) {
       throw new Error("Notion plugin not initialized");
     }
@@ -43,7 +49,9 @@ export default class NotionPlugin implements DistributorPlugin {
     }
   }
 
-  private async createDatabaseRow(submission: TwitterSubmission): Promise<void> {
+  private async createDatabaseRow(
+    submission: TwitterSubmission,
+  ): Promise<void> {
     if (!this.client || !this.databaseId) {
       throw new Error("Notion plugin not initialized");
     }
@@ -54,39 +62,41 @@ export default class NotionPlugin implements DistributorPlugin {
       },
       properties: {
         tweetId: {
-          rich_text: [{ text: { content: submission.tweetId } }]
+          rich_text: [{ text: { content: submission.tweetId } }],
         },
         userId: {
-          rich_text: [{ text: { content: submission.userId } }]
+          rich_text: [{ text: { content: submission.userId } }],
         },
         username: {
-          rich_text: [{ text: { content: submission.username } }]
+          rich_text: [{ text: { content: submission.username } }],
         },
         curatorId: {
-          rich_text: [{ text: { content: submission.curatorId } }]
+          rich_text: [{ text: { content: submission.curatorId } }],
         },
         curatorUsername: {
-          rich_text: [{ text: { content: submission.curatorUsername } }]
+          rich_text: [{ text: { content: submission.curatorUsername } }],
         },
         content: {
-          rich_text: [{ text: { content: submission.content.slice(0, 2000) } }]
+          rich_text: [{ text: { content: submission.content.slice(0, 2000) } }],
         },
         curatorNotes: {
-          rich_text: submission.curatorNotes ? [{ text: { content: submission.curatorNotes } }] : []
+          rich_text: submission.curatorNotes
+            ? [{ text: { content: submission.curatorNotes } }]
+            : [],
         },
         curatorTweetId: {
-          rich_text: [{ text: { content: submission.curatorTweetId } }]
+          rich_text: [{ text: { content: submission.curatorTweetId } }],
         },
         createdAt: {
-          rich_text: [{ text: { content: submission.createdAt } }]
+          rich_text: [{ text: { content: submission.createdAt } }],
         },
         submittedAt: {
-          rich_text: [{ text: { content: submission.submittedAt || "" } }]
+          rich_text: [{ text: { content: submission.submittedAt || "" } }],
         },
         status: {
-          rich_text: [{ text: { content: submission.status || "pending" } }]
-        }
-      }
+          rich_text: [{ text: { content: submission.status || "pending" } }],
+        },
+      },
     });
   }
 }

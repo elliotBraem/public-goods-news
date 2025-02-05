@@ -6,11 +6,15 @@ export const getTweetUrl = (tweetId: string, username: string) => {
 
 type TwitterAction = "approve" | "reject" | "apply";
 
-const isDev = () => process.env.NODE_ENV === 'development';
+const isDev = () => process.env.NODE_ENV === "development";
 
-const generateTweetId = () => `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+const generateTweetId = () =>
+  `${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
-export const handleApprove = async (submission: TwitterSubmissionWithFeedData, botId: string) => {
+export const handleApprove = async (
+  submission: TwitterSubmissionWithFeedData,
+  botId: string,
+) => {
   if (isDev()) {
     const newTweetId = generateTweetId();
     const response = await fetch("/api/test/tweets", {
@@ -25,25 +29,31 @@ export const handleApprove = async (submission: TwitterSubmissionWithFeedData, b
         inReplyToStatusId: submission.curatorTweetId,
       }),
     });
-    
+
     if (!response.ok) {
       console.error("Failed to submit approval tweet");
       return;
     }
-    
-    console.log('Development mode: Submitted approval tweet', { newTweetId });
+
+    console.log("Development mode: Submitted approval tweet", { newTweetId });
     return;
   }
-  
+
   // In production, open Twitter intent
-  window.open(getTwitterIntentUrl({ 
-    action: "approve", 
-    submission, 
-    botId 
-  }), '_blank');
+  window.open(
+    getTwitterIntentUrl({
+      action: "approve",
+      submission,
+      botId,
+    }),
+    "_blank",
+  );
 };
 
-export const handleReject = async (submission: TwitterSubmissionWithFeedData, botId: string) => {
+export const handleReject = async (
+  submission: TwitterSubmissionWithFeedData,
+  botId: string,
+) => {
   if (isDev()) {
     const newTweetId = generateTweetId();
     const response = await fetch("/api/test/tweets", {
@@ -58,22 +68,25 @@ export const handleReject = async (submission: TwitterSubmissionWithFeedData, bo
         inReplyToStatusId: submission.curatorTweetId,
       }),
     });
-    
+
     if (!response.ok) {
       console.error("Failed to submit rejection tweet");
       return;
     }
-    
-    console.log('Development mode: Submitted rejection tweet', { newTweetId });
+
+    console.log("Development mode: Submitted rejection tweet", { newTweetId });
     return;
   }
 
   // In production, open Twitter intent
-  window.open(getTwitterIntentUrl({ 
-    action: "reject", 
-    submission, 
-    botId 
-  }), '_blank');
+  window.open(
+    getTwitterIntentUrl({
+      action: "reject",
+      submission,
+      botId,
+    }),
+    "_blank",
+  );
 };
 
 export const getTwitterIntentUrl = (

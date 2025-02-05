@@ -94,7 +94,7 @@ const ModerationActions = ({
   submission: TwitterSubmissionWithFeedData;
 }) => {
   const botId = useBotId();
-  
+
   return (
     <div className="flex flex-col gap-2 mt-4">
       <button
