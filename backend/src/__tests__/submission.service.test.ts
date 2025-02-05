@@ -232,7 +232,7 @@ describe("SubmissionService", () => {
 
     it("should handle moderation responses for pending submissions", async () => {
       // Setup existing submission
-      drizzleMock.getSubmission.mockReturnValue({
+      drizzleMock.getSubmissionByCuratorTweetId.mockReturnValue({
         tweetId: TWEET_IDS.original1_tweet,
         userId: user1.id,
         username: user1.username,
@@ -301,7 +301,7 @@ describe("SubmissionService", () => {
 
     it("should ignore moderation responses from non-moderators", async () => {
       // Setup existing submission
-      drizzleMock.getSubmission.mockReturnValue({
+      drizzleMock.getSubmissionByCuratorTweetId.mockReturnValue({
         tweetId: TWEET_IDS.original1_tweet,
         userId: user1.id,
         username: user1.username,
@@ -419,7 +419,7 @@ describe("SubmissionService", () => {
 
     it("should handle rejection responses", async () => {
       // Setup existing submission
-      drizzleMock.getSubmission.mockReturnValue({
+      drizzleMock.getSubmissionByCuratorTweetId.mockReturnValue({
         tweetId: TWEET_IDS.original1_tweet,
         userId: user1.id,
         username: user1.username,
@@ -616,7 +616,7 @@ describe("SubmissionService", () => {
 
     it("should ignore moderation of already moderated submissions", async () => {
       // Setup existing submission
-      drizzleMock.getSubmission.mockReturnValue({
+      drizzleMock.getSubmissionByCuratorTweetId.mockReturnValue({
         tweetId: TWEET_IDS.original1_tweet,
         userId: user1.id,
         username: user1.username,
@@ -664,7 +664,7 @@ describe("SubmissionService", () => {
 
     it("should use first moderation response when multiple moderators respond", async () => {
       // Setup existing submission
-      drizzleMock.getSubmission.mockReturnValue({
+      drizzleMock.getSubmissionByCuratorTweetId.mockReturnValue({
         tweetId: TWEET_IDS.original1_tweet,
         userId: user1.id,
         username: user1.username,

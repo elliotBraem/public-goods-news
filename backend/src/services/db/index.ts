@@ -63,6 +63,10 @@ export class DatabaseService {
     return queries.getSubmission(this.db, tweetId);
   }
 
+  getSubmissionByCuratorTweetId(curatorTweetId: string): TwitterSubmission | null {
+    return queries.getSubmissionByCuratorTweetId(this.db, curatorTweetId);
+  }
+
   getAllSubmissions(): TwitterSubmission[] {
     return queries.getAllSubmissions(this.db);
   }

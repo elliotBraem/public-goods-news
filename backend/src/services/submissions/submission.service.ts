@@ -371,11 +371,11 @@ export class SubmissionService {
       return;
     }
 
-    // submission is what we're replying to
-    const inReplyToId = tweet.inReplyToStatusId;
-    if (!inReplyToId) return;
+    // Get the curator's tweet that the moderator is replying to
+    const curatorTweetId = tweet.inReplyToStatusId;
+    if (!curatorTweetId) return;
 
-    const submission = db.getSubmission(inReplyToId);
+    const submission = db.getSubmissionByCuratorTweetId(curatorTweetId);
     if (!submission) {
       logger.error(`${tweet.id}: Received moderation for unsaved submission`);
       return;
