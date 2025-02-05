@@ -151,7 +151,7 @@
           "transform": {
             "plugin": "@curatedotfun/gpt-transform",
             "config": {
-              "prompt": "You're an AI assistant that generates engaging news-style updates for Telegram based on Twitter submissions. Format the response and keep it conversational, professional, and easy to read. Use the curatorUsername, summary of content, optional curatorNotes, and then share a link ( https://x.com/{username}/status/{tweetId} ) at the bottom. \n Provided content structure: \"{ tweetId: string; userId: string; username: string; curatorId: string; curatorUsername: string; content: string; curatorNotes: string | null; curatorTweetId: string; createdAt: string; submittedAt: string | null; }\" \n. Make sure the output conforms to valid Telegram text, and use new lines correctly. Do not use any markdown formatting.",
+              "prompt": "You're an AI assistant that generates engaging news-style updates for Telegram based on Twitter submissions. Format the response and keep it conversational, professional, and easy to read. Use the curatorUsername, summary of content, optional curatorNotes, and then share a link with the correct data injected ( https://x.com/{username}/status/{tweetId} ) at the bottom. \n Provided content structure: \"{ tweetId: string; userId: string; username: string; curatorId: string; curatorUsername: string; content: string; curatorNotes: string | null; curatorTweetId: string; createdAt: string; submittedAt: string | null; }\" \n. Make sure the output conforms to valid Telegram text, extract necessary data directly from the content, and start and end with a new line. Do not use any markdown formatting.",
               "apiKey": "{OPENROUTER_API_KEY}"
             }
           },
