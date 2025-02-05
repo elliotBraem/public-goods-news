@@ -26,9 +26,5 @@
   "devDependencies": {
     "turbo": "latest",
     "prettier": "^3.3.3"
-  },
-  "dependencies": {
-    "@curatedotfun/supabase": "^0.0.5",
-    "elysia-rate-limit": "^4.1.0"
   }
 }

@@ -4,11 +4,11 @@ export class MockDistributionService {
     submissionId: string;
   }> = [];
 
-  async processStreamOutput(
-    feedId: string,
-    submissionId: string,
-  ): Promise<void> {
-    this.processedSubmissions.push({ feedId, submissionId });
+  async processStreamOutput(feedId: string, submission: any): Promise<void> {
+    this.processedSubmissions.push({
+      feedId,
+      submissionId: submission.tweetId,
+    });
   }
 
   async processRecapOutput(): Promise<void> {
