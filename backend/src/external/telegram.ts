@@ -1,3 +1,4 @@
+import { TwitterSubmission } from "types/twitter";
 import { DistributorPlugin } from "../types/plugin";
 
 export default class TelegramPlugin implements DistributorPlugin {
@@ -43,12 +44,12 @@ export default class TelegramPlugin implements DistributorPlugin {
     }
   }
 
-  async distribute(feedId: string, content: string): Promise<void> {
+  async distribute(feedId: string, submission: TwitterSubmission): Promise<void> {
     if (!this.botToken || (!this.channelId && !this.messageThreadId)) {
       throw new Error("Telegram plugin not initialized");
     }
 
-    const message = this.formatMessage(content);
+    const message = this.formatMessage(submission.content);
     await this.sendMessage(message);
   }
 
