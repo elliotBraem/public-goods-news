@@ -30,10 +30,8 @@ export class TwitterService {
       // Convert cached cookies to the format expected by the client
       const cookieStrings = cachedCookies.map(
         (cookie) =>
-          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-            cookie.secure ? "Secure" : ""
-          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-            cookie.sameSite || "Lax"
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
           }`,
       );
       await this.client.setCookies(cookieStrings);
@@ -85,10 +83,8 @@ export class TwitterService {
       // Convert cookies to the format expected by the client
       const cookieStrings = cookies.map(
         (cookie) =>
-          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${
-            cookie.secure ? "Secure" : ""
-          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${
-            cookie.sameSite || "Lax"
+          `${cookie.name}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}; ${cookie.secure ? "Secure" : ""
+          }; ${cookie.httpOnly ? "HttpOnly" : ""}; SameSite=${cookie.sameSite || "Lax"
           }`,
       );
       await this.client.setCookies(cookieStrings);
@@ -110,6 +106,17 @@ export class TwitterService {
   }
 
   async initialize() {
+    // Validate required Twitter credentials
+    if (
+      !process.env.TWITTER_USERNAME ||
+      !process.env.TWITTER_PASSWORD ||
+      !process.env.TWITTER_EMAIL
+    ) {
+      throw new Error(
+        "Missing required Twitter credentials. Please ensure TWITTER_USERNAME, TWITTER_PASSWORD, and TWITTER_EMAIL are set in your environment variables.",
+      );
+    }
+
     try {
       // First try to use cached cookies
       if (await this.loadCachedCookies()) {
@@ -193,7 +200,7 @@ export class TwitterService {
 
       // Filter out tweets we've already processed
       for (const tweet of batch) {
-        const tweetId = BigInt(tweet.id);
+        const tweetId = BigInt(tweet.id!);
         if (!lastCheckedId || tweetId > lastCheckedId) {
           allNewTweets.push(tweet);
         }
@@ -201,8 +208,8 @@ export class TwitterService {
 
       // Sort chronologically (oldest to newest)
       allNewTweets.sort((a, b) => {
-        const aId = BigInt(a.id);
-        const bId = BigInt(b.id);
+        const aId = BigInt(a.id!);
+        const bId = BigInt(b.id!);
         return aId > bId ? 1 : aId < bId ? -1 : 0;
       });
 
@@ -210,7 +217,7 @@ export class TwitterService {
       if (allNewTweets.length > 0) {
         // Use the first tweet from the batch since it's the newest (batch comes in newest first)
         const highestId = batch[0].id;
-        await this.setLastCheckedTweetId(highestId);
+        await this.setLastCheckedTweetId(highestId!);
       }
 
       return allNewTweets;

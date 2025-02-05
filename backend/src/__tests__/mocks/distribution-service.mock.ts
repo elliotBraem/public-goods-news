@@ -6,9 +6,9 @@ export class MockDistributionService {
 
   async processStreamOutput(
     feedId: string,
-    submissionId: string,
+    submission: any,
   ): Promise<void> {
-    this.processedSubmissions.push({ feedId, submissionId });
+    this.processedSubmissions.push({ feedId, submissionId: submission.tweetId });
   }
 
   async processRecapOutput(): Promise<void> {

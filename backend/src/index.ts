@@ -1,13 +1,13 @@
 import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
 import { swagger } from "@elysiajs/swagger";
-import dotenv from "dotenv";
+import "dotenv/config";
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import path from "path";
-import configService, { validateEnv } from "./config/config";
 import RssPlugin from "./external/rss";
 import { mockTwitterService, testRoutes } from "./routes/test";
+import { ConfigService } from './services/config/config.service';
 import { db } from "./services/db";
 import { DistributionService } from "./services/distribution/distribution.service";
 import { SubmissionService } from "./services/submissions/submission.service";
@@ -37,17 +37,17 @@ export async function main() {
   let distributionService: DistributionService | null = null;
 
   try {
-    // Load environment variables and config
-    startSpinner("env", "Loading environment variables and config...");
-    dotenv.config();
-    validateEnv();
+    // Load  config
+    startSpinner("config", "Loading config...");
+    const configService = ConfigService.getInstance();
     await configService.loadConfig();
-    succeedSpinner("env", "Environment variables and config loaded");
+    const config = configService.getConfig();
+    succeedSpinner("config", "Config loaded");
 
     // Initialize distribution service
     startSpinner("distribution-init", "Initializing distribution service...");
     distributionService = new DistributionService();
-    const config = configService.getConfig();
+
     await distributionService.initialize(config.plugins);
     succeedSpinner("distribution-init", "distribution service initialized");
 
@@ -319,7 +319,7 @@ export async function main() {
   } catch (error) {
     // Handle any initialization errors
     [
-      "env",
+      "config",
       "twitter-init",
       "distribution-init",
       "submission-monitor",

@@ -293,7 +293,7 @@ export class SubmissionService {
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
                 feed.id,
-                submission!,
+                existingSubmission || submission!,
               );
             }
           }
@@ -331,7 +331,7 @@ export class SubmissionService {
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
                 feed.id,
-                submission!,
+                existingSubmission || submission!,
               );
             }
           }
@@ -350,7 +350,7 @@ export class SubmissionService {
 
   private async handleAcknowledgement(tweet: Tweet): Promise<void> {
     // Like the tweet
-    await this.twitterService.likeTweet(tweet.id);
+    await this.twitterService.likeTweet(tweet.id!);
 
     // // Reply to curator's tweet confirming submission
     // await this.twitterService.replyToTweet(
