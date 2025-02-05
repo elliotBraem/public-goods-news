@@ -49,6 +49,11 @@ const sidebars: SidebarsConfig = {
               id: "plugins/distributors/telegram",
               label: "📱 Telegram",
             },
+            {
+              type: "doc",
+              id: "plugins/distributors/notion",
+              label: "📝 Notion",
+            },
           ],
         },
         {
