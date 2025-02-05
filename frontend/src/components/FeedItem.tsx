@@ -1,6 +1,6 @@
 import { HiExternalLink } from "react-icons/hi";
 import { TwitterSubmissionWithFeedData } from "../types/twitter";
-import { getTweetUrl, getTwitterIntentUrl } from "../lib/twitter";
+import { getTweetUrl, handleApprove, handleReject } from "../lib/twitter";
 import { useBotId } from "../lib/config";
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleString();
@@ -94,24 +94,21 @@ const ModerationActions = ({
   submission: TwitterSubmissionWithFeedData;
 }) => {
   const botId = useBotId();
+
   return (
     <div className="flex flex-col gap-2 mt-4">
-      <a
-        href={getTwitterIntentUrl({ action: "approve", submission, botId })}
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        onClick={() => handleApprove(submission, botId)}
         className="px-3 py-1.5 bg-green-200 hover:bg-green-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
       >
         approve
-      </a>
-      <a
-        href={getTwitterIntentUrl({ action: "reject", submission, botId })}
-        target="_blank"
-        rel="noopener noreferrer"
+      </button>
+      <button
+        onClick={() => handleReject(submission, botId)}
         className="px-3 py-1.5 bg-red-200 hover:bg-red-300 text-black rounded-md border-2 border-black shadow-sharp hover:shadow-sharp-hover transition-all duration-200 translate-x-0 translate-y-0 hover:-translate-x-0.5 hover:-translate-y-0.5 text-sm font-medium"
       >
         reject
-      </a>
+      </button>
     </div>
   );
 };

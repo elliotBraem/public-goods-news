@@ -1,7 +1,7 @@
 export interface DistributorPlugin {
   name: string;
   initialize(feedId: string, config: Record<string, string>): Promise<void>;
-  distribute(feedId: string, content: string): Promise<void>;
+  distribute(feedId: string, submission: TwitterSubmission): Promise<void>;
   shutdown?(): Promise<void>;
 }
 

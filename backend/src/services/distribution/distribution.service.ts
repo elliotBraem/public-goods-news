@@ -65,7 +65,7 @@ export class DistributionService {
   async distributeContent(
     feedId: string,
     pluginName: string,
-    content: string,
+    submission: TwitterSubmission,
     config: Record<string, string>,
   ): Promise<void> {
     const plugin = this.plugins.get(pluginName);
@@ -85,7 +85,7 @@ export class DistributionService {
       }
 
       await plugin.initialize(feedId, config);
-      await plugin.distribute(feedId, content);
+      await plugin.distribute(feedId, submission);
     } catch (error) {
       logger.error(
         `Error distributing content with plugin ${pluginName}:`,
@@ -129,7 +129,7 @@ export class DistributionService {
       await this.distributeContent(
         feedId,
         dist.plugin,
-        processedContent,
+        { ...submission, content: processedContent },
         dist.config,
       );
     }
@@ -165,24 +165,24 @@ export class DistributionService {
     // Transform & Distribute
     // Then remove
 
-    const content = "";
+    // const content = "";
 
-    // Transform content (required for recap)
-    const processedContent = await this.transformContent(
-      transform.plugin,
-      content,
-      transform.config,
-    );
+    // // Transform content (required for recap)
+    // const processedContent = await this.transformContent(
+    //   transform.plugin,
+    //   content,
+    //   transform.config,
+    // );
 
-    // Distribute to all configured outputs
-    for (const dist of distribute) {
-      await this.distributeContent(
-        feedId,
-        dist.plugin,
-        processedContent,
-        dist.config,
-      );
-    }
+    // // Distribute to all configured outputs
+    // for (const dist of distribute) {
+    //   await this.distributeContent(
+    //     feedId,
+    //     dist.plugin,
+    //     processedContent,
+    //     dist.config,
+    //   );
+    // }
 
     // Remove from submission feed after successful recap
     // db.removeFromSubmissionFeed(submissionId, feedId);
