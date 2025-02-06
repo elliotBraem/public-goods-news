@@ -1,6 +1,7 @@
 import React from "react";
 import tweetData from "../data/tweets.json";
 import { Tweet } from "react-tweet";
+import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 
 const TweetWall = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -27,7 +28,13 @@ const TweetWall = () => {
               scrollbarWidth: "none",
             }}
           >
-            <Tweet id={tweetId} />
+            <ErrorBoundary
+              fallback={
+                <div className="p-4 text-gray-500">Failed to load tweet</div>
+              }
+            >
+              <Tweet id={tweetId} />
+            </ErrorBoundary>
           </div>
         ))}
       </div>
@@ -41,7 +48,13 @@ const TweetWall = () => {
               key={index}
               className="mb-4 min-w-full flex-shrink-0 snap-center mx-auto p-4 md:p-8 border-b border-[#57606A] flex justify-center"
             >
-              <Tweet id={tweetId} className="mx-auto" />
+              <ErrorBoundary
+                fallback={
+                  <div className="p-4 text-gray-500">Failed to load tweet</div>
+                }
+              >
+                <Tweet id={tweetId} className="mx-auto" />
+              </ErrorBoundary>
             </div>
           ))}
         </div>
