@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { TypeAnimation } from "react-type-animation";
-import { FaTwitter, FaBook, FaGithub, FaTelegram, FaCopy, FaCheck, } from "react-icons/fa";
-import { Newspaper, Workflow, Bot, Gift, ExternalLink, SatelliteDish, CalendarRange, Podcast, Plus, Minus } from "lucide-react";
+import { FaTwitter, FaBook, FaGithub, FaTelegram, FaCopy, FaCheck, FaGlobeAmericas } from "react-icons/fa";
+import { Newspaper, Workflow, Bot, Gift, ExternalLink, SatelliteDish, CalendarRange, Podcast, Plus, Minus} from "lucide-react";
 import Image from "next/image";
 
 const SlotEmoji = ({
@@ -393,7 +393,8 @@ export default function Home() {
                 Start Curating
               </Link>
               <Link
-                href="/learn-more"
+                href="https://docs.curate.fun/"
+                target="_blank"
                 className="flex items-center justify-center text-black hover:text-gray-600"
               >
                 Learn More <span className="ml-2">→</span>
@@ -418,14 +419,30 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <p className="text-center text-sm md:text-lg text-gray-500 mb-4">COVERING THESE COMMUNITIES:</p>
             <div className="flex justify-start md:justify-between items-center px-4 min-w-max md:min-w-0 gap-8 md:gap-4">
-              <img src="/community-logo-1.png" alt="Community 1" className="h-8" />
-              <img src="/community-logo-2.png" alt="Community 2" className="h-8" />
-              <img src="/community-logo-3.png" alt="Community 3" className="h-8" />
-              <img src="/community-logo-4.png" alt="Community 4" className="h-8" />
-              <img src="/community-logo-5.png" alt="Community 5" className="h-8" />
-              <img src="/community-logo-6.png" alt="Community 6" className="h-8" />
-              <img src="/community-logo-7.png" alt="Community 7" className="h-8" />
-              <img src="/community-logo-8.png" alt="Community 8" className="h-8" />
+              <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
+                <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
+              </a>
+              <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
+                <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
+              </a>
+              <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
+                <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
+              </a>
+              <a href="https://community4.example.com" target="_blank" rel="noopener noreferrer">
+                <img src="/community-logo-4.png" alt="Community 4" className="h-8" />
+              </a>
+              <a href="https://community5.example.com" target="_blank" rel="noopener noreferrer">
+                <img src="/community-logo-5.png" alt="Community 5" className="h-8" />
+              </a>
+              <a href="https://community6.example.com" target="_blank" rel="noopener noreferrer">
+                <img src="/community-logo-6.png" alt="Community 6" className="h-8" />
+              </a>
+              <a href="https://community7.example.com" target="_blank" rel="noopener noreferrer">
+                <img src="/community-logo-7.png" alt="Community 7" className="h-8" />
+              </a>
+              <a href="https://community8.example.com" target="_blank" rel="noopener noreferrer">
+                <img src="/community-logo-8.png" alt="Community 8" className="h-8" />
+              </a>
             </div>
           </div>
         </div>
@@ -946,12 +963,34 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0">
                   <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
                     <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
+                      <FaGlobeAmericas className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
+                    </div>
+                    <div className="flex flex-col items-center md:items-start relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Image 
+                          src="/assets/images/communities/acf.jpg" 
+                          alt="Crypto Grant Wire" 
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                          unoptimized
+                        />
+                        <h3 className="text-2xl font-bold">Ameiran Crypto Foundation</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">All new America x crypto</p>
+                      <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
+                        #publicgoods
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
+                    <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                       <SatelliteDish className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                     </div>
                     <div className="flex flex-col items-center md:items-start relative z-10">
                       <div className="flex items-center gap-2 mb-4">
                         <Image 
-                          src="/crypto-grant-wire-logo.png" 
+                          src="/assets/images/communities/cryptograntwire.svg" 
                           alt="Crypto Grant Wire" 
                           width={32}
                           height={32}
@@ -974,7 +1013,7 @@ export default function Home() {
                     <div className="flex flex-col items-center md:items-start relative z-10">
                       <div className="flex items-center gap-2 mb-4">
                         <Image 
-                          src="/nearweek-logo.png" 
+                          src="/assets/images/communities/nearweek.svg" 
                           alt="NEARWEEK" 
                           width={32}
                           height={32}
@@ -997,7 +1036,7 @@ export default function Home() {
                     <div className="flex flex-col items-center md:items-start relative z-10">
                       <div className="flex items-center gap-2 mb-4">
                         <Image 
-                          src="/public-goods-fm-logo.png" 
+                          src="/assets/images/communities/publicgoodsfm.svg" 
                           alt="Public Goods FM" 
                           width={32}
                           height={32}
