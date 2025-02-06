@@ -53,6 +53,12 @@ const SlotEmoji = ({
   return <span className="inline-block">{emojiSet[currentIndex]}</span>;
 };
 
+const PARTNERS = [
+  { href: "https://nearweek.com", img: "/assets/images/communities/nearweek.svg", alt: "Near Week" },
+  { href: "https://alpha.potlock.org", img: "/assets/images/communities/potlock.svg", alt: "PotLock" },
+  { href: "https://t.me/cryptograntwire", img: "/assets/images/communities/cryptograntwire.svg", alt: "Crypto Grant Wire" }
+];
+
 // First, update the HashtagButton type
 type HashtagButton = {
   tag: string;
@@ -136,7 +142,7 @@ const FAQs = () => {
     },
     {
       question: "How can you add support?",
-      answer: "You can add support by contributing to our GitHub repository or joining our community.",
+      answer: "You can add support by contributing to our <a class='hyperlink' href='https://github.com/potlock/curatedotfun' target='_blank' rel='noopener noreferrer'>GitHub repository</a> or joining our community.",
     },
     {
       question: "How does it work?",
@@ -180,7 +186,10 @@ const FAQs = () => {
                   </div>
                 </div>
                 {openIndex === index && (
-                  <p className="mt-2 text-gray-600 flex-1">{faq.answer}</p>
+                  <p
+                    className="mt-2 text-gray-600 flex-1"
+                    dangerouslySetInnerHTML={{ __html: faq.answer }}
+                  />
                 )}
               </div>
             ))}
@@ -424,43 +433,14 @@ export default function Home() {
           <p className="text-center text-sm md:text-lg text-gray-500 mb-4">COVERING THESE COMMUNITIES:</p>
           <div className="w-full pb-6 overflow-x-scroll">
             <div className="max-w-7xl mx-auto">
-              <div className="flex justify-start md:justify-between items-center px-4 min-w-max md:min-w-0 gap-8 md:gap-4">
-                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
-                </a>
-                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
-                </a>
-                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
-                </a>
-                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
-                </a>
-                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
-                </a>
-                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
-                </a>
-                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
-                </a>
-                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
-                </a>
-                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
-                </a>
-                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
-                </a>
-                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
-                </a>
-                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
-                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
-                </a>
+              <div className="relative overflow-hidden">
+                <div className="flex justify-start items-center px-4 gap-8 animate-marquee hover:pause-marquee whitespace-nowrap">
+                  {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((partner, i) => (
+                    <a key={i} href={partner.href} target="_blank" rel="noopener noreferrer" className="inline-flex">
+                      <Image src={partner.img} width={40} height={40} alt={partner.alt} />
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -863,79 +843,9 @@ export default function Home() {
           <div className="w-full border-t border-[#57606A]"></div>
           <div className="max-w-[1200px] mx-auto">
             <TweetWall />
-            <div className="hidden md:grid md:grid-cols-3">
-              {Array(9).fill(null).map((_, index) => (
-                <div
-                  key={index}
-                  className={`p-8 ${index < 6 ? 'border-b' : ''
-                    } ${index % 3 !== 2 ? 'border-r' : ''
-                    } border-[#57606A]`}
-                >
-                  <div className="flex items-center gap-2 mb-4">
-                    <Image
-                      src="/elliot-avatar.png"
-                      alt="Elliot"
-                      width={48}
-                      height={48}
-                      className="rounded-full"
-                      unoptimized
-                    />
-                    <div>
-                      <p className="font-bold">Elliot</p>
-                      <p className="text-gray-500">@elliot_braem</p>
-                    </div>
-                  </div>
-                  <p className="font-['PT_Root_UI'] text-[#57606A] text-[18px] leading-[30px] font-normal">
-                    {index % 3 === 0 && "Before Curate.fun, I wasted 10+ hours weekly digging through Twitter threads and YouTube videos for my newsletter. Now? Their Smart Feeds auto-curate niche content, and the AI summaries are chef's kiss — turns 5,000-word articles into 3 bullet points."}
-                    {index % 3 === 1 && "Repurposing content used to be my nightmare. Now, I drop a YouTube link into Curate.fun, and it spits out a tweet thread, LinkedIn carousel, and a blog draft in MINUTES. The AI tweaks tone for each platform."}
-                    {index % 3 === 2 && "From Reddit AMAs to whitepaper summaries, Curate.fun does the heavy lifting. I drop a CoinDesk article link, and it spits out a Twitter thread — all tailored for crypto audiences. My followers think I have a secret team. 😎 Best part? It crossposts to Telegram automatically. #CryptoTwitter #Web3Tools"}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="md:hidden">
-              <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-                {Array(9).fill(null).map((_, index) => (
-                  <div
-                    key={index}
-                    className="min-w-full flex-shrink-0 snap-center p-4 md:p-8 border-b border-[#57606A] w-[310px]"
-                  >
-                    <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
-                      <Image
-                        src="/elliot-avatar.png"
-                        alt="Elliot"
-                        width={48}
-                        height={48}
-                        className="rounded-full"
-                        unoptimized
-                      />
-                      <div>
-                        <p className="font-bold">Elliot</p>
-                        <p className="text-gray-500">@elliot_braem</p>
-                      </div>
-                    </div>
-                    <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
-                      {index % 3 === 0 && "Before Curate.fun, I wasted 10+ hours weekly digging through Twitter threads and YouTube videos for my newsletter. Now? Their Smart Feeds auto-curate niche content, and the AI summaries are chef's kiss — turns 5,000-word articles into 3 bullet points."}
-                      {index % 3 === 1 && "Repurposing content used to be my nightmare. Now, I drop a YouTube link into Curate.fun, and it spits out a tweet thread, LinkedIn carousel, and a blog draft in MINUTES. The AI tweaks tone for each platform."}
-                      {index % 3 === 2 && "From Reddit AMAs to whitepaper summaries, Curate.fun does the heavy lifting. I drop a CoinDesk article link, and it spits out a Twitter thread — all tailored for crypto audiences. My followers think I have a secret team. 😎 Best part? It crossposts to Telegram automatically. #CryptoTwitter #Web3Tools"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Mobile Navigation Indicators */}
-              <div className="flex justify-center gap-2 mt-4 mb-6">
-                {Array(9).fill(null).map((_, index) => (
-                  <div
-                    key={index}
-                    className={`h-2 w-2 rounded-full ${index === 0 ? 'bg-black' : 'bg-gray-200'}`}
-                  />
-                ))}
-              </div>
-            </div>
           </div>
         </div>
-        <div className="w-full border-t border-black"></div>
+        <div className="w-full border-t border-black hidden md:block"></div>
       </section>
       <section className="w-full bg-black text-white py-12 md:py-24">
         <div className="max-w-[1200px] mx-auto px-4 text-center">
@@ -974,13 +884,13 @@ export default function Home() {
           </div>
           <div className="w-full border-t border-black"></div>
           <div className="max-w-[1200px] mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-0">
-              <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-0 justify-center">
+              <div className="p-4 pb-8 md:p-8 md:border-x relative max-w-[300px] border-b border-neutral-500 mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <FaGlobeAmericas className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                 </div>
                 <Link href="https://AmericanCryptoFoundation" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-start gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/acf.jpg"
                       alt="Crypto Grant Wire"
@@ -989,20 +899,20 @@ export default function Home() {
                       className="rounded-full"
                       unoptimized
                     />
-                    <h3 className="text-2xl font-bold">Ameiran Crypto Foundation</h3>
+                    <h3 className="text-2xl font-bold">American Crypto Foundation</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">All new America x crypto</p>
+                  <p className="text-gray-600 mb-4 text-center md:text-left">All new America x crypto</p>
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #publicgoods
                   </span>
                 </Link>
               </div>
-              <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
+              <div className="p-4 pb-8 md:p-8 md:border-x relative max-w-[300px] border-b border-neutral-500 mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <SatelliteDish className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                 </div>
                 <Link href="https://t.me/cryptograntwire" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-start gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/cryptograntwire.svg"
                       alt="Crypto Grant Wire"
@@ -1011,21 +921,21 @@ export default function Home() {
                       className="rounded-full"
                       unoptimized
                     />
-                    <h3 className="text-2xl font-bold">Cryto Grant Wire</h3>
+                    <h3 className="text-2xl font-bold">Crypto Grant Wire</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">Feed for Web3 grant + DAO Governance</p>
+                  <p className="text-gray-600 mb-4 text-center md:text-left">Feed for Web3 grant + DAO Governance</p>
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #publicgoods
                   </span>
                 </Link>
               </div>
 
-              <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative">
+              <div className="p-4 pb-8 md:p-8 md:border-r relative max-w-[300px] border-b border-neutral-500 mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <CalendarRange className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                 </div>
                 <Link href="https://nearweek.com" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
+                  <div className="flex items-start gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/nearweek.svg"
                       alt="NEARWEEK"
@@ -1036,19 +946,19 @@ export default function Home() {
                     />
                     <h3 className="text-2xl font-bold">NEARWEEK</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">NEAR Protocol Community digest</p>
+                  <p className="text-gray-600 mb-4 text-center md:text-left">NEAR Protocol Community digest</p>
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #near
                   </span>
                 </Link>
               </div>
 
-              <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative overflow-hidden">
+              <div className="p-4 pb-8 md:p-8 md:border-r relative max-w-[300px] overflow-hidden mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <Podcast className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))', transform: 'rotate(-45deg)' }} />
                 </div>
-                <Link href="https://publigoods.fm" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
-                  <div className="flex items-center gap-2 mb-4">
+                <Link href="https://publicgoods.fm" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
+                  <div className="flex items-start gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/publicgoodsfm.svg"
                       alt="Public Goods FM"
@@ -1059,7 +969,7 @@ export default function Home() {
                     />
                     <h3 className="text-2xl font-bold">Public Goods FM</h3>
                   </div>
-                  <p className="text-gray-600 mb-4">Public goods focused podcast and newsletter</p>
+                  <p className="text-gray-600 mb-4 text-center md:text-left">Public goods focused podcast and newsletter</p>
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #publicgoods
                   </span>
