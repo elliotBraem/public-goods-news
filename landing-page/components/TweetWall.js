@@ -21,7 +21,11 @@ const TweetWall = () => {
             className={`p-8 ${index < 6 ? "border-b" : ""} ${
               index % 3 !== 2 ? "border-r" : ""
             } border-[#57606A] `}
-            style={{ height: "500px", overflowY: "scroll", scrollbarWidth: "none" }}
+            style={{
+              height: "500px",
+              overflowY: "scroll",
+              scrollbarWidth: "none",
+            }}
           >
             <Tweet id={tweetId} />
           </div>
