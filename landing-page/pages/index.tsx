@@ -186,9 +186,10 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
       <div
         className={`
           px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
-          ${isActive
-            ? "bg-gray-500 text-white"
-            : "bg-white hover:bg-gray-100 border border-gray-200"
+          ${
+            isActive
+              ? "bg-gray-500 text-white"
+              : "bg-white hover:bg-gray-100 border border-gray-200"
           }
         `}
       >
@@ -310,7 +311,6 @@ const FAQs = () => {
 };
 
 export default function Home() {
-
   const soon = true;
 
   // Define the case studies JSON object
@@ -580,12 +580,18 @@ export default function Home() {
           </h2>
 
           <div className="flex flex-wrap gap-3 md:gap-4 justify-center">
-            {hashtagData.feeds.map(feed => (
+            {hashtagData.feeds.map((feed) => (
               <HashtagButton
-              key={feed.id}
-              tag={feed.id.replace('#', '')}
-              isActive={activeHashtag === feed.id.replace('#', '')} 
-              onClick={() => setActiveHashtag(activeHashtag === feed.id.replace('#', '') ? '' : feed.id.replace('#', ''))}
+                key={feed.id}
+                tag={feed.id.replace("#", "")}
+                isActive={activeHashtag === feed.id.replace("#", "")}
+                onClick={() =>
+                  setActiveHashtag(
+                    activeHashtag === feed.id.replace("#", "")
+                      ? ""
+                      : feed.id.replace("#", ""),
+                  )
+                }
               />
             ))}
           </div>
