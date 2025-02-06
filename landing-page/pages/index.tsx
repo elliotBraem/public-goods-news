@@ -1072,7 +1072,7 @@ export default function Home() {
           <div className="w-full border-t border-black"></div>
           <div className="max-w-[1200px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-0 justify-center">
-              <div className="p-4 pb-8 md:p-8 md:border-x relative max-w-[300px] border-b border-neutral-500 mx-auto">
+              <div className="pt-10 pb-8 md:p-8 md:border-x relative max-w-[300px] border-b border-neutral-500 mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <FaGlobeAmericas
                     className="w-48 h-48 text-white"
