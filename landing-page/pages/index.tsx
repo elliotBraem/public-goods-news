@@ -3,7 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { TypeAnimation } from "react-type-animation";
 import { FaTwitter, FaBook, FaGithub, FaTelegram, FaCopy, FaCheck, } from "react-icons/fa";
-import { Newspaper, Workflow, Bot, Gift, ExternalLink, SatelliteDish, CalendarRange, Podcast } from "lucide-react";
+import { Newspaper, Workflow, Bot, Gift, ExternalLink, SatelliteDish, CalendarRange, Podcast, Plus, Minus } from "lucide-react";
 import Image from "next/image";
 
 const SlotEmoji = ({
@@ -73,7 +73,7 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(`@isubmit @curatedotfun #${tag}`);
+    navigator.clipboard.writeText(`!submit @curatedotfun #${tag}`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -99,7 +99,7 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
       {mounted && isActive && (
         <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg p-3 shadow-lg z-50 whitespace-nowrap">
           <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-600">@isubmit @curatedotfun #{tag}</p>
+            <p className="text-sm text-gray-600">!submit @curatedotfun #{tag}</p>
             <button 
               className="flex items-center gap-1 px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 rounded transition-colors"
               onClick={handleCopy}
@@ -114,6 +114,79 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
         </div>
       )}
     </button>
+  );
+};
+
+const FAQs = () => {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  const faqs = [
+    {
+      question: "What is curate.fun?",
+      answer: "Curate.fun is a platform designed to streamline content curation and sharing.",
+    },
+    {
+      question: "How do I get a feed?",
+      answer: "You can get a feed by signing up and selecting your preferred sources.",
+    },
+    {
+      question: "How does it work?",
+      answer: "The curate.fun is part of the potluck ecosystem and tokenomics will be baked in with the $GRANTS ecosystem token.",
+    },
+    {
+      question: "How can you add support?",
+      answer: "You can add support by contributing to our GitHub repository or joining our community.",
+    },
+    {
+      question: "How does it work?",
+      answer: "Curate.fun uses AI to curate and summarize content from various sources.",
+    },
+  ];
+
+  const toggleFAQ = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  return (
+    <section className="w-full bg-white mb-10">
+      <div className="w-full flex md:flex-row flex-col mx-auto py-6 md:py-8">
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
+            <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
+              FAQs
+            </span>
+          </div>
+          
+          <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left">
+            Frequently asked questions
+          </h2>
+          <p className="md:text-left text-center mb-8">
+            CONTACT US <span className="text-blue-500">→</span>
+          </p>
+        </div>
+        <div className="md:max-w-[820px] max-w-[1200px] flex-1 w-full mx-auto px-6">
+          <div className="space-y-4">
+            {faqs.map((faq, index) => (
+              <div key={index} className="p-4 bg-gray-100 rounded-md">
+                <div className="flex justify-between items-center flex-1 cursor-pointer" onClick={() => toggleFAQ(index)}>
+                  <p className="font-semibold">{faq.question}</p>
+                <div className="flex items-center">
+                  {openIndex === index ? (
+                    <Minus className="text-gray-500 cursor-pointer" onClick={() => toggleFAQ(index)} />
+                  ) : (
+                    <Plus className="text-gray-500 cursor-pointer" onClick={() => toggleFAQ(index)} />
+                  )}
+                </div>
+                </div>
+                {openIndex === index && (
+                  <p className="mt-2 text-gray-600 flex-1">{faq.answer}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };
 
@@ -479,7 +552,7 @@ export default function Home() {
       <section className="w-full bg-white">
         <div className="w-full mx-auto pt-6 md:pt-8">
           <div className="max-w-[1200px] mx-auto px-4 md:px-8">
-            <div className="flex flex-col items-center mb-6 md:mb-8">
+            <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
               <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
                 HOW IT WORKS
               </span>
@@ -505,7 +578,7 @@ export default function Home() {
                 </h3>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
                   Submit contents anywhere by replying to posts with{" "}
-                  <span className="font-mono">@isubmit @curatedotfun</span>
+                  <span className="font-mono">!submit @curatedotfun</span>
                   <br />
                   <span className="font-mono">#Hashtag</span>
                 </p>
@@ -544,14 +617,13 @@ export default function Home() {
                 </p>
               </div>
             </div>
-
-            {/* Stats Section */}
+            <div className="hidden md:block absolute left-0 w-screen border-t border-black mb-8"></div>
             <div className="grid grid-cols-2 md:grid-cols-4">
               <div className="p-6 md:p-8 border-r border-b md:border-b-0 border-black">
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">1,000</h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">POST CURATED</p>
               </div>
-              <div className="p-6 md:p-8 border-b md:border-b-0 border-black">
+              <div className="p-6 md:p-8 border-r md:border-b-0 border-black">
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">5</h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">PARTNERED MEDIA</p>
               </div>
@@ -644,13 +716,13 @@ export default function Home() {
       <section className="w-full bg-white">
   <div className="w-full mx-auto py-6 md:py-8">
     <div className="max-w-[1200px] mx-auto px-4">
-      <div className="flex flex-col items-center mb-6 md:mb-8">
+      <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
         <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
           KEY FEATURES
         </span>
       </div>
       
-      <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left">
+      <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left max-w-[720px]">
         A fully integrated suite to transform your content workflow
       </h2>
     </div>
@@ -754,7 +826,7 @@ export default function Home() {
     <section className="w-full bg-white">
   <div className="w-full mx-auto py-6 md:py-8">
     <div className="max-w-[1200px] mx-auto px-4">
-      <div className="flex flex-col items-center mb-6 md:mb-8">
+      <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
         <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
           SOCIAL PROOF
         </span>
@@ -867,7 +939,7 @@ export default function Home() {
                    <section className="w-full bg-white">
             <div className="w-full mx-auto py-6 md:py-8">
               <div className="max-w-[1200px] mx-auto px-4">
-                <div className="flex flex-col items-center mb-6 md:mb-8">
+                <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
                   <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
                     CASE STUDIES
                   </span>
@@ -955,292 +1027,7 @@ export default function Home() {
             <div className="w-full border-t border-black"></div>
           </section>
 
-      {/* <main className="flex flex-col items-center justify-center min-h-screen p-4 px-2 sm:px-4 w-full">
-        <div className="w-full max-w-none mx-auto">
-          <div className="flex justify-center items-center mb-8 sm:mb-12 border-b-4 border-black w-full">
-            <div className="flex-1 p-4 flex justify-center items-center w-full">
-              <div
-                id="slot"
-                className="text-4xl sm:text-6xl md:text-8xl space-x-2 sm:space-x-4 md:space-x-8 w-full"
-              >
-                <SlotEmoji
-                  finalEmoji="🔖"
-                  duration={2000}
-                  interval={150}
-                  emojiSet={["🔖", "", "📚", "📌", ""]}
-                />
-                <SlotEmoji
-                  finalEmoji="📸"
-                  duration={2500}
-                  interval={150}
-                  emojiSet={["📷", "🎥", "🎙️", "📹", "📸"]}
-                />
-                <SlotEmoji
-                  finalEmoji="🤖"
-                  duration={2500}
-                  interval={150}
-                  emojiSet={["🤖", "🦾", "🔧"]}
-                />
-              </div>
-            </div>
-
-            <div className="flex-1 p-4 flex justify-center items-center w-full border-l-4 border-black border-r-0 border-t-0 border-b-0">
-              <TypeAnimation
-                sequence={[
-                  "[curate]",
-                  1000,
-                  "[curate] news...",
-                  800,
-                  "[curate] on socials",
-                  1000,
-                  "[output] tweets..",
-                  800,
-                  "[output] podcasts",
-                  800,
-                  "[output] blogs.",
-                  1000,
-                ]}
-                wrapper="div"
-                cursor={true}
-                repeat={Infinity}
-                className="text-lg sm:text-xl md:text-2xl font-mono px-2 w-full"
-              />
-            </div>
-          </div>
-
-          <section className="mb-8 sm:mb-12 w-full">
-            <h2 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
-              Key Features
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-              {features.map((feature, index) => (
-                <div
-                  key={index}
-                  className="card p-4 border-4 border-black shadow-md hover:shadow-lg transform hover:translate-y-[-2px] transition duration-300 w-full relative"
-                >
-                  {feature.soon && (
-                    <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-gray-500">
-                        Soon
-                      </span>
-                    </div>
-                  )}
-                  <h5 className="text-2xl">
-                    {feature.emoji + " " + feature.title}
-                  </h5>
-                  <p className="mt-2">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-          <section className="mb-8 sm:mb-12 w-full">
-            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
-              Supported Platforms
-            </h1>
-            <p className="mb-4">
-              Seamlessly integrate with your favorite platforms:
-            </p>
-            <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3  gap-4 w-full">
-              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full">
-                <span className="text-3xl mr-2">🐦</span>
-                <p>Twitter</p>
-              </div>
-              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full">
-                <span className="text-3xl mr-2">✉️</span>
-                <p>Telegram</p>
-              </div>
-
-              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full relative">
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gray-500">Soon</span>
-                </div>
-                <span className="text-3xl mr-2">📡</span>
-                <p>RSS Feeds</p>
-              </div>
-              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full relative">
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gray-500">Soon</span>
-                </div>
-                <span className="text-3xl mr-2">🌐</span>
-                <p>Farcaster</p>
-              </div>
-              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full relative">
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gray-500">Soon</span>
-                </div>
-                <span className="text-3xl mr-2">🎙️</span>
-                <p>Podcasting</p>
-              </div>
-              <div className="card p-4 border-t-4 border-black shadow-md flex items-center w-full relative">
-                <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-gray-500">Soon</span>
-                </div>
-                <span className="text-3xl mr-2">🛰️</span>
-                <p>NEAR Social</p>
-              </div>
-            </div>
-            <p className="mt-4 italic">
-              Powered by{" "}
-              <a
-                className="text-blue-500 hover:text-gray-800"
-                href="https://crosspost.everything.dev/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                opencrosspost.com
-              </a>
-            </p>
-          </section>
-
-          <section className="mb-8 sm:mb-12 w-full">
-            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
-              Case Studies
-            </h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-              {caseStudies
-                .filter((study) => !study.hide)
-                .map((study, index) => (
-                  <Link
-                    key={index}
-                    href={study.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col relative"
-                  >
-                    {study.soon && (
-                      <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-gray-500">
-                          Soon
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <span className="text-3xl mr-2">
-                          {study.logo || "🎙️"}
-                        </span>
-                        <p className="font-bold">{study.name}</p>
-                      </div>
-                      <span className="text-xs bg-gray-200 p-1">
-                        {study.hashtag}
-                      </span>
-                    </div>
-                    <hr className="my-2 border-t-4 border-black" />
-                    <p className="mt-2 text-sm italic">{study.description}</p>
-                  </Link>
-                ))}
-            </div>
-          </section>
-
-          <section className="mb-8 sm:mb-12 w-full text-center">
-            <h1 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4 w-full">
-              Community Section
-            </h1>
-            <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 gap-4 w-full">
-              <Link
-                href="https://t.me/+UM70lvMnofk3YTVh"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl">👥</span>
-                <p>Curate</p>
-              </Link>
-              <Link
-                href="https://t.me/+UM70lvMnofk3YTVh"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl">🚀</span>
-                <p>Launch Feed</p>
-              </Link>
-              <Link
-                href="https://t.me/+UM70lvMnofk3YTVh"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="card p-4 border-4 border-black shadow-md hover:bg-gray-100 flex flex-col items-center justify-center"
-              >
-                <span className="text-3xl">🤝</span>
-                <p>Partner W Us</p>
-              </Link>
-            </div>
-          </section>
-
-          {/* <section className="mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4">Pricing</h2>
-            <table className="w-full border-collapse border-4 border-black">
-              <thead>
-                <tr>
-                  <th className="border-4 border-black p-2">Tier</th>
-                  <th className="border-4 border-black p-2">Price (Monthly)</th>
-                  <th className="border-4 border-black p-2">Features</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border-4 border-black p-2">Basic</td>
-                  <td className="border-4 border-black p-2">$49</td>
-                  <td className="border-4 border-black p-2">
-                    - 1 feed<br />
-                    - 1 platform for crossposting<br />
-                    - 3 curators/approvers<br />
-                    - Weekly automated posts<br />
-                    - 50 content pieces processed/month<br />
-                    - Basic AI summarization
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border-4 border-black p-2">Pro</td>
-                  <td className="border-4 border-black p-2">$199</td>
-                  <td className="border-4 border-black p-2">
-                    - 1 feed<br />
-                    - 2 platforms for crossposting<br />
-                    - 5 curators/approvers<br />
-                    - Daily automated posts<br />
-                    - 200 content pieces processed/month<br />
-                    - Advanced AI summarization and format conversion
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border-4 border-black p-2">Enterprise</td>
-                  <td className="border-4 border-black p-2">$599</td>
-                  <td className="border-4 border-black p-2">
-                    - Up to 3 feeds<br />
-                    - All supported platforms for crossposting<br />
-                    - 10 curators/approvers<br />
-                    - Daily automated posts with custom scheduling<br />
-                    - 500 content pieces processed/month<br />
-                    - Full AI suite with custom model fine-tuning
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </section> */}
-
-          {/* <section className="mb-8 sm:mb-12">
-            <h2 className="text-2xl sm:text-3xl mb-4 border-b-4 border-black p-4">Add-ons</h2>
-            <table className="w-full border-collapse border-4 border-black">
-              <thead>
-                <tr>
-                  <th className="border-4 border-black p-2">Add-on</th>
-                  <th className="border-4 border-black p-2">Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border-4 border-black p-2">Extra platform integration</td>
-                  <td className="border-4 border-black p-2">$30/month per platform</td>
-                </tr>
-                <tr>
-                  <td className="border-4 border-black p-2">Custom AI model training</td>
-                  <td className="border-4 border-black p-2">Starting at $300</td>
-                </tr>
-              </tbody>
-            </table>
-          </section> 
-        </div>
-      </main> */}
+                <FAQs />
 
       <footer className="fixed bottom-0 w-full py-2 sm:py-4 bg-white/80 backdrop-blur border-t-4 border-black flex flex-col sm:flex-row justify-between items-center px-4">
         <div className="flex space-x-4">
