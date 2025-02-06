@@ -673,7 +673,13 @@
       "description": "Regular web3 builder demos",
       "moderation": {
         "approvers": {
-          "twitter": ["elliot_braem", "ilblackdragon", "David___Mo", "revrfg", "plugrel"]
+          "twitter": [
+            "elliot_braem",
+            "ilblackdragon",
+            "David___Mo",
+            "revrfg",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -688,7 +694,14 @@
       "description": "Updates around Ripple ecosystem, XRP, & more",
       "moderation": {
         "approvers": {
-          "twitter": ["bgarlinghouse", "JoelKatz", "RuleXRP", "XRPcryptowolf", "AlexCobb_", "plugrel"]
+          "twitter": [
+            "bgarlinghouse",
+            "JoelKatz",
+            "RuleXRP",
+            "XRPcryptowolf",
+            "AlexCobb_",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -703,7 +716,17 @@
       "description": "Updates around Sui ecosystem & more",
       "moderation": {
         "approvers": {
-          "twitter": ["SuiNetwork", "markoggwp", "lexiwangler", "web3crusadr", "b1ackd0g", "EmanAbio", "EvanWeb3", "kostascrypto", "plugrel"]
+          "twitter": [
+            "SuiNetwork",
+            "markoggwp",
+            "lexiwangler",
+            "web3crusadr",
+            "b1ackd0g",
+            "EmanAbio",
+            "EvanWeb3",
+            "kostascrypto",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -718,7 +741,13 @@
       "description": "Updates around Hyperliquid ecosystem & more",
       "moderation": {
         "approvers": {
-          "twitter": ["HyperFND", "stevenyuntcap", "henrik", "Sakrexer", "plugrel"]
+          "twitter": [
+            "HyperFND",
+            "stevenyuntcap",
+            "henrik",
+            "Sakrexer",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -733,7 +762,20 @@
       "description": "Updates around Aptos ecosystem & more",
       "moderation": {
         "approvers": {
-          "twitter": ["Aptos", "stalesamy", "moshaikhs", "alex_aptos", "lornyelle", "Gemswizzard", "christie__0", "0xaptosj", "AptosCollective", "0xlightmark", "0xSushiKev", "plugrel"]
+          "twitter": [
+            "Aptos",
+            "stalesamy",
+            "moshaikhs",
+            "alex_aptos",
+            "lornyelle",
+            "Gemswizzard",
+            "christie__0",
+            "0xaptosj",
+            "AptosCollective",
+            "0xlightmark",
+            "0xSushiKev",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -748,7 +790,17 @@
       "description": "Updates around Pudgy Penguins ecosystem & more",
       "moderation": {
         "approvers": {
-          "twitter": ["pudgypenguins", "LucaNetz","JoeyMooose", "Berko_Crypto", "slushygmi", "MetaGandhi_", "PudgyRitesh", "ppmctweets","plugrel"]
+          "twitter": [
+            "pudgypenguins",
+            "LucaNetz",
+            "JoeyMooose",
+            "Berko_Crypto",
+            "slushygmi",
+            "MetaGandhi_",
+            "PudgyRitesh",
+            "ppmctweets",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -763,7 +815,14 @@
       "description": "Updates around Avalanche ecosystem & more",
       "moderation": {
         "approvers": {
-          "twitter": ["luigidemeo", "John1wu", "AVAXDaily", "GamingOnAvax", "frostLedger", "plugrel"]
+          "twitter": [
+            "luigidemeo",
+            "John1wu",
+            "AVAXDaily",
+            "GamingOnAvax",
+            "frostLedger",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -778,7 +837,15 @@
       "description": "Updates around Base ecosystem & more",
       "moderation": {
         "approvers": {
-          "twitter": ["gozdeaksay", "CryptoStatuette", "nameisnaemis", "EvSlatts", "jessepollak", "kunal_modi","plugrel"]
+          "twitter": [
+            "gozdeaksay",
+            "CryptoStatuette",
+            "nameisnaemis",
+            "EvSlatts",
+            "jessepollak",
+            "kunal_modi",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
