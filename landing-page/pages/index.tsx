@@ -415,37 +415,39 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="w-full py-6 overflow-x-scroll">
-          <div className="max-w-7xl mx-auto">
-            <p className="text-center text-sm md:text-lg text-gray-500 mb-4">COVERING THESE COMMUNITIES:</p>
-            <div className="flex justify-start md:justify-between items-center px-4 min-w-max md:min-w-0 gap-8 md:gap-4">
-              <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
-                <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
-              </a>
-              <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
-                <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
-              </a>
-              <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
-                <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
-              </a>
-              <a href="https://community4.example.com" target="_blank" rel="noopener noreferrer">
-                <img src="/community-logo-4.png" alt="Community 4" className="h-8" />
-              </a>
-              <a href="https://community5.example.com" target="_blank" rel="noopener noreferrer">
-                <img src="/community-logo-5.png" alt="Community 5" className="h-8" />
-              </a>
-              <a href="https://community6.example.com" target="_blank" rel="noopener noreferrer">
-                <img src="/community-logo-6.png" alt="Community 6" className="h-8" />
-              </a>
-              <a href="https://community7.example.com" target="_blank" rel="noopener noreferrer">
-                <img src="/community-logo-7.png" alt="Community 7" className="h-8" />
-              </a>
-              <a href="https://community8.example.com" target="_blank" rel="noopener noreferrer">
-                <img src="/community-logo-8.png" alt="Community 8" className="h-8" />
-              </a>
+            <div className="pt-6">
+              <p className="text-center text-sm md:text-lg text-gray-500 mb-4">COVERING THESE COMMUNITIES:</p>
+                      <div className="w-full pb-6 overflow-x-scroll">
+                        <div className="max-w-7xl mx-auto">
+              <div className="flex justify-start md:justify-between items-center px-4 min-w-max md:min-w-0 gap-8 md:gap-4">
+                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
+                </a>
+                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
+                </a>
+                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
+                </a>
+                <a href="https://community4.example.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/community-logo-4.png" alt="Community 4" className="h-8" />
+                </a>
+                <a href="https://community5.example.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/community-logo-5.png" alt="Community 5" className="h-8" />
+                </a>
+                <a href="https://community6.example.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/community-logo-6.png" alt="Community 6" className="h-8" />
+                </a>
+                <a href="https://community7.example.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/community-logo-7.png" alt="Community 7" className="h-8" />
+                </a>
+                <a href="https://community8.example.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/community-logo-8.png" alt="Community 8" className="h-8" />
+                </a>
+              </div>
+                        </div>
+                      </div>
             </div>
-          </div>
-        </div>
 
         <div className="w-full border-t border-black"></div>
       </header>
