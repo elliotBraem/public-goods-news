@@ -804,7 +804,7 @@ export default function Home() {
                   alt="Chron Jobs Flow"
                   width={400}
                   height={200}
-                  className="mb-8"
+                  className="w-full mb-6 md:mb-8"
                   unoptimized
                 />
                 <div className="p-4 md:p-8">
@@ -823,7 +823,7 @@ export default function Home() {
                   alt="Crosspost Engine Flow"
                   width={400}
                   height={200}
-                  className="mb-8"
+                  className="w-full mb-6 md:mb-8"
                   unoptimized
                 />
                 <div className="p-4 md:p-8">
@@ -953,7 +953,7 @@ export default function Home() {
         </div>
       </section>
       <section className="w-full bg-white">
-        <div className="w-full mx-auto py-6 md:py-8">
+        <div className="w-full mx-auto pt-6 md:pt-8">
           <div className="max-w-[1200px] mx-auto px-4">
             <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
               <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
@@ -968,7 +968,7 @@ export default function Home() {
           </div>
           <div className="w-full border-t border-black"></div>
           <div className="max-w-[1200px] mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-0">
               <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <FaGlobeAmericas className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
