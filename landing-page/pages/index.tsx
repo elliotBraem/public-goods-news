@@ -947,7 +947,7 @@ export default function Home() {
             <Link href={"https://app.curate.fun/f"} target="_blank" className="w-full md:w-auto bg-white text-black px-6 py-3 rounded-lg font-medium">
               Start Contributing
             </Link>
-            <Link href="https://docs.curate.fun/" className="flex items-center justify-center gap-2 text-white hover:text-gray-300 py-3">
+            <Link href="https://docs.curate.fun/" target="_blank" className="flex items-center justify-center gap-2 text-white hover:text-gray-300 py-3">
               Learn More
               <ExternalLink className="w-4 h-4" />
             </Link>
