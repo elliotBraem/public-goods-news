@@ -618,8 +618,10 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-3">
               <div className="p-6 md:p-8 border-b md:border-b-0 md:border-x border-black">
                 <div className="flex flex-col items-center mb-6">
-                  <img
+                  <Image
                     src="/assets/images/technology_ccode_opensource.png"
+                    width={300}
+                    height={300}
                     alt="Submit Content"
                     className="w-24 md:w-[188px]"
                   />
@@ -1145,8 +1147,29 @@ export default function Home() {
 
       <FAQs />
 
-      <footer className="fixed bottom-0 w-full py-2 sm:py-4 bg-white/80 backdrop-blur border-t-4 border-black flex flex-col sm:flex-row justify-between items-center px-4">
-        <div className="flex space-x-4">
+      <footer className="w-full py-8 bg-[#F9F9F9] border-t border-black flex flex-col sm:flex-row justify-between items-center px-6 gap-6">
+        <div className="flex items-center">
+          <Image
+            src="/curatedotfuntransparenticon.png"
+            alt="curate.fun Logo"
+            width={32}
+            height={32}
+            className="h-8 w-8 mr-2"
+            priority
+          />
+          <h1 className="text-2xl font-bold">curate.fun</h1>
+        </div>
+        <div className="text-sm sm:text-base text-right mt-2 sm:mt-0">
+          <Link
+            href="https://potlock.org"
+            className="hover:text-gray-800"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Curated with ❤️ by 🫕 POTLOCK
+          </Link>
+        </div>
+        <div className="flex space-x-6">
           <Link
             href="https://twitter.com/curatedotfun"
             target="_blank"
@@ -1178,16 +1201,6 @@ export default function Home() {
             className="text-xl hover:text-blue-500"
           >
             <FaTelegram />
-          </Link>
-        </div>
-        <div className="text-sm sm:text-base text-right mt-2 sm:mt-0">
-          <Link
-            href="https://potlock.org"
-            className="hover:text-gray-800"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Curated with ❤️ by 🫕 POTLOCK
           </Link>
         </div>
       </footer>
