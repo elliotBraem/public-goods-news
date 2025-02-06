@@ -157,12 +157,9 @@ a.hyperlink {
 }
 @keyframes scroll {
   0% {
-    transform: translateX(0%);
-  }
-  50% {
-    transform: translateX(-20%);
+    transform: translateX(-70%);
   }
   100% {
-    transform: translateX(20%);
+    transform: translateX(0%);
   }
 }
