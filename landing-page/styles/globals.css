@@ -8,6 +8,12 @@
   }
 } 
 
+html, body {
+  height: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
 @layer utilities {
   .delay-150 {
     animation-delay: 150ms;

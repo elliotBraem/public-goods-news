@@ -148,7 +148,7 @@ const FAQs = () => {
   };
 
   return (
-    <section className="w-full bg-white mb-10">
+    <section className="w-full bg-white mb-20">
       <div className="w-full flex md:flex-row flex-col mx-auto py-6 md:py-8">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="flex flex-col md:items-start items-center mb-6 md:mb-8">
@@ -314,7 +314,7 @@ export default function Home() {
   const [activeHashtag, setActiveHashtag] = useState("grants");
 
   return (
-    <div className="min-h-screen bg-white font-lodrina">
+    <main className="flex flex-col min-h-screen bg-white w-[100vw]">
       <Head>
         <title>curate.fun - crowdsource automated content</title>
         <meta
@@ -379,10 +379,10 @@ export default function Home() {
 
         <div className="w-full max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row justify-between items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-8 mb-8 md:mb-0">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">
+            <h2 className="text-4xl md:text-6xl text-center md:text-left font-bold mb-6">
               Turn <span className="text-[#FF2E2E]">Crowdsourced</span> Social Feeds into Powerful, Recurring Content
             </h2>
-            <p className="text-lg md:text-xl mb-8">
+            <p className="text-lg md:text-xl mb-8  text-center md:text-left ">
               Discover the best crypto insights from top sources, curated by experts and the community, transformed into engaging content. Leverage real-time social data to fuel your content strategy effortlessly.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -403,27 +403,18 @@ export default function Home() {
 
           <div className="w-full md:w-1/2 relative">
             <div className="relative">
-              <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
-                <div className="flex items-center mb-2">
-                  <img
-                    src="/pod-network-avatar.png"
-                    alt="Pod Network"
-                    className="w-12 h-12 rounded-full mr-3"
-                  />
-                  <div>
-                    <div className="font-bold">pod.network</div>
-                    <div className="text-gray-500">@poddotnetwork</div>
-                  </div>
-                </div>
-                <p className="mb-4">
-                  We are thrilled to announce we raised $10 million in seed round funding! Huge thanks to our backers
-                </p>
-              </div>
+              <Image 
+                src={"/assets/images/hero-cards.png"} 
+                alt="Curate posts" 
+                width={400}
+                height={400}
+                className="object-cover w-full h-full"
+              />
             </div>
           </div>
         </div>
 
-        <div className="w-full py-6 overflow-x-auto">
+        <div className="w-full py-6 overflow-x-scroll">
           <div className="max-w-7xl mx-auto">
             <p className="text-center text-sm md:text-lg text-gray-500 mb-4">COVERING THESE COMMUNITIES:</p>
             <div className="flex justify-start md:justify-between items-center px-4 min-w-max md:min-w-0 gap-8 md:gap-4">
@@ -623,7 +614,7 @@ export default function Home() {
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">1,000</h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">POST CURATED</p>
               </div>
-              <div className="p-6 md:p-8 border-r md:border-b-0 border-black">
+              <div className="p-6 md:p-8 border-b md:border-r md:border-b-0 border-black">
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">5</h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">PARTNERED MEDIA</p>
               </div>
@@ -999,7 +990,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative">
+                  <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative overflow-hidden">
                     <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                       <Podcast className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))', transform: 'rotate(-45deg)'  }} />
                     </div>
@@ -1075,7 +1066,7 @@ export default function Home() {
           </Link>
         </div>
       </footer>
-    </div>
+    </main>
   );
 }
 
