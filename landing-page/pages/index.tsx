@@ -311,7 +311,7 @@ export default function Home() {
     },
   ];
 
-  const [activeHashtag, setActiveHashtag] = useState("grants");
+  const [activeHashtag, setActiveHashtag] = useState("");
 
   return (
     <main className="flex flex-col min-h-screen bg-white w-[100vw]">
@@ -677,75 +677,67 @@ export default function Home() {
               A fully integrated suite to transform your content workflow
             </h2>
           </div>
-          <div className="w-full border-t border-black"></div>
+          <div className="w-full border-t border-neutral-500"></div>
           <div className="max-w-[1200px] mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2">
-              <div className="p-4 md:p-8 border-b md:border-b border-black md:border-r">
+              <div className="p-4 md:p-8 border-b md:border-b border-neutral-500 md:border-r">
                 <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
                   <Newspaper className="w-5 h-5 md:w-6 md:h-6" />
                   <h3 className="text-xl md:text-2xl font-bold">Curation Network</h3>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
-                  <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
-                      <div className="flex-1">
-                        <div className="h-3 md:h-4 w-32 bg-gray-200 rounded mb-2"></div>
-                        <div className="h-2 md:h-3 w-24 bg-gray-100 rounded mb-3 md:mb-4"></div>
-                        <div className="h-3 md:h-4 w-full bg-gray-200 rounded"></div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="p-3 md:p-4 mb-4">
+                  <Image
+                    src={"/assets/images/curation-network.svg"}
+                    alt="Curate posts"
+                    width={400}
+                    height={400}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
                   Empower your network to submit and filter content via Twitter replies, Telegram chats etc. Use AI tools like ChatGPT to refine suggestions, but let your community drive what's trending.
                 </p>
               </div>
 
-              <div className="p-4 md:p-8 border-b md:border-b border-black">
+              <div className="p-4 md:p-8 border-b md:border-b border-neutral-500">
                 <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
                   <Workflow className="w-5 h-5 md:w-6 md:h-6" />
                   <h3 className="text-xl md:text-2xl font-bold">Streamlined Approval Workflow</h3>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
-                  <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                    <div className="mb-3">
-                      <div className="h-5 w-40 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-4 w-32 bg-gray-100 rounded"></div>
-                    </div>
-                    <div className="flex gap-2">
-                      <div className="h-8 w-20 bg-gray-200 rounded"></div>
-                      <div className="h-8 w-20 bg-gray-100 rounded"></div>
-                    </div>
-                  </div>
+                <div className="p-3 md:p-4 mb-4">
+                  <Image
+                    src={"/assets/images/streamlined-approval-workflow.svg"}
+                    alt="Curate posts"
+                    width={400}
+                    height={400}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
                   Designated approvers can review and approve submissions directly on social media by replying @!approve to a tweet or through the dashboard, ensuring high standards without slowing down your process.
                 </p>
               </div>
 
-              <div className="p-4 md:p-8 border-b md:border-r md:border-b-0 border-black">
+              <div className="p-4 md:p-8 border-b md:border-r md:border-b-0 border-neutral-500">
                 <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
                   <Bot className="w-5 h-5 md:w-6 md:h-6" />
                   <h3 className="text-xl md:text-2xl font-bold">AI-Powered Content Summaries</h3>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
-                  <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
-                      <div className="flex-1">
-                        <div className="h-4 w-full bg-gray-200 rounded mb-3"></div>
-                        <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="p-3 md:p-4 mb-4">
+                  <Image
+                    src={"/assets/images/ai-powered-content-summaries.svg"}
+                    alt="Curate posts"
+                    width={400}
+                    height={400}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
                   Turn Crowdsourced contents into bite-sized, engaging recaps with AI-powered summaries. Effortlessly transform articles, threads, or videos into multiple formats like newsletters, tweets, or podcast scripts.
                 </p>
               </div>
 
-              <div className="p-4 md:p-8 border-b md:border-b-0 border-black">
+              <div className="p-4 md:p-8 border-b md:border-b-0 border-neutral-500">
                 <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
                   <Gift className="w-5 h-5 md:w-6 md:h-6" />
                   <h3 className="text-xl md:text-2xl font-bold flex items-center">
@@ -753,17 +745,14 @@ export default function Home() {
                     <span className="ml-2 text-xs md:text-sm bg-black text-white px-2 py-1 rounded-full">Coming Soon</span>
                   </h3>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
-                  <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
-                      <div className="flex-1">
-                        <div className="h-4 w-full bg-gray-200 rounded mb-2"></div>
-                        <div className="h-4 w-3/4 bg-gray-100 rounded mb-3"></div>
-                        <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
-                      </div>
-                    </div>
-                  </div>
+                <div className="p-3 md:p-4 mb-4">
+                  <Image
+                    src={"/assets/images/incentivized-curation.svg"}
+                    alt="Curate posts"
+                    width={400}
+                    height={400}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
                   Earn for curating quality content, creating a sustainable ecosystem where creators and curators are rewarded for their contributions. This feature is coming soon — stay tuned!
@@ -772,7 +761,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="w-full border-t border-black absolute mt-[-32px] hidden md:block"></div>
+        <div className="w-full border-t border-neutral-500 absolute mt-[-32px] hidden md:block"></div>
       </section>
 
       <section className="w-full bg-white">
