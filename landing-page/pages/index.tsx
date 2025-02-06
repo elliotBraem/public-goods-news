@@ -434,7 +434,7 @@ export default function Home() {
           <div className="w-full pb-6 overflow-x-scroll">
             <div className="max-w-7xl mx-auto">
               <div className="relative overflow-hidden">
-                <div className="flex justify-start items-center px-4 gap-8 animate-marquee hover:pause-marquee whitespace-nowrap">
+                <div className="flex justify-start items-center px-4 gap-20 animate-marquee hover:pause-marquee whitespace-nowrap">
                   {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((partner, i) => (
                     <a key={i} href={partner.href} target="_blank" rel="noopener noreferrer" className="inline-flex">
                       <Image src={partner.img} width={40} height={40} alt={partner.alt} />

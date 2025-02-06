@@ -156,10 +156,13 @@ a.hyperlink {
   animation-play-state: paused;
 }
 @keyframes scroll {
-  from {
-    transform: translateX(0%);
+  0% {
+    transform: translateX(50%);
   }
-  to {
+  50% {
     transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(50%);
   }
 }
