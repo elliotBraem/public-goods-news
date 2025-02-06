@@ -42,7 +42,7 @@
             "arlery",
             "karmahq_",
             "sovereignsignal",
-            "owoki",
+            "owocki",
             "civilmonkey",
             "TheDevanshMehta",
             "potlock_",
@@ -92,7 +92,7 @@
       "moderation": {
         "approvers": {
           "twitter": [
-            "owoki",
+            "owocki",
             "TrustlessState",
             "sassal0x",
             "laurashin",
@@ -269,7 +269,7 @@
         "approvers": {
           "twitter": [
             "plugrel",
-            "owoki",
+            "owocki",
             "TheDevanshMehta",
             "niddhi",
             "potlock_",
@@ -444,7 +444,7 @@
         "approvers": {
           "twitter": [
             "tracheopteryx",
-            "owoki",
+            "owocki",
             "PuncarH2D",
             "feemschats",
             "BryanPetes",
@@ -659,6 +659,126 @@
       "moderation": {
         "approvers": {
           "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "shippost",
+      "name": "Shippost",
+      "description": "Regular web3 builder demos",
+      "moderation": {
+        "approvers": {
+          "twitter": ["elliot_braem", "ilblackdragon", "David___Mo", "revrfg", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "ripple",
+      "name": "Ripple",
+      "description": "Updates around Ripple ecosystem, XRP, & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["bgarlinghouse", "JoelKatz", "RuleXRP", "XRPcryptowolf", "AlexCobb_", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "sui",
+      "name": "Sui",
+      "description": "Updates around Sui ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["SuiNetwork", "markoggwp", "lexiwangler", "web3crusadr", "b1ackd0g", "EmanAbio", "EvanWeb3", "kostascrypto", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "hyperliquid",
+      "name": "Hyperliquid",
+      "description": "Updates around Hyperliquid ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["HyperFND", "stevenyuntcap", "henrik", "Sakrexer", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "aptos",
+      "name": "Aptos",
+      "description": "Updates around Aptos ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["Aptos", "stalesamy", "moshaikhs", "alex_aptos", "lornyelle", "Gemswizzard", "christie__0", "0xaptosj", "AptosCollective", "0xlightmark", "0xSushiKev", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "pudgypenguins",
+      "name": "Pudgy Penguins",
+      "description": "Updates around Pudgy Penguins ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["pudgypenguins", "LucaNetz","JoeyMooose", "Berko_Crypto", "slushygmi", "MetaGandhi_", "PudgyRitesh", "ppmctweets","plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "avalanche",
+      "name": "Avalanche",
+      "description": "Updates around Avalanche ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["luigidemeo", "John1wu", "AVAXDaily", "GamingOnAvax", "frostLedger", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "base",
+      "name": "Base",
+      "description": "Updates around Base ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": ["gozdeaksay", "CryptoStatuette", "nameisnaemis", "EvSlatts", "jessepollak", "kunal_modi","plugrel"]
         }
       },
       "outputs": {
