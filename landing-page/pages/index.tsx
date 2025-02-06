@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import TweetWall from "@/components/TweetWall";
+import hashtagData from "../../curate.config.json";
 
 const SlotEmoji = ({
   finalEmoji,
@@ -153,9 +154,7 @@ type HashtagButton = {
   onClick?: () => void;
 };
 
-// Update the HashtagButton component
 const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
-  // Move the copied state to client-side only using useEffect
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -166,9 +165,20 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(`!submit @curatedotfun #${tag}`);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard
+      .writeText(`!submit @curatedotfun #${tag}`)
+      .then(
+        () => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        },
+        () => {
+          console.error("Failed to copy text to clipboard");
+        },
+      )
+      .catch((error) => {
+        console.error("Failed to copy text to clipboard", error);
+      });
   };
 
   return (
@@ -176,10 +186,9 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
       <div
         className={`
           px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
-          ${
-            isActive
-              ? "bg-gray-500 text-white"
-              : "bg-white hover:bg-gray-100 border border-gray-200"
+          ${isActive
+            ? "bg-gray-500 text-white"
+            : "bg-white hover:bg-gray-100 border border-gray-200"
           }
         `}
       >
@@ -301,9 +310,6 @@ const FAQs = () => {
 };
 
 export default function Home() {
-  const moneyEmojis = ["💸", "💰", "💵", "🏦", "💎"];
-  const robotEmojis = ["🤖", "🦾", "🔧", "🧠", "⚡"];
-  const partyEmojis = ["🎉", "🎊", "✨", "🎯", "🚀"];
 
   const soon = true;
 
@@ -573,103 +579,15 @@ export default function Home() {
             Popular Feeds
           </h2>
 
-          <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4 md:mb-6">
-            <HashtagButton
-              tag="grants"
-              isActive={activeHashtag === "grants"}
-              onClick={() => setActiveHashtag("grants")}
-            />
-            <HashtagButton
-              tag="Ethereum"
-              isActive={activeHashtag === "Ethereum"}
-              onClick={() => setActiveHashtag("Ethereum")}
-            />
-            <HashtagButton
-              tag="near"
-              isActive={activeHashtag === "near"}
-              onClick={() => setActiveHashtag("near")}
-            />
-            <HashtagButton
-              tag="AI3"
-              isActive={activeHashtag === "AI3"}
-              onClick={() => setActiveHashtag("AI3")}
-            />
-            <HashtagButton
-              tag="AI"
-              isActive={activeHashtag === "AI"}
-              onClick={() => setActiveHashtag("AI")}
-            />
-            <HashtagButton
-              tag="publicgoods"
-              isActive={activeHashtag === "publicgoods"}
-              onClick={() => setActiveHashtag("publicgoods")}
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4 md:mb-6">
-            <HashtagButton
-              tag="Refi"
-              isActive={activeHashtag === "Refi"}
-              onClick={() => setActiveHashtag("Refi")}
-            />
-            <HashtagButton
-              tag="Celo"
-              isActive={activeHashtag === "Celo"}
-              onClick={() => setActiveHashtag("Celo")}
-            />
-            <HashtagButton
-              tag="Networkstate"
-              isActive={activeHashtag === "Networkstate"}
-              onClick={() => setActiveHashtag("Networkstate")}
-            />
-            <HashtagButton
-              tag="Solana"
-              isActive={activeHashtag === "Solana"}
-              onClick={() => setActiveHashtag("Solana")}
-            />
-            <HashtagButton
-              tag="DAO"
-              isActive={activeHashtag === "DAO"}
-              onClick={() => setActiveHashtag("DAO")}
-            />
-            <HashtagButton
-              tag="bitcoin"
-              isActive={activeHashtag === "bitcoin"}
-              onClick={() => setActiveHashtag("bitcoin")}
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4 md:mb-6">
-            <HashtagButton
-              tag="berachain"
-              isActive={activeHashtag === "berachain"}
-              onClick={() => setActiveHashtag("berachain")}
-            />
-            <HashtagButton
-              tag="morph"
-              isActive={activeHashtag === "morph"}
-              onClick={() => setActiveHashtag("morph")}
-            />
-            <HashtagButton
-              tag="cryptofundraise"
-              isActive={activeHashtag === "cryptofundraise"}
-              onClick={() => setActiveHashtag("cryptofundraise")}
-            />
-            <HashtagButton
-              tag="usa"
-              isActive={activeHashtag === "usa"}
-              onClick={() => setActiveHashtag("usa")}
-            />
-            <HashtagButton
-              tag="eliza"
-              isActive={activeHashtag === "eliza"}
-              onClick={() => setActiveHashtag("eliza")}
-            />
-            <HashtagButton
-              tag="DeSci"
-              isActive={activeHashtag === "DeSci"}
-              onClick={() => setActiveHashtag("DeSci")}
-            />
+          <div className="flex flex-wrap gap-3 md:gap-4 justify-center">
+            {hashtagData.feeds.map(feed => (
+              <HashtagButton
+              key={feed.id}
+              tag={feed.id.replace('#', '')}
+              isActive={activeHashtag === feed.id.replace('#', '')} 
+              onClick={() => setActiveHashtag(activeHashtag === feed.id.replace('#', '') ? '' : feed.id.replace('#', ''))}
+              />
+            ))}
           </div>
         </div>
 
