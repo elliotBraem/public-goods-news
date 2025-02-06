@@ -699,7 +699,7 @@ export default function Home() {
                   />
                 </div>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
-                  Designated approvers can review and approve submissions directly on social media by replying @!approve to a tweet or through the dashboard, ensuring high standards without slowing down your process.
+                  Designated approvers can review and approve submissions directly on social media by replying !approve to a tweet or through the dashboard, ensuring high standards without slowing down your process.
                 </p>
               </div>
 
