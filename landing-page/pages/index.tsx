@@ -587,7 +587,7 @@ export default function Home() {
                   Submit contents anywhere by replying to posts with{" "}
                   <span className="font-mono">!submit @curatedotfun</span>
                   <br />
-                  <span className="font-mono">#Hashtag</span>
+                  <span className="font-mono text-neutral-500 rounded-sm bg-neutral-100 p-2">#Hashtag</span>
                 </p>
               </div>
 
@@ -603,8 +603,9 @@ export default function Home() {
                   Streamlined Approval Workflow
                 </h3>
                 <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
-                  Designated approvers reviews and approve submissions directly on platform by replying{" "}
-                  <span className="font-mono">@!approve</span>
+                  Designated approvers review and approve submissions directly on platform by replying with{" "}
+                  <span className="font-mono text-neutral-500 rounded-sm bg-neutral-100 p-2">!approve</span> or
+                  <span className="font-mono text-neutral-500 rounded-sm bg-neutral-100 p-2">!reject</span>
                 </p>
               </div>
 
