@@ -26,5 +26,8 @@
   "devDependencies": {
     "turbo": "latest",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "react-tweet": "^3.2.1"
   }
 }
