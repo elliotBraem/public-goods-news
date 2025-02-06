@@ -54,9 +54,42 @@ const SlotEmoji = ({
 };
 
 const PARTNERS = [
+  {
+    href: "#", img: "/assets/images/communities/community1.png", alt: "Community #2"
+  },
+  {
+    href: "#", img: "/assets/images/communities/community2.png", alt: "Community #2"
+  },
+  {
+    href: "https://near.org/", img: "/assets/images/communities/near.png", alt: "Near Protocol"
+  },
+  {
+    href: "https://ethereum.org", img: "/assets/images/communities/eth.svg", alt: "Ethereum"
+  },
   { href: "https://nearweek.com", img: "/assets/images/communities/nearweek.svg", alt: "Near Week" },
+  {
+    href: "#", img: "/assets/images/communities/community3.png", alt: "Community #3"
+  },
+  { href: "https://t.me/cryptograntwire", img: "/assets/images/communities/cryptograntwire.svg", alt: "Crypto Grant Wire" },
+  {
+    href: "#", img: "/assets/images/communities/community4.png", alt: "Community #4"
+  },
   { href: "https://alpha.potlock.org", img: "/assets/images/communities/potlock.svg", alt: "PotLock" },
-  { href: "https://t.me/cryptograntwire", img: "/assets/images/communities/cryptograntwire.svg", alt: "Crypto Grant Wire" }
+  {
+    href: "https://www.refidao.com/", img: "/assets/images/communities/refi_dao.png", alt: "Refi DAO"
+  },
+  {
+    href: "https://www.gitcoin.co/", img: "/assets/images/communities/gitcoin_dao.png", alt: "GitCoin DAO"
+  },
+  {
+    href: "#", img: "/assets/images/communities/community5.png", alt: "Community #5"
+  },
+  {
+    href: "https://ethereum.org", img: "/assets/images/communities/acf_logo.png", alt: "American Crypto Foundation"
+  },
+  {
+    href: "#", img: "/assets/images/communities/community6.png", alt: "Community 6"
+  },
 ];
 
 // First, update the HashtagButton type
@@ -435,10 +468,10 @@ export default function Home() {
             <div className="max-w-7xl mx-auto">
               <div className="relative overflow-hidden">
                 <div className="flex justify-start items-center px-4 gap-20 animate-marquee hover:pause-marquee whitespace-nowrap">
-                  {[...PARTNERS, ...PARTNERS, ...PARTNERS].map((partner, i) => (
-                    <a key={i} href={partner.href} target="_blank" rel="noopener noreferrer" className="inline-flex">
-                      <Image src={partner.img} width={40} height={40} alt={partner.alt} />
-                    </a>
+                  {[...PARTNERS, ...PARTNERS].map((partner, i) => (
+                  <a key={i} href={partner.href} target="_blank" rel="noopener noreferrer" className="inline-flex w-[40px]">
+                    <Image src={partner.img} width={40} height={40} alt={partner.alt} className="w-[40px] h-[40px] object-contain" />
+                  </a>
                   ))}
                 </div>
               </div>
