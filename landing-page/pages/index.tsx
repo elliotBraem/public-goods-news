@@ -5,6 +5,7 @@ import { TypeAnimation } from "react-type-animation";
 import { FaTwitter, FaBook, FaGithub, FaTelegram, FaCopy, FaCheck, FaGlobeAmericas } from "react-icons/fa";
 import { Newspaper, Workflow, Bot, Gift, ExternalLink, SatelliteDish, CalendarRange, Podcast, Plus, Minus } from "lucide-react";
 import Image from "next/image";
+import TweetWall from "@/components/TweetWall";
 
 const SlotEmoji = ({
   finalEmoji,
@@ -360,10 +361,13 @@ export default function Home() {
       <header className="w-full bg-white">
         <div className="flex justify-between items-center w-full p-4 border-b border-black">
           <div className="flex items-center">
-            <img
+            <Image
               src="/curatedotfuntransparenticon.png"
               alt="curate.fun Logo"
+              width={32}
+              height={32}
               className="h-8 w-8 mr-2"
+              priority
             />
             <h1 className="text-2xl font-bold">curate.fun</h1>
           </div>
@@ -811,7 +815,7 @@ export default function Home() {
                 />
                 <div className="p-4 md:p-8">
                   <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
-                    Chron Jobs
+                    Content Engine
                   </h3>
                   <p className="font-['PT_Root_UI'] text-[#57606A] text-[18px] leading-[30px] font-normal text-center md:text-left">
                     Pull posts, threads, and videos from Twitter, Telegram, and more. Organize everything into smart feeds that update automatically, so you're always sharing fresh, relevant content.
@@ -858,7 +862,7 @@ export default function Home() {
           </div>
           <div className="w-full border-t border-[#57606A]"></div>
           <div className="max-w-[1200px] mx-auto">
-            {/* Desktop: 3x3 Grid */}
+            <TweetWall />
             <div className="hidden md:grid md:grid-cols-3">
               {Array(9).fill(null).map((_, index) => (
                 <div
