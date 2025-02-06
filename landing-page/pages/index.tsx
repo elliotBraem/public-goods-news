@@ -387,7 +387,8 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
-                href="/start-curating"
+                href="https://app.curate.fun/"
+                target="_blank"
                 className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 text-center"
               >
                 Start Curating
@@ -429,20 +430,32 @@ export default function Home() {
                 <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
                   <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
                 </a>
-                <a href="https://community4.example.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/community-logo-4.png" alt="Community 4" className="h-8" />
+                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
                 </a>
-                <a href="https://community5.example.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/community-logo-5.png" alt="Community 5" className="h-8" />
+                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
                 </a>
-                <a href="https://community6.example.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/community-logo-6.png" alt="Community 6" className="h-8" />
+                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
                 </a>
-                <a href="https://community7.example.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/community-logo-7.png" alt="Community 7" className="h-8" />
+                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
                 </a>
-                <a href="https://community8.example.com" target="_blank" rel="noopener noreferrer">
-                  <img src="/community-logo-8.png" alt="Community 8" className="h-8" />
+                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
+                </a>
+                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
+                </a>
+                <a href="https://nearweek.com" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/nearweek.svg" alt="Near Week" className="h-8" />
+                </a>
+                <a href="https://alpha.potlock.org" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/potlock.svg" alt="PotLock" className="h-8" />
+                </a>
+                <a href="https://t.me/cryptograntwire" target="_blank" rel="noopener noreferrer">
+                  <img src="/assets/images/communities/cryptograntwire.svg" alt="Crypto Grant Wire" className="h-8" />
                 </a>
               </div>
             </div>
@@ -840,7 +853,7 @@ export default function Home() {
         </div>
         <div className="w-full border-t border-black"></div>
       </section>
-      
+
       <section className="w-full bg-white">
         <div className="w-full mx-auto py-6 md:py-8">
           <div className="max-w-[1200px] mx-auto px-4">
@@ -854,7 +867,7 @@ export default function Home() {
               What curators are saying<br className="hidden sm:block" />about curate.fun
             </h2>
           </div>
-          <div className="w-full border-t border-black"></div>
+          <div className="w-full border-t border-[#57606A]"></div>
           <div className="max-w-[1200px] mx-auto">
             {/* Desktop: 3x3 Grid */}
             <div className="hidden md:grid md:grid-cols-3">
@@ -863,7 +876,7 @@ export default function Home() {
                   key={index}
                   className={`p-8 ${index < 6 ? 'border-b' : ''
                     } ${index % 3 !== 2 ? 'border-r' : ''
-                    } border-black`}
+                    } border-[#57606A]`}
                 >
                   <div className="flex items-center gap-2 mb-4">
                     <Image
@@ -892,7 +905,7 @@ export default function Home() {
                 {Array(9).fill(null).map((_, index) => (
                   <div
                     key={index}
-                    className="min-w-full flex-shrink-0 snap-center p-4 md:p-8 border-b border-black w-[310px]"
+                    className="min-w-full flex-shrink-0 snap-center p-4 md:p-8 border-b border-[#57606A] w-[310px]"
                   >
                     <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
                       <Image
@@ -942,13 +955,13 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
-            <button className="w-full md:w-auto bg-white text-black px-6 py-3 rounded-lg font-medium">
+            <Link href={"https://app.curate.fun/f"} target="_blank" className="w-full md:w-auto bg-white text-black px-6 py-3 rounded-lg font-medium">
               Start Contributing
-            </button>
-            <a href="#" className="flex items-center justify-center gap-2 text-white hover:text-gray-300 py-3">
+            </Link>
+            <Link href="https://docs.curate.fun/" className="flex items-center justify-center gap-2 text-white hover:text-gray-300 py-3">
               Learn More
               <ExternalLink className="w-4 h-4" />
-            </a>
+            </Link>
           </div>
         </div>
       </section>
@@ -973,7 +986,7 @@ export default function Home() {
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <FaGlobeAmericas className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                 </div>
-                <div className="flex flex-col items-center md:items-start relative z-10">
+                <Link href="https://AmericanCryptoFoundation" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/acf.jpg"
@@ -989,13 +1002,13 @@ export default function Home() {
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #publicgoods
                   </span>
-                </div>
+                </Link>
               </div>
               <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <SatelliteDish className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                 </div>
-                <div className="flex flex-col items-center md:items-start relative z-10">
+                <Link href="https://t.me/cryptograntwire" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/cryptograntwire.svg"
@@ -1011,14 +1024,14 @@ export default function Home() {
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #publicgoods
                   </span>
-                </div>
+                </Link>
               </div>
 
               <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <CalendarRange className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
                 </div>
-                <div className="flex flex-col items-center md:items-start relative z-10">
+                <Link href="https://nearweek.com" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/nearweek.svg"
@@ -1034,14 +1047,14 @@ export default function Home() {
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #near
                   </span>
-                </div>
+                </Link>
               </div>
 
               <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative overflow-hidden">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
                   <Podcast className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))', transform: 'rotate(-45deg)' }} />
                 </div>
-                <div className="flex flex-col items-center md:items-start relative z-10">
+                <Link href="https://publigoods.fm" target="_blank" className="flex flex-col items-center md:items-start relative z-10">
                   <div className="flex items-center gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/publicgoodsfm.svg"
@@ -1057,7 +1070,7 @@ export default function Home() {
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
                     #publicgoods
                   </span>
-                </div>
+                </Link>
               </div>
             </div>
           </div>
