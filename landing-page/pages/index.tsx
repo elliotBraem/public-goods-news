@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { TypeAnimation } from "react-type-animation";
-import { FaTwitter, FaBook, FaGithub, FaTelegram } from "react-icons/fa";
+import { FaTwitter, FaBook, FaGithub, FaTelegram, FaCopy, FaCheck, } from "react-icons/fa";
+import { Newspaper, Workflow, Bot, Gift, ExternalLink, SatelliteDish, CalendarRange, Podcast } from "lucide-react";
+import Image from "next/image";
 
 const SlotEmoji = ({
   finalEmoji,
@@ -48,6 +50,71 @@ const SlotEmoji = ({
   }, [emojiSet, finalEmoji, interval, duration]);
 
   return <span className="inline-block">{emojiSet[currentIndex]}</span>;
+};
+
+// First, update the HashtagButton type
+type HashtagButton = {
+  tag: string;
+  isActive?: boolean;
+  command?: string;
+  onClick?: () => void;
+};
+
+// Update the HashtagButton component
+const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
+  // Move the copied state to client-side only using useEffect
+  const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Only show client-side features after mounting
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(`@isubmit @curatedotfun #${tag}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <button
+      className="relative"
+      onClick={onClick}
+    >
+      <div
+        className={`
+          px-4 py-2 rounded-lg transition-all duration-200 flex items-center gap-2
+          ${isActive 
+            ? 'bg-gray-500 text-white' 
+            : 'bg-white hover:bg-gray-100 border border-gray-200'
+          }
+        `}
+      >
+        <span>#{tag}</span>
+        {isActive && <span className="text-gray-300">▼</span>}
+      </div>
+      {/* Only render dropdown after component is mounted */}
+      {mounted && isActive && (
+        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg p-3 shadow-lg z-50 whitespace-nowrap">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-gray-600">@isubmit @curatedotfun #{tag}</p>
+            <button 
+              className="flex items-center gap-1 px-2 py-1 text-sm text-gray-500 hover:bg-gray-100 rounded transition-colors"
+              onClick={handleCopy}
+            >
+              {copied ? (
+                <FaCheck className="text-green-500" />
+              ) : (
+                <FaCopy className="text-gray-400 hover:text-gray-600" />
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+    </button>
+  );
 };
 
 export default function Home() {
@@ -171,6 +238,8 @@ export default function Home() {
     },
   ];
 
+  const [activeHashtag, setActiveHashtag] = useState("grants");
+
   return (
     <div className="min-h-screen bg-white font-lodrina">
       <Head>
@@ -215,46 +284,678 @@ export default function Home() {
         <meta name="mobile-web-app-capable" content="yes" />
       </Head>
 
-      <header className="sticky top-0 flex justify-between items-center p-4 border-b-4 border-black bg-white z-10">
-        <div className="flex items-center">
-          <img
-            src="/curatedotfuntransparenticon.png"
-            alt="curate.fun Logo"
-            className="h-8 w-8 mr-2"
-          />
-          <div>
-            <h1 className="text-2xl h-8 flex items-center">curate.fun</h1>
+      <header className="w-full bg-white">
+        <div className="flex justify-between items-center w-full p-4 border-b border-black">
+          <div className="flex items-center">
+            <img
+              src="/curatedotfuntransparenticon.png"
+              alt="curate.fun Logo"
+              className="h-8 w-8 mr-2"
+            />
+            <h1 className="text-2xl font-bold">curate.fun</h1>
           </div>
-        </div>
-        <nav className="flex space-x-4 mx-4">
-          <div>
-            {/* {["How to Submit", "See Feeds", "See Content"].map((item) => (
-            <div key={item} className="flex items-center space-x-2">
-              <span className={`text-lg ${soon ? "text-gray-500" : "text-black"}`}>
-                {item}
-              </span>
-              {soon && (
-                <span className="bg-gray-300 text-gray-700 text-xs px-2 py-1">
-                  Soon
-                </span>
-              )}
-            </div>
-          ))} */}
-          </div>
-
           <Link
             href="https://app.curate.fun/"
             target="_blank"
             rel="noopener noreferrer"
-            id="cta-button"
-            className="text-xl bg-black text-white px-4 py-2 rounded hover:bg-gray-800 font-lodrina"
+            className="text-lg bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800"
           >
-            DASHBOARD
+            Dashboard
           </Link>
-        </nav>
+        </div>
+
+        <div className="w-full max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row justify-between items-center md:items-start">
+          <div className="w-full md:w-1/2 md:pr-8 mb-8 md:mb-0">
+            <h2 className="text-4xl md:text-6xl font-bold mb-6">
+              Turn <span className="text-[#FF2E2E]">Crowdsourced</span> Social Feeds into Powerful, Recurring Content
+            </h2>
+            <p className="text-lg md:text-xl mb-8">
+              Discover the best crypto insights from top sources, curated by experts and the community, transformed into engaging content. Leverage real-time social data to fuel your content strategy effortlessly.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                href="/start-curating"
+                className="bg-black text-white px-8 py-3 rounded-lg hover:bg-gray-800 text-center"
+              >
+                Start Curating
+              </Link>
+              <Link
+                href="/learn-more"
+                className="flex items-center justify-center text-black hover:text-gray-600"
+              >
+                Learn More <span className="ml-2">→</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="w-full md:w-1/2 relative">
+            <div className="relative">
+              <div className="bg-white rounded-lg shadow-lg p-4 mb-4">
+                <div className="flex items-center mb-2">
+                  <img
+                    src="/pod-network-avatar.png"
+                    alt="Pod Network"
+                    className="w-12 h-12 rounded-full mr-3"
+                  />
+                  <div>
+                    <div className="font-bold">pod.network</div>
+                    <div className="text-gray-500">@poddotnetwork</div>
+                  </div>
+                </div>
+                <p className="mb-4">
+                  We are thrilled to announce we raised $10 million in seed round funding! Huge thanks to our backers
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full py-6 overflow-x-auto">
+          <div className="max-w-7xl mx-auto">
+            <p className="text-center text-sm md:text-lg text-gray-500 mb-4">COVERING THESE COMMUNITIES:</p>
+            <div className="flex justify-start md:justify-between items-center px-4 min-w-max md:min-w-0 gap-8 md:gap-4">
+              <img src="/community-logo-1.png" alt="Community 1" className="h-8" />
+              <img src="/community-logo-2.png" alt="Community 2" className="h-8" />
+              <img src="/community-logo-3.png" alt="Community 3" className="h-8" />
+              <img src="/community-logo-4.png" alt="Community 4" className="h-8" />
+              <img src="/community-logo-5.png" alt="Community 5" className="h-8" />
+              <img src="/community-logo-6.png" alt="Community 6" className="h-8" />
+              <img src="/community-logo-7.png" alt="Community 7" className="h-8" />
+              <img src="/community-logo-8.png" alt="Community 8" className="h-8" />
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full border-t border-black"></div>
       </header>
 
-      <main className="flex flex-col items-center justify-center min-h-screen p-4 px-2 sm:px-4 w-full">
+      <section className="w-full bg-white6">
+        <div className="w-full max-w-7xl mx-auto py-8 md:py-12">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-center">Popular Feeds</h2>
+          
+          <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4 md:mb-6">
+            <HashtagButton 
+              tag="grants" 
+              isActive={activeHashtag === "grants"}
+              onClick={() => setActiveHashtag("grants")}
+            />
+            <HashtagButton 
+              tag="Ethereum" 
+              isActive={activeHashtag === "Ethereum"}
+              onClick={() => setActiveHashtag("Ethereum")}
+            />
+            <HashtagButton 
+              tag="near" 
+              isActive={activeHashtag === "near"}
+              onClick={() => setActiveHashtag("near")}
+            />
+            <HashtagButton 
+              tag="AI3" 
+              isActive={activeHashtag === "AI3"}
+              onClick={() => setActiveHashtag("AI3")}
+            />
+            <HashtagButton 
+              tag="AI" 
+              isActive={activeHashtag === "AI"}
+              onClick={() => setActiveHashtag("AI")}
+            />
+            <HashtagButton 
+              tag="publicgoods" 
+              isActive={activeHashtag === "publicgoods"}
+              onClick={() => setActiveHashtag("publicgoods")}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4 md:mb-6">
+            <HashtagButton 
+              tag="Refi" 
+              isActive={activeHashtag === "Refi"}
+              onClick={() => setActiveHashtag("Refi")}
+            />
+            <HashtagButton 
+              tag="Celo" 
+              isActive={activeHashtag === "Celo"}
+              onClick={() => setActiveHashtag("Celo")}
+            />
+            <HashtagButton 
+              tag="Networkstate" 
+              isActive={activeHashtag === "Networkstate"}
+              onClick={() => setActiveHashtag("Networkstate")}
+            />
+            <HashtagButton 
+              tag="Solana" 
+              isActive={activeHashtag === "Solana"}
+              onClick={() => setActiveHashtag("Solana")}
+            />
+            <HashtagButton 
+              tag="DAO" 
+              isActive={activeHashtag === "DAO"}
+              onClick={() => setActiveHashtag("DAO")}
+            />
+            <HashtagButton 
+              tag="bitcoin" 
+              isActive={activeHashtag === "bitcoin"}
+              onClick={() => setActiveHashtag("bitcoin")}
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-3 md:gap-4 justify-center mb-4 md:mb-6">
+            <HashtagButton 
+              tag="berachain" 
+              isActive={activeHashtag === "berachain"}
+              onClick={() => setActiveHashtag("berachain")}
+            />
+            <HashtagButton 
+              tag="morph" 
+              isActive={activeHashtag === "morph"}
+              onClick={() => setActiveHashtag("morph")}
+            />
+            <HashtagButton 
+              tag="cryptofundraise" 
+              isActive={activeHashtag === "cryptofundraise"}
+              onClick={() => setActiveHashtag("cryptofundraise")}
+            />
+            <HashtagButton 
+              tag="usa" 
+              isActive={activeHashtag === "usa"}
+              onClick={() => setActiveHashtag("usa")}
+            />
+            <HashtagButton 
+              tag="eliza" 
+              isActive={activeHashtag === "eliza"}
+              onClick={() => setActiveHashtag("eliza")}
+            />
+            <HashtagButton 
+              tag="DeSci" 
+              isActive={activeHashtag === "DeSci"}
+              onClick={() => setActiveHashtag("DeSci")}
+            />
+          </div>
+        </div>
+
+        <div className="w-full border-t border-black"></div>
+      </section>
+
+      <section className="w-full bg-white">
+        <div className="w-full mx-auto pt-6 md:pt-8">
+          <div className="max-w-[1200px] mx-auto px-4 md:px-8">
+            <div className="flex flex-col items-center mb-6 md:mb-8">
+              <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
+                HOW IT WORKS
+              </span>
+            </div>
+            
+            <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left">
+              Three Steps to Content Curation on Autopilot.
+            </h2>
+          </div>
+          <div className="w-full border-t border-black"></div>
+          <div className="max-w-[1200px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3">
+              <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black">
+                <div className="flex flex-col items-center md:items-start mb-6">
+                  <img 
+                    src="/submit-content-icon.svg" 
+                    alt="Submit Content" 
+                    className="w-16 md:w-24 h-16 md:h-24"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
+                  Submit Content Anywhere, Anytime
+                </h3>
+                <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+                  Submit contents anywhere by replying to posts with{" "}
+                  <span className="font-mono">@isubmit @curatedotfun</span>
+                  <br />
+                  <span className="font-mono">#Hashtag</span>
+                </p>
+              </div>
+
+              <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r border-black">
+                <div className="flex flex-col items-center md:items-start mb-6">
+                  <img 
+                    src="/workflow-icon.svg" 
+                    alt="Approval Workflow" 
+                    className="w-16 md:w-24 h-16 md:h-24"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
+                  Streamlined Approval Workflow
+                </h3>
+                <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+                  Designated approvers reviews and approve submissions directly on platform by replying{" "}
+                  <span className="font-mono">@!approve</span>
+                </p>
+              </div>
+
+              <div className="p-6 md:p-8 border-b md:border-b-0 border-black">
+                <div className="flex flex-col items-center md:items-start mb-6">
+                  <img 
+                    src="/share-icon.svg" 
+                    alt="Share Everywhere" 
+                    className="w-16 md:w-24 h-16 md:h-24"
+                  />
+                </div>
+                <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
+                  Automatically Rewrite & Share Everywhere
+                </h3>
+                <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+                  Turn submissions into polished posts and share them across platforms like Twitter, Farcaster, Telegram, Blog etc.
+                </p>
+              </div>
+            </div>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-2 md:grid-cols-4">
+              <div className="p-6 md:p-8 border-r border-b md:border-b-0 border-black">
+                <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">1,000</h4>
+                <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">POST CURATED</p>
+              </div>
+              <div className="p-6 md:p-8 border-b md:border-b-0 border-black">
+                <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">5</h4>
+                <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">PARTNERED MEDIA</p>
+              </div>
+              <div className="p-6 md:p-8 border-r border-black">
+                <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">30</h4>
+                <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">NUMBER OF CURATORS</p>
+              </div>
+              <div className="p-6 md:p-8">
+                <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">21</h4>
+                <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">FEEDS</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="w-full border-t border-black"></div>
+      </section>
+
+      <section className="w-full bg-white">
+        <div className="w-full mx-auto py-6 md:py-8">
+          <div className="max-w-[1200px] mx-auto px-4">
+            <div className="flex flex-col items-center md:items-start">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-8 text-center md:text-left">
+                Supported Platforms
+              </h2>
+              <p className="text-xl md:text-2xl mb-8 md:mb-12 text-center md:text-left">
+                Your Content, Automated from Start to Finish
+              </p>
+            </div>
+          </div>
+          <div className="w-full border-t border-black"></div>
+          <div className="max-w-[1200px] mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0">
+              <div className="p-4 md:p-8 md:border-x border-[#E5E5E5]">
+                <div className="flex flex-col items-center md:items-start">
+                  <Image 
+                    src="/curate-engine-flow.png" 
+                    alt="Curate Engine Flow" 
+                    width={400}
+                    height={200}
+                    className="w-full mb-6 md:mb-8"
+                    unoptimized
+                  />
+                  <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
+                    Curate Engine
+                  </h3>
+                  <p className="font-['PT_Root_UI'] text-[#57606A] text-[18px] leading-[30px] font-normal text-center md:text-left">
+                    Pull posts, threads, and videos from Twitter, Telegram, and more. Organize everything into smart feeds that update automatically, so you're always sharing fresh, relevant content.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-8 border-r border-[#E5E5E5]">
+                <Image 
+                  src="/chron-jobs-flow.png" 
+                  alt="Chron Jobs Flow" 
+                  width={400}
+                  height={200}
+                  className="mb-8"
+                  unoptimized
+                />
+                <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
+                  Chron Jobs
+                </h3>
+                <div className="bg-gray-100 rounded-lg p-4 mb-8">
+                  <h4 className="text-xl font-bold text-center">Chron Jobs</h4>
+                </div>
+              </div>
+
+              <div className="p-8 border-r border-[#E5E5E5]">
+                <Image 
+                  src="/crosspost-engine-flow.png" 
+                  alt="Crosspost Engine Flow" 
+                  width={400}
+                  height={200}
+                  className="mb-8"
+                  unoptimized
+                />
+                <h3 className="text-2xl font-bold mb-4 text-center md:text-left">
+                  Crosspost Engine
+                </h3>
+                <p className="font-['PT_Root_UI'] text-[#57606A] text-[18px] leading-[30px] font-normal text-center md:text-left">
+                  Schedule or auto-publish approved content across Twitter, Discord, LinkedIn, Telegram, and other platforms. No more copy-pasting or manual formatting — just consistent, cross-platform engagement.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="w-full border-t border-black"></div>
+      </section>
+      <section className="w-full bg-white">
+  <div className="w-full mx-auto py-6 md:py-8">
+    <div className="max-w-[1200px] mx-auto px-4">
+      <div className="flex flex-col items-center mb-6 md:mb-8">
+        <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
+          KEY FEATURES
+        </span>
+      </div>
+      
+      <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left">
+        A fully integrated suite to transform your content workflow
+      </h2>
+    </div>
+    <div className="w-full border-t border-black"></div>
+    <div className="max-w-[1200px] mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="p-4 md:p-8 border-b md:border-b border-black md:border-r">
+          <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
+            <Newspaper className="w-5 h-5 md:w-6 md:h-6" />
+            <h3 className="text-xl md:text-2xl font-bold">Curation Network</h3>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
+            <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
+                <div className="flex-1">
+                  <div className="h-3 md:h-4 w-32 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-2 md:h-3 w-24 bg-gray-100 rounded mb-3 md:mb-4"></div>
+                  <div className="h-3 md:h-4 w-full bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+            Empower your network to submit and filter content via Twitter replies, Telegram chats etc. Use AI tools like ChatGPT to refine suggestions, but let your community drive what's trending.
+          </p>
+        </div>
+
+        <div className="p-4 md:p-8 border-b md:border-b border-black">
+          <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
+            <Workflow className="w-5 h-5 md:w-6 md:h-6" />
+            <h3 className="text-xl md:text-2xl font-bold">Streamlined Approval Workflow</h3>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
+            <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+              <div className="mb-3">
+                <div className="h-5 w-40 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 w-32 bg-gray-100 rounded"></div>
+              </div>
+              <div className="flex gap-2">
+                <div className="h-8 w-20 bg-gray-200 rounded"></div>
+                <div className="h-8 w-20 bg-gray-100 rounded"></div>
+              </div>
+            </div>
+          </div>
+          <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+            Designated approvers can review and approve submissions directly on social media by replying @!approve to a tweet or through the dashboard, ensuring high standards without slowing down your process.
+          </p>
+        </div>
+
+        <div className="p-4 md:p-8 border-b md:border-r border-black">
+          <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
+            <Bot className="w-5 h-5 md:w-6 md:h-6" />
+            <h3 className="text-xl md:text-2xl font-bold">AI-Powered Content Summaries</h3>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
+            <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
+                <div className="flex-1">
+                  <div className="h-4 w-full bg-gray-200 rounded mb-3"></div>
+                  <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+            Turn Crowdsourced contents into bite-sized, engaging recaps with AI-powered summaries. Effortlessly transform articles, threads, or videos into multiple formats like newsletters, tweets, or podcast scripts.
+          </p>
+        </div>
+
+        <div className="p-4 md:p-8 border-b border-black">
+          <div className="flex items-center gap-2 mb-4 md:mb-6 justify-center md:justify-start">
+            <Gift className="w-5 h-5 md:w-6 md:h-6" />
+            <h3 className="text-xl md:text-2xl font-bold flex items-center">
+              Incentivized Curation
+              <span className="ml-2 text-xs md:text-sm bg-black text-white px-2 py-1 rounded-full">Coming Soon</span>
+            </h3>
+          </div>
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 mb-4">
+            <div className="bg-white rounded-lg p-3 md:p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200"></div>
+                <div className="flex-1">
+                  <div className="h-4 w-full bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 w-3/4 bg-gray-100 rounded mb-3"></div>
+                  <div className="h-4 w-1/2 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+            Earn for curating quality content, creating a sustainable ecosystem where creators and curators are rewarded for their contributions. This feature is coming soon — stay tuned!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div className="w-full border-t border-black"></div>
+</section>
+    <section className="w-full bg-white">
+  <div className="w-full mx-auto py-6 md:py-8">
+    <div className="max-w-[1200px] mx-auto px-4">
+      <div className="flex flex-col items-center mb-6 md:mb-8">
+        <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
+          SOCIAL PROOF
+        </span>
+      </div>
+      
+      <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left">
+        What curators are saying<br className="hidden sm:block" />about curate.fun
+      </h2>
+    </div>
+    <div className="w-full border-t border-black"></div>
+    <div className="max-w-[1200px] mx-auto">
+      {/* Desktop: 3x3 Grid */}
+      <div className="hidden md:grid md:grid-cols-3">
+        {Array(9).fill(null).map((_, index) => (
+          <div 
+            key={index} 
+            className={`p-8 ${
+              index < 6 ? 'border-b' : ''
+            } ${
+              index % 3 !== 2 ? 'border-r' : ''
+            } border-black`}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Image 
+                src="/elliot-avatar.png" 
+                alt="Elliot" 
+                width={48} 
+                height={48} 
+                className="rounded-full"
+                unoptimized
+              />
+              <div>
+                <p className="font-bold">Elliot</p>
+                <p className="text-gray-500">@elliot_braem</p>
+              </div>
+            </div>
+            <p className="font-['PT_Root_UI'] text-[#57606A] text-[18px] leading-[30px] font-normal">
+              {index % 3 === 0 && "Before Curate.fun, I wasted 10+ hours weekly digging through Twitter threads and YouTube videos for my newsletter. Now? Their Smart Feeds auto-curate niche content, and the AI summaries are chef's kiss — turns 5,000-word articles into 3 bullet points."}
+              {index % 3 === 1 && "Repurposing content used to be my nightmare. Now, I drop a YouTube link into Curate.fun, and it spits out a tweet thread, LinkedIn carousel, and a blog draft in MINUTES. The AI tweaks tone for each platform."}
+              {index % 3 === 2 && "From Reddit AMAs to whitepaper summaries, Curate.fun does the heavy lifting. I drop a CoinDesk article link, and it spits out a Twitter thread — all tailored for crypto audiences. My followers think I have a secret team. 😎 Best part? It crossposts to Telegram automatically. #CryptoTwitter #Web3Tools"}
+            </p>
+          </div>
+        ))}
+      </div>
+      <div className="md:hidden">
+        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+          {Array(9).fill(null).map((_, index) => (
+            <div 
+              key={index}
+              className="min-w-full flex-shrink-0 snap-center p-4 md:p-8 border-b border-black w-[310px]"
+            >
+              <div className="flex items-center gap-2 mb-4 justify-center md:justify-start">
+                <Image 
+                  src="/elliot-avatar.png" 
+                  alt="Elliot" 
+                  width={48} 
+                  height={48} 
+                  className="rounded-full"
+                  unoptimized
+                />
+                <div>
+                  <p className="font-bold">Elliot</p>
+                  <p className="text-gray-500">@elliot_braem</p>
+                </div>
+              </div>
+              <p className="font-['PT_Root_UI'] text-[16px] md:text-[18px] leading-[26px] md:leading-[30px] text-[#57606A] text-center md:text-left">
+                 {index % 3 === 0 && "Before Curate.fun, I wasted 10+ hours weekly digging through Twitter threads and YouTube videos for my newsletter. Now? Their Smart Feeds auto-curate niche content, and the AI summaries are chef's kiss — turns 5,000-word articles into 3 bullet points."}
+              {index % 3 === 1 && "Repurposing content used to be my nightmare. Now, I drop a YouTube link into Curate.fun, and it spits out a tweet thread, LinkedIn carousel, and a blog draft in MINUTES. The AI tweaks tone for each platform."}
+              {index % 3 === 2 && "From Reddit AMAs to whitepaper summaries, Curate.fun does the heavy lifting. I drop a CoinDesk article link, and it spits out a Twitter thread — all tailored for crypto audiences. My followers think I have a secret team. 😎 Best part? It crossposts to Telegram automatically. #CryptoTwitter #Web3Tools"}
+              </p>
+            </div>
+          ))}
+        </div>
+        
+        {/* Mobile Navigation Indicators */}
+        <div className="flex justify-center gap-2 mt-4 mb-6">
+          {Array(9).fill(null).map((_, index) => (
+            <div 
+              key={index}
+              className={`h-2 w-2 rounded-full ${index === 0 ? 'bg-black' : 'bg-gray-200'}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div className="w-full border-t border-black"></div>
+      </section>
+           <section className="w-full bg-black text-white py-12 md:py-24">
+            <div className="max-w-[1200px] mx-auto px-4 text-center">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4 md:mb-6">
+                Contribute to the Protocol
+              </h2>
+              
+              <p className="text-[#A1A1AA] text-lg md:text-xl max-w-[900px] mx-auto mb-8 md:mb-12 px-4">
+                Join our community of developers and help shape the future of content curation. Our protocol is open-source, allowing anyone to contribute, improve, and build upon our technology.
+              </p>
+
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+                <button className="w-full md:w-auto bg-white text-black px-6 py-3 rounded-lg font-medium">
+                  Start Contributing
+                </button>
+                <a href="#" className="flex items-center justify-center gap-2 text-white hover:text-gray-300 py-3">
+                  Learn More
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+      </section>    
+                   <section className="w-full bg-white">
+            <div className="w-full mx-auto py-6 md:py-8">
+              <div className="max-w-[1200px] mx-auto px-4">
+                <div className="flex flex-col items-center mb-6 md:mb-8">
+                  <span className="inline-block px-4 py-2 rounded-full border border-black text-sm">
+                    CASE STUDIES
+                  </span>
+                </div>
+                
+                <h2 className="text-3xl md:text-5xl font-bold mb-8 md:mb-12 text-center md:text-left">
+                  Discover How Leading Communities and Creators<br className="hidden md:block" /> 
+                  Streamline Their Workflows.
+                </h2>
+              </div>
+              <div className="w-full border-t border-black"></div>
+              <div className="max-w-[1200px] mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-0">
+                  <div className="p-4 md:p-8 md:border-x border-[#E5E5E5] relative">
+                    <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
+                      <SatelliteDish className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
+                    </div>
+                    <div className="flex flex-col items-center md:items-start relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Image 
+                          src="/crypto-grant-wire-logo.png" 
+                          alt="Crypto Grant Wire" 
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                          unoptimized
+                        />
+                        <h3 className="text-2xl font-bold">Cryto Grant Wire</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">Feed for Web3 grant + DAO Governance</p>
+                      <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
+                        #publicgoods
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative">
+                    <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
+                      <CalendarRange className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))' }} />
+                    </div>
+                    <div className="flex flex-col items-center md:items-start relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Image 
+                          src="/nearweek-logo.png" 
+                          alt="NEARWEEK" 
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                          unoptimized
+                        />
+                        <h3 className="text-2xl font-bold">NEARWEEK</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">NEAR Protocol Community digest</p>
+                      <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
+                        #near
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 md:p-8 md:border-r border-[#E5E5E5] relative">
+                    <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
+                      <Podcast className="w-48 h-48 text-white" style={{ filter: 'drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))', transform: 'rotate(-45deg)'  }} />
+                    </div>
+                    <div className="flex flex-col items-center md:items-start relative z-10">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Image 
+                          src="/public-goods-fm-logo.png" 
+                          alt="Public Goods FM" 
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                          unoptimized
+                        />
+                        <h3 className="text-2xl font-bold">Public Goods FM</h3>
+                      </div>
+                      <p className="text-gray-600 mb-4">Public goods focused podcast and newsletter</p>
+                      <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
+                        #publicgoods
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="w-full border-t border-black"></div>
+          </section>
+
+      {/* <main className="flex flex-col items-center justify-center min-h-screen p-4 px-2 sm:px-4 w-full">
         <div className="w-full max-w-none mx-auto">
           <div className="flex justify-center items-center mb-8 sm:mb-12 border-b-4 border-black w-full">
             <div className="flex-1 p-4 flex justify-center items-center w-full">
@@ -266,7 +967,7 @@ export default function Home() {
                   finalEmoji="🔖"
                   duration={2000}
                   interval={150}
-                  emojiSet={["🔖", "📑", "📚", "📌", "📎"]}
+                  emojiSet={["🔖", "", "📚", "📌", ""]}
                 />
                 <SlotEmoji
                   finalEmoji="📸"
@@ -537,9 +1238,9 @@ export default function Home() {
                 </tr>
               </tbody>
             </table>
-          </section> */}
+          </section> 
         </div>
-      </main>
+      </main> */}
 
       <footer className="fixed bottom-0 w-full py-2 sm:py-4 bg-white/80 backdrop-blur border-t-4 border-black flex flex-col sm:flex-row justify-between items-center px-4">
         <div className="flex space-x-4">
@@ -590,3 +1291,4 @@ export default function Home() {
     </div>
   );
 }
+
