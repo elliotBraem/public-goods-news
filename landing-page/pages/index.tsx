@@ -80,6 +80,11 @@ const PARTNERS = [
     alt: "Eliza",
   },
   {
+    href: "https://solana.com/",
+    img: "/assets/images/communities/solana.jpg",
+    alt: "Solana",
+  },
+  {
     href: "https://www.eigenlayer.xyz/",
     img: "/assets/images/communities/community2.png",
     alt: "Eigen Layer",
@@ -95,10 +100,15 @@ const PARTNERS = [
     alt: "Ethereum",
   },
   {
-    href: "https://nearweek.com",
-    img: "/assets/images/communities/nearweek.svg",
-    alt: "Near Week",
+    href: "https://berachain.com",
+    img: "/assets/images/communities/community4.png",
+    alt: "Berachain4",
   },
+  // {
+  //   href: "https://nearweek.com",
+  //   img: "/assets/images/communities/nearweek.svg",
+  //   alt: "Near Week",
+  // },
   {
     href: "https://nouns.wtf",
     img: "/assets/images/communities/community3.png",
@@ -109,25 +119,30 @@ const PARTNERS = [
     img: "/assets/images/communities/cryptograntwire.svg",
     alt: "Crypto Grant Wire",
   },
+  // {
+  //   href: "https://potlock.org",
+  //   img: "/assets/images/communities/potlock.svg",
+  //   alt: "POTLOCK",
+  // },
   {
-    href: "https://berachain.com",
-    img: "/assets/images/communities/community4.png",
-    alt: "Berachain4",
+    href: "https://aptosfoundation.org//",
+    img: "/assets/images/communities/aptos.jpg",
+    alt: "Aptos",
   },
   {
-    href: "https://alpha.potlock.org",
-    img: "/assets/images/communities/potlock.svg",
-    alt: "POTLOCK",
+    href: "https://howtodao.xyz//",
+    img: "/assets/images/communities/howtodao.png",
+    alt: "How to DAO",
+  },
+  {
+    href: "https://stellar.org//",
+    img: "/assets/images/communities/stellar.jpg",
+    alt: "Stellar",
   },
   {
     href: "https://www.refidao.com/",
     img: "/assets/images/communities/refi_dao.png",
     alt: "Refi DAO",
-  },
-  {
-    href: "https://www.gitcoin.co/",
-    img: "/assets/images/communities/gitcoin_dao.png",
-    alt: "GitCoin DAO",
   },
   {
     href: "https://www.morphl2.io/",
@@ -159,10 +174,26 @@ const PARTNERS = [
     img: "/assets/images/communities/avax.jpg",
     alt: "Avalanche",
   },
+
   {
-    href: "https://aptosfoundation.org//",
-    img: "/assets/images/communities/aptos.jpg",
-    alt: "Aptos",
+    href: "https://ripple.com/",
+    img: "/assets/images/communities/ripple.jpg",
+    alt: "Ripple",
+  },
+  {
+    href: "https://desci.world/",
+    img: "/assets/images/communities/desci.jpg",
+    alt: "Desci World",
+  },
+  {
+    href: "https://desci.world/",
+    img: "/assets/images/communities/desci.jpg",
+    alt: "Desci World",
+  },
+  {
+    href: "https://thenetworkstate.com/",
+    img: "/assets/images/communities/networkstate.jpg",
+    alt: "The Network State",
   },
   {
     href: "https://sui.io//",
