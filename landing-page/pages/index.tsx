@@ -146,8 +146,38 @@ const PARTNERS = [
   },
   {
     href: "https://hyperfoundation.org/",
-    img: "https://pbs.twimg.com/profile_images/1646991609416806408/vKLEZxhh_400x400.png",
+    img: "/assets/images/communities/hyperliquid.png",
     alt: "Hyperliquid",
+  },
+  {
+    href: "https://bitcoin.org/",
+    img: "/assets/images/communities/bitcoin.jpeg",
+    alt: "Bitcoin",
+  },
+  {
+    href: "https://avax.network/",
+    img: "/assets/images/communities/avax.jpg",
+    alt: "Avalanche",
+  },
+  {
+    href: "https://aptosfoundation.org//",
+    img: "/assets/images/communities/aptos.jpg",
+    alt: "Aptos",
+  },
+  {
+    href: "https://sui.io//",
+    img: "/assets/images/communities/sui.jpg",
+    alt: "Sui",
+  },
+  {
+    href: "https://pudgypenguins.com/",
+    img: "/assets/images/communities/pudgy.jpg",
+    alt: "Pudgy Penguins",
+  },
+  {
+    href: "https://base.org/",
+    img: "/assets/images/communities/base.jpg",
+    alt: "BASE L2",
   },
 ];
 
@@ -328,7 +358,7 @@ export default function Home() {
     {
       name: "Crypto Grant Wire",
       hashtag: "#grant",
-      description: "feed for Web3 grant +  DAO Governance",
+      Description: "Feed for Web3 grant +  DAO Governance",
       logo: "📡",
       link: "https://t.me/cryptograntwire",
       soon: true,
