@@ -186,11 +186,6 @@ const PARTNERS = [
     alt: "Desci World",
   },
   {
-    href: "https://desci.world/",
-    img: "/assets/images/communities/desci.jpg",
-    alt: "Desci World",
-  },
-  {
     href: "https://thenetworkstate.com/",
     img: "/assets/images/communities/networkstate.jpg",
     alt: "The Network State",
