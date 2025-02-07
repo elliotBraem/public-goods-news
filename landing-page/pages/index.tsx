@@ -275,6 +275,12 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
               )}
             </button>
           </div>
+          <button
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            onClick={() => window.open(`https://app.curate.fun/feed/${tag}`, '_blank')}
+          >
+            Open Feed
+          </button>
         </div>
       )}
     </button>
