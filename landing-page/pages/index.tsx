@@ -75,14 +75,14 @@ const SlotEmoji = ({
 
 const PARTNERS = [
   {
-    href: "#",
+    href: "https://www.elizaos.ai/",
     img: "/assets/images/communities/community1.png",
-    alt: "Community #2",
+    alt: "Eliza",
   },
   {
-    href: "#",
+    href: "https://www.eigenlayer.xyz/",
     img: "/assets/images/communities/community2.png",
-    alt: "Community #2",
+    alt: "Eigen Layer",
   },
   {
     href: "https://near.org/",
@@ -100,9 +100,9 @@ const PARTNERS = [
     alt: "Near Week",
   },
   {
-    href: "#",
+    href: "https://nouns.wtf",
     img: "/assets/images/communities/community3.png",
-    alt: "Community #3",
+    alt: "Nouns DAO",
   },
   {
     href: "https://t.me/cryptograntwire",
@@ -110,14 +110,14 @@ const PARTNERS = [
     alt: "Crypto Grant Wire",
   },
   {
-    href: "#",
+    href: "https://berachain.com",
     img: "/assets/images/communities/community4.png",
-    alt: "Community #4",
+    alt: "Berachain4",
   },
   {
     href: "https://alpha.potlock.org",
     img: "/assets/images/communities/potlock.svg",
-    alt: "PotLock",
+    alt: "POTLOCK",
   },
   {
     href: "https://www.refidao.com/",
@@ -130,19 +130,24 @@ const PARTNERS = [
     alt: "GitCoin DAO",
   },
   {
-    href: "#",
+    href: "https://www.morphl2.io/",
     img: "/assets/images/communities/community5.png",
-    alt: "Community #5",
+    alt: "Morph",
   },
   {
-    href: "https://ethereum.org",
+    href: "https://americancrypto.foundation",
     img: "/assets/images/communities/acf_logo.png",
     alt: "American Crypto Foundation",
   },
   {
-    href: "#",
+    href: "https://celo.org/",
     img: "/assets/images/communities/community6.png",
-    alt: "Community 6",
+    alt: "Celo",
+  },
+  {
+    href: "https://hyperfoundation.org/",
+    img: "https://pbs.twimg.com/profile_images/1646991609416806408/vKLEZxhh_400x400.png",
+    alt: "Hyperliquid",
   },
 ];
 
@@ -227,17 +232,22 @@ const FAQs = () => {
     {
       question: "What is curate.fun?",
       answer:
-        "Curate.fun is a platform designed to streamline content curation and sharing.",
+        "curate.fun is a platform designed to streamline community crowsourced news to build autonomous content.",
     },
     {
       question: "How do I get a feed?",
       answer:
-        "You can get a feed by signing up and selecting your preferred sources.",
+        "Hop on our telegram and let us know what you want.",
     },
     {
-      question: "How does it work?",
+      question: "Wen token?",
       answer:
-        "The curate.fun is part of the potluck ecosystem and tokenomics will be baked in with the $GRANTS ecosystem token.",
+        "The curate.fun is part of the POTLOCK ecosystem and tokenomics will be baked in with the $GRANTS ecosystem token.",
+    },
+    {
+      question: "What is platforms are currently supported?",
+      answer:
+        "Currently twitter for curation, headlines + threads + blogs for content, and telegram + twitter crosspost. Will be adding more soon.",
     },
     {
       question: "How can you add support?",
@@ -247,7 +257,7 @@ const FAQs = () => {
     {
       question: "How does it work?",
       answer:
-        "Curate.fun uses AI to curate and summarize content from various sources.",
+        "curate.fun uses AI to  summarize content from the approved community curated news from socials.",
     },
   ];
 
@@ -684,26 +694,26 @@ export default function Home() {
             <div className="grid grid-cols-2 md:grid-cols-4">
               <div className="p-6 md:p-8 border-r border-b md:border-b-0 border-black">
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">
-                  1,000
+                  500
                 </h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">
-                  POST CURATED
+                  POSTS CURATED
                 </p>
               </div>
               <div className="p-6 md:p-8 border-b md:border-r md:border-b-0 border-black">
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">
-                  5
+                  3
                 </h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">
-                  PARTNERED MEDIA
+                  MEDIA PARTNERS
                 </p>
               </div>
               <div className="p-6 md:p-8 border-r border-black">
                 <h4 className="text-3xl md:text-4xl font-bold mb-2 text-center md:text-left">
-                  30
+                  +30
                 </h4>
                 <p className="text-gray-500 uppercase text-xs md:text-sm text-center md:text-left">
-                  NUMBER OF CURATORS
+                  CURATORS
                 </p>
               </div>
               <div className="p-6 md:p-8">
@@ -963,7 +973,7 @@ export default function Home() {
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
             <Link
-              href={"https://app.curate.fun/f"}
+              href={"https://t.me/+UM70lvMnofk3YTVh"}
               target="_blank"
               className="w-full md:w-auto bg-white text-black px-6 py-3 rounded-lg font-medium"
             >
