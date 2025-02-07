@@ -565,7 +565,7 @@ export default function Home() {
         <div className="w-full max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row justify-between items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-8 mb-8 md:mb-0">
             <h2 className="text-4xl md:text-6xl text-center md:text-left font-bold mb-6">
-              Turn <span className="text-[#FF2E2E]">Crowdsourced News</span> 
+              Turn <span className="text-[#FF2E2E]">Crowdsourced News </span> 
               into automated recurring AI Content
             </h2>
             <p className="text-lg md:text-xl mb-8  text-center md:text-left ">
