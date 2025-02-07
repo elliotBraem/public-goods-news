@@ -277,7 +277,9 @@ const HashtagButton = ({ tag, isActive, onClick }: HashtagButton) => {
           </div>
           <button
             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-            onClick={() => window.open(`https://app.curate.fun/feed/${tag}`, '_blank')}
+            onClick={() =>
+              window.open(`https://app.curate.fun/feed/${tag}`, "_blank")
+            }
           >
             Open Feed
           </button>
@@ -298,8 +300,7 @@ const FAQs = () => {
     },
     {
       question: "How do I get a feed?",
-      answer:
-        "Hop on our telegram and let us know what you want.",
+      answer: "Hop on our telegram and let us know what you want.",
     },
     {
       question: "Wen token?",
@@ -571,7 +572,7 @@ export default function Home() {
         <div className="w-full max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row justify-between items-center md:items-start">
           <div className="w-full md:w-1/2 md:pr-8 mb-8 md:mb-0">
             <h2 className="text-4xl md:text-6xl text-center md:text-left font-bold mb-6">
-              Turn <span className="text-[#FF2E2E]">Crowdsourced News </span> 
+              Turn <span className="text-[#FF2E2E]">Crowdsourced News </span>
               into automated recurring AI Content
             </h2>
             <p className="text-lg md:text-xl mb-8  text-center md:text-left ">
