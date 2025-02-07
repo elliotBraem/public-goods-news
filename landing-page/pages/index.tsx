@@ -631,7 +631,7 @@ export default function Home() {
                         width={40}
                         height={40}
                         alt={partner.alt}
-                        className="w-[40px] h-[40px] object-contain"
+                        className="w-[40px] h-[40px] object-contain rounded-full"
                       />
                     </a>
                   ))}
