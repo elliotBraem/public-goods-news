@@ -27,6 +27,10 @@
     "@curatedotfun/supabase": {
       "type": "distributor",
       "url": "@curatedotfun/supabase"
+    },
+    "@curatedotfun/notion": {
+      "type": "distributor",
+      "url": "./external/notion"
     }
   },
   "feeds": [
