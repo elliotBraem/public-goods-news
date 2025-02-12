@@ -1124,7 +1124,7 @@ export default function Home() {
                     An open database & api for crypto fundraising announcments
                   </p>
                   <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
-                    #grants
+                    #cryptofundraise
                   </span>
                 </Link>
               </div>
