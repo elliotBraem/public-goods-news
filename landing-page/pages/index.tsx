@@ -1042,7 +1042,7 @@ export default function Home() {
                   <div className="flex items-start gap-2 mb-4">
                     <Image
                       src="/assets/images/communities/acf.jpg"
-                      alt="Crypto Grant Wire"
+                      alt="American Crypto Foundation"
                       width={32}
                       height={32}
                       className="rounded-full"
@@ -1094,6 +1094,41 @@ export default function Home() {
                   </span>
                 </Link>
               </div>
+              <div className="p-4 pb-8 md:p-8 md:border-x relative max-w-[300px] border-b border-neutral-500 mx-auto">
+                <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
+                  <SatelliteDish
+                    className="w-48 h-48 text-white"
+                    style={{
+                      filter:
+                        "drop-shadow(0 1.87px 4.68px rgba(193, 146, 76, 0.8))",
+                    }}
+                  />
+                </div>
+                <Link
+                  href="https://fundraising.news"
+                  target="_blank"
+                  className="flex flex-col items-center md:items-start relative z-10"
+                >
+                  <div className="flex items-start gap-2 mb-4">
+                    <Image
+                      src="https://cdn1.cdn-telegram.org/file/Y0NDaS421SdueeYpg8Ae7aSVkh027ugUcj3iMpyuEtWoCoMa3QyQ_QWmMuq4DXd7qt4sLn4J0wlNQZmBZePFhzmfpvoKms3UZwONx4fSWnORLxtBmDbDdUofQwBaDNx4G6QK9687OzdP_5wK8S7DU2cnjY4zQSoCnDEtv-hyGf1qRQLYrdYhvq8DLWTUKg3LT_thSw-iddrtX8G5SBFo4BkyVezj2OMY42VFlu-efKASJAZ_D-oerem1U9q5G6buzGcAqSCL8DfpBXqEG30HEbk1rYcyn3L81Hn30qABujOjpAPUfrdg-F19OsiT6K8AeykaZgwJfkkLODAfzh-gDQ.jpg"
+                      alt="Crypto Fundraising"
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                      unoptimized
+                    />
+                    <h3 className="text-2xl font-bold">Crypto Fundraises</h3>
+                  </div>
+                  <p className="text-gray-600 mb-4 text-center md:text-left">
+                    An open database & api for crypto fundraising announcments
+                  </p>
+                  <span className="inline-block px-3 py-1 bg-gray-800 text-white rounded-md text-sm">
+                    #grants
+                  </span>
+                </Link>
+              </div>
+
 
               <div className="p-4 pb-8 md:p-8 md:border-r relative max-w-[300px] border-b border-neutral-500 mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">
