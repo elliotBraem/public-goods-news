@@ -727,6 +727,24 @@
         }
       }
     },
+        {
+      "id": "icp",
+      "name": "ICP",
+      "description": "Updates around Internet Computer / Dfinity ecosystem",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "ICPHUBS",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
     {
       "id": "sui",
       "name": "Sui",
