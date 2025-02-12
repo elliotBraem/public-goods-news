@@ -258,7 +258,7 @@ const FAQs = () => {
     {
       question: "Wen token?",
       answer:
-        "The curate.fun is part of the POTLOCK ecosystem and tokenomics will be baked in with the $GRANTS ecosystem token.",
+        "Soon. TG for alpha",
     },
     {
       question: "What is platforms are currently supported?",
