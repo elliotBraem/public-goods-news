@@ -1035,7 +1035,7 @@ export default function Home() {
                   />
                 </div>
                 <Link
-                  href="https://AmericanCryptoFoundation"
+                  href="https://AmericanCrypto.Foundation"
                   target="_blank"
                   className="flex flex-col items-center md:items-start relative z-10"
                 >
