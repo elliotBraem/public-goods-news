@@ -405,7 +405,7 @@
           "transform": {
             "plugin": "@curatedotfun/simple-transform",
             "config": {
-              "format": "⚡ Solana Spotlight ⚡\n\n{CONTENT}\n\n{CURATOR_NOTES}\n\n🔗 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
+              "format": "⚡ Solana Spotlight: {CONTENT}\n\n{CURATOR_NOTES}\n\n🔗 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
             }
           },
           "distribute": [
@@ -639,7 +639,7 @@
           "transform": {
             "plugin": "@curatedotfun/simple-transform",
             "config": {
-              "format": "🇺🇸💰 Latest American Crypto Update\n\n{CONTENT}\n\n{CURATOR_NOTES}\n\n📌 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
+              "format": "🇺🇸 {CONTENT}\n\n{CURATOR_NOTES}\n\n📌 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
             }
           },
           "distribute": [
