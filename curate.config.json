@@ -111,6 +111,7 @@
             "evan_van_ness",
             "plugrel",
             "potlock",
+            "potlock_intern",
             "abcoathup"
           ]
         }
@@ -153,6 +154,7 @@
             "_fiatisabubble",
             "David___Mo",
             "slimedrgn",
+            "potlock_intern",
             "ai_x_crypto"
           ]
         }
@@ -197,6 +199,7 @@
             "willyogo",
             "carlosjmelgar",
             "plugrel",
+            "potlock_intern",
             "JackWyldes"
           ]
         }
@@ -213,7 +216,7 @@
       "description": "AI and blockchain intersection",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "Cameron_Dennis_", "dabit3"]
+          "twitter": ["plugrel", "Cameron_Dennis_", "potlock_intern","dabit3"]
         }
       },
       "outputs": {
@@ -238,7 +241,7 @@
       "description": "AI updates",
       "moderation": {
         "approvers": {
-          "twitter": ["Cameron_Dennis_", "plugrel"]
+          "twitter": ["Cameron_Dennis_", "potlock_intern","plugrel"]
         }
       },
       "outputs": {
@@ -263,7 +266,7 @@
       "description": "General crypto updates",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel"]
+          "twitter": ["potlock_intern", "plugrel"]
         }
       },
       "outputs": {
@@ -284,6 +287,7 @@
             "TheDevanshMehta",
             "niddhi",
             "potlock_",
+            "potlock_intern",
             "publicgoodsfm",
             "sejal_rekhan"
           ]
@@ -311,6 +315,7 @@
             "civilmonkey",
             "potlock_",
             "plutgrel",
+            "potlock_intern",
             "PaulBurg_"
           ]
         }
@@ -337,7 +342,7 @@
       "description": "Decentralized Science updates",
       "moderation": {
         "approvers": {
-          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci", "DeSciWorld"]
+          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci", "potlock_intern", "DeSciWorld"]
         }
       },
       "outputs": {
@@ -372,6 +377,7 @@
             "shanhaiwoo",
             "potlock_",
             "plugrel",
+            "potlock_intern",
             "SocialLayer_im"
           ]
         }
@@ -395,6 +401,7 @@
             "aeyakovenko",
             "therealchaseeb",
             "Austin_Federa",
+            "potlock_intern",
             "KyleSamani"
           ]
         }
@@ -443,6 +450,7 @@
             "0xMustafa_eth",
             "0xpratik",
             "0xNFTy",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -466,6 +474,7 @@
             "feemschats",
             "BryanPetes",
             "jwaup",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -500,6 +509,7 @@
             "Cameron_Dennis_",
             "cuongdc_real",
             "NEARQuant",
+            "potlock_intern",
             "_fiatisabubble",
             "plugrel"
           ]
@@ -522,6 +532,7 @@
             "cecilia_hsueh",
             "LxKus",
             "cryptogodfatha",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -554,6 +565,7 @@
             "scaaaht",
             "0xHunterBera",
             "ellaqiang9",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -582,6 +594,7 @@
             "joan_drb",
             "LuukDAO",
             "KohCelo",
+            "potlock_intern",
             "CeloAfricaDao",
             "plugrel"
           ]
@@ -608,7 +621,7 @@
           "transform": {
             "plugin": "@curatedotfun/simple-transform",
             "config": {
-              "format": "📝 new fundraising announcement\n\n{CONTENT}\n\n{CURATOR_NOTES}\n\n📌 source: https://x.com/x/status/{SUBMISSION_ID}\n"
+              "format": "{CONTENT}\n\n{CURATOR_NOTES}\n\n📌 source: https://x.com/x/status/{SUBMISSION_ID}\n"
             }
           },
           "distribute": [
@@ -630,7 +643,7 @@
       "description": "$TRUMP ecosystem and American first crypto",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "0xAmerican", "potlock_"]
+          "twitter": ["plugrel", "0xAmerican", "potlock_intern", "potlock_"]
         }
       },
       "outputs": {
@@ -660,7 +673,7 @@
       "description": "Updates around eliza OS",
       "moderation": {
         "approvers": {
-          "twitter": ["shawmakesmagic", "plugrel"]
+          "twitter": ["shawmakesmagic", "potlock_intern", "plugrel"]
         }
       },
       "outputs": {
@@ -675,7 +688,7 @@
       "description": "Updates around Stellar ecosystem, Soroban, & more",
       "moderation": {
         "approvers": {
-          "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "plugrel"]
+          "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "potlock_intern","plugrel"]
         }
       },
       "outputs": {
@@ -694,7 +707,7 @@
             "elliot_braem",
             "ilblackdragon",
             "David___Mo",
-            "revrfg",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -717,6 +730,7 @@
             "RuleXRP",
             "XRPcryptowolf",
             "AlexCobb_",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -735,6 +749,7 @@
         "approvers": {
           "twitter": [
             "ICPHUBS",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -760,6 +775,7 @@
             "EmanAbio",
             "EvanWeb3",
             "kostascrypto",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -781,6 +797,7 @@
             "stevenyuntcap",
             "henrik",
             "Sakrexer",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -809,6 +826,7 @@
             "AptosCollective",
             "0xlightmark",
             "0xSushiKev",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -834,6 +852,7 @@
             "MetaGandhi_",
             "PudgyRitesh",
             "ppmctweets",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -856,6 +875,7 @@
             "AVAXDaily",
             "GamingOnAvax",
             "frostLedger",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -879,6 +899,7 @@
             "EvSlatts",
             "jessepollak",
             "kunal_modi",
+             "potlock_intern",
             "plugrel"
           ]
         }
@@ -895,7 +916,7 @@
       "description": "News about Bitcoin, Bitcoin devs, scaling, integrations, adoptions.",
       "moderation": {
         "approvers": {
-          "twitter": ["Blaze0x1", "plugrel", "aescobarindo"]
+          "twitter": ["Blaze0x1", "plugrel", "potlock_intern","aescobarindo"]
         }
       },
       "outputs": {
