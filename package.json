@@ -1,13 +1,16 @@
 {
   "name": "curatedotfun",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
+  "devDependencies": {
+    "turbo": "latest",
+    "prettier": "^3.3.3"
+  },
   "packageManager": "bun@1.0.27",
+  "private": true,
   "scripts": {
     "dev": "bunx turbo run dev",
     "build": "bunx turbo run build",
-    "start": "NODE_ENV=production cd backend && bun run dist/index.js",
+    "start": "cd backend && NODE_ENV=production bun run dist/index.js",
     "db:up": "cd backend && bun run db:up",
     "db:push": "cd backend && bun run db:push",
     "db:migrate": "cd backend && bun run db:migrate",
@@ -15,17 +18,13 @@
     "deploy:init": "fly launch && fly consul attach",
     "deploy": "fly deploy",
     "fmt": "prettier --write '**/*.{js,jsx,ts,tsx,json}'",
-    "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'"
+    "fmt:check": "prettier --check '**/*.{js,jsx,ts,tsx,json}'",
+    "docs": "bunx turbo run docs"
   },
+  "type": "module",
   "workspaces": [
     "frontend",
-    "backend"
-  ],
-  "devDependencies": {
-    "turbo": "latest",
-    "prettier": "^3.3.3"
-  },
-  "dependencies": {
-    "elysia-rate-limit": "^4.1.0"
-  }
+    "backend",
+    "docs"
+  ]
 }

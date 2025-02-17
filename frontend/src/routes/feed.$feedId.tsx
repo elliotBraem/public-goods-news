@@ -224,7 +224,11 @@ function FeedPage() {
           </div>
         ) : (
           filteredItems
-            .reverse()
+            .sort(
+              (a, b) =>
+                new Date(b.submittedAt!).getTime() -
+                new Date(a.submittedAt!).getTime(),
+            )
             .map((item) => <FeedItem key={item.tweetId} submission={item} />)
         )}
       </div>

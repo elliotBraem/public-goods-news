@@ -6,6 +6,89 @@ export const getTweetUrl = (tweetId: string, username: string) => {
 
 type TwitterAction = "approve" | "reject" | "apply";
 
+const isDev = () => process.env.NODE_ENV === "development";
+
+const generateTweetId = () =>
+  `${Date.now()}${Math.floor(Math.random() * 1000)}`;
+
+export const handleApprove = async (
+  submission: TwitterSubmissionWithFeedData,
+  botId: string,
+) => {
+  if (isDev()) {
+    const newTweetId = generateTweetId();
+    const response = await fetch("/api/test/tweets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: newTweetId,
+        text: `!approve @${botId}`,
+        username: "test_admin",
+        userId: "mock-user-id-test_admin",
+        timeParsed: new Date(),
+        inReplyToStatusId: submission.curatorTweetId,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to submit approval tweet");
+      return;
+    }
+
+    console.log("Development mode: Submitted approval tweet", { newTweetId });
+    return;
+  }
+
+  // In production, open Twitter intent
+  window.open(
+    getTwitterIntentUrl({
+      action: "approve",
+      submission,
+      botId,
+    }),
+    "_blank",
+  );
+};
+
+export const handleReject = async (
+  submission: TwitterSubmissionWithFeedData,
+  botId: string,
+) => {
+  if (isDev()) {
+    const newTweetId = generateTweetId();
+    const response = await fetch("/api/test/tweets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: newTweetId,
+        text: `!reject @${botId} spam`,
+        username: "test_admin",
+        userId: "test_admin_id",
+        timeParsed: new Date(),
+        inReplyToStatusId: submission.curatorTweetId,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to submit rejection tweet");
+      return;
+    }
+
+    console.log("Development mode: Submitted rejection tweet", { newTweetId });
+    return;
+  }
+
+  // In production, open Twitter intent
+  window.open(
+    getTwitterIntentUrl({
+      action: "reject",
+      submission,
+      botId,
+    }),
+    "_blank",
+  );
+};
+
 export const getTwitterIntentUrl = (
   params: {
     action: TwitterAction;

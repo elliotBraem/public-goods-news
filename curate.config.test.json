@@ -1,0 +1,97 @@
+{
+  "global": {
+    "botId": "test_bot",
+    "defaultStatus": "pending",
+    "maxSubmissionsPerUser": 100,
+    "blacklist": {
+      "twitter": []
+    }
+  },
+  "plugins": {
+    "@curatedotfun/telegram": {
+      "type": "distributor",
+      "url": "./external/telegram"
+    },
+    "@curatedotfun/notion": {
+      "type": "distributor",
+      "url": "./external/notion"
+    }
+  },
+  "feeds": [
+    {
+      "id": "test",
+      "name": "Test Feed",
+      "description": "Main feed for testing basic functionality",
+      "moderation": {
+        "approvers": {
+          "twitter": ["test_curator", "test_admin"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/notion",
+              "config": {
+                "token": "{CRYPTOGRANTWIRE_NOTION_TOKEN}",
+                "databaseId": "191000c0d5908055bdb7d6ec9bef599c",
+                "aiToken": "{OPENROUTER_API_KEY}"
+              }
+            },
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "@test_curation"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "multi",
+      "name": "Multi-Approver Test",
+      "description": "Testing multiple approver scenarios",
+      "moderation": {
+        "approvers": {
+          "twitter": ["curator1", "curator2", "curator3"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true
+        }
+      }
+    },
+    {
+      "id": "edge",
+      "name": "Edge Cases",
+      "description": "Testing edge cases and error scenarios",
+      "moderation": {
+        "approvers": {
+          "twitter": ["edge_curator"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": true
+        },
+        "recap": {
+          "enabled": true,
+          "schedule": "*/5 * * * *",
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/rss",
+              "config": {
+                "title": "Edge Cases Recap",
+                "path": "./public/edge-cases.xml"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

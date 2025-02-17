@@ -170,6 +170,80 @@ export function updateSubmissionFeedStatus(
     );
 }
 
+export function getSubmissionByCuratorTweetId(
+  db: BunSQLiteDatabase,
+  curatorTweetId: string,
+): TwitterSubmission | null {
+  const results = db
+    .select({
+      s: {
+        tweetId: submissions.tweetId,
+        userId: submissions.userId,
+        username: submissions.username,
+        content: submissions.content,
+        curatorNotes: submissions.curatorNotes,
+        curatorId: submissions.curatorId,
+        curatorUsername: submissions.curatorUsername,
+        curatorTweetId: submissions.curatorTweetId,
+        createdAt: submissions.createdAt,
+        submittedAt: sql<string>`COALESCE(${submissions.submittedAt}, ${submissions.createdAt})`,
+      },
+      m: {
+        tweetId: moderationHistory.tweetId,
+        adminId: moderationHistory.adminId,
+        action: moderationHistory.action,
+        note: moderationHistory.note,
+        createdAt: moderationHistory.createdAt,
+        feedId: moderationHistory.feedId,
+        moderationResponseTweetId: submissionFeeds.moderationResponseTweetId,
+      },
+    })
+    .from(submissions)
+    .leftJoin(
+      moderationHistory,
+      eq(submissions.tweetId, moderationHistory.tweetId),
+    )
+    .leftJoin(
+      submissionFeeds,
+      and(
+        eq(submissions.tweetId, submissionFeeds.submissionId),
+        eq(moderationHistory.feedId, submissionFeeds.feedId),
+      ),
+    )
+    .where(eq(submissions.curatorTweetId, curatorTweetId))
+    .orderBy(moderationHistory.createdAt)
+    .all() as DbQueryResult[];
+
+  if (!results.length) return null;
+
+  // Group moderation history
+  const modHistory: Moderation[] = results
+    .filter((r: DbQueryResult) => r.m && r.m.adminId !== null)
+    .map((r: DbQueryResult) => ({
+      tweetId: results[0].s.tweetId,
+      feedId: r.m.feedId!,
+      adminId: r.m.adminId!,
+      action: r.m.action as "approve" | "reject",
+      note: r.m.note,
+      timestamp: new Date(r.m.createdAt!),
+      moderationResponseTweetId: r.m.moderationResponseTweetId ?? undefined,
+    }));
+
+  return {
+    tweetId: results[0].s.tweetId,
+    userId: results[0].s.userId,
+    username: results[0].s.username,
+    content: results[0].s.content,
+    curatorNotes: results[0].s.curatorNotes,
+    curatorId: results[0].s.curatorId,
+    curatorUsername: results[0].s.curatorUsername,
+    curatorTweetId: results[0].s.curatorTweetId,
+    createdAt: results[0].s.createdAt,
+    submittedAt: results[0].s.submittedAt,
+    moderationHistory: modHistory,
+  };
+}
+
 export function getSubmission(
   db: BunSQLiteDatabase,
   tweetId: string,

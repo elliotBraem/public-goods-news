@@ -59,11 +59,11 @@ export class TwitterService {
       if (await this.client.isLoggedIn()) {
         // Cache the new cookies
         const cookies = await this.client.getCookies();
-        const formattedCookies = cookies.map((cookie) => ({
+        const formattedCookies: TwitterCookie[] = cookies.map((cookie) => ({
           name: cookie.key,
           value: cookie.value,
-          domain: cookie.domain,
-          path: cookie.path,
+          domain: cookie.domain || ".twitter.com", // Provide default if null
+          path: cookie.path || "/", // Provide default if null
           secure: cookie.secure,
           httpOnly: cookie.httpOnly,
           sameSite: cookie.sameSite as "Strict" | "Lax" | "None" | undefined,
@@ -110,6 +110,17 @@ export class TwitterService {
   }
 
   async initialize() {
+    // Validate required Twitter credentials
+    if (
+      !process.env.TWITTER_USERNAME ||
+      !process.env.TWITTER_PASSWORD ||
+      !process.env.TWITTER_EMAIL
+    ) {
+      throw new Error(
+        "Missing required Twitter credentials. Please ensure TWITTER_USERNAME, TWITTER_PASSWORD, and TWITTER_EMAIL are set in your environment variables.",
+      );
+    }
+
     try {
       // First try to use cached cookies
       if (await this.loadCachedCookies()) {
@@ -193,7 +204,7 @@ export class TwitterService {
 
       // Filter out tweets we've already processed
       for (const tweet of batch) {
-        const tweetId = BigInt(tweet.id);
+        const tweetId = BigInt(tweet.id!);
         if (!lastCheckedId || tweetId > lastCheckedId) {
           allNewTweets.push(tweet);
         }
@@ -201,8 +212,8 @@ export class TwitterService {
 
       // Sort chronologically (oldest to newest)
       allNewTweets.sort((a, b) => {
-        const aId = BigInt(a.id);
-        const bId = BigInt(b.id);
+        const aId = BigInt(a.id!);
+        const bId = BigInt(b.id!);
         return aId > bId ? 1 : aId < bId ? -1 : 0;
       });
 
@@ -210,7 +221,7 @@ export class TwitterService {
       if (allNewTweets.length > 0) {
         // Use the first tweet from the batch since it's the newest (batch comes in newest first)
         const highestId = batch[0].id;
-        await this.setLastCheckedTweetId(highestId);
+        await this.setLastCheckedTweetId(highestId!);
       }
 
       return allNewTweets;

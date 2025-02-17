@@ -27,7 +27,7 @@ Configure your curate.fun instance through the `curate.config.json` file ⚡
 
 ### 🔌 Plugins
 
-Plugins extend functionality with transformations and distribution capabilities:
+Plugins extend functionality with transformations and distribution capabilities. See the [Plugins](/docs/plugins) section for detailed documentation on each plugin.
 
 ```json
 {

@@ -2,7 +2,7 @@ import { Plugin, PluginModule } from "types/plugin";
 import { PluginConfig, PluginsConfig } from "../../types/config";
 import { logger } from "../../utils/logger";
 
-export class DistributionService {
+export class TransformationService {
   private plugins: Map<string, Plugin> = new Map();
 
   async initialize(config: PluginsConfig): Promise<void> {
@@ -32,27 +32,27 @@ export class DistributionService {
     }
   }
 
-  async transformContent(
-    pluginName: string,
-    content: string,
-    config: { prompt: string },
-  ): Promise<string> {
-    const plugin = this.plugins.get(pluginName);
-    if (!plugin || !("transform" in plugin)) {
-      throw new Error(`Transformer plugin ${pluginName} not found or invalid`);
-    }
+  // async transformContent(
+  //   pluginName: string,
+  //   content: string,
+  //   config: { prompt: string },
+  // ): Promise<string> {
+  //   const plugin = this.plugins.get(pluginName);
+  //   if (!plugin || !("transform" in plugin)) {
+  //     throw new Error(`Transformer plugin ${pluginName} not found or invalid`);
+  //   }
 
-    try {
-      await plugin.initialize(config);
-      return await plugin.transform(content);
-    } catch (error) {
-      logger.error(
-        `Error transforming content with plugin ${pluginName}:`,
-        error,
-      );
-      throw error;
-    }
-  }
+  //   try {
+  //     await plugin.initialize(config);
+  //     return await plugin.transform(content);
+  //   } catch (error) {
+  //     logger.error(
+  //       `Error transforming content with plugin ${pluginName}:`,
+  //       error,
+  //     );
+  //     throw error;
+  //   }
+  // }
 
   async shutdown(): Promise<void> {
     // Shutdown all plugins

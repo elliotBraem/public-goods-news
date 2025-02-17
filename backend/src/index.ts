@@ -1,12 +1,13 @@
 import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
 import { swagger } from "@elysiajs/swagger";
-import dotenv from "dotenv";
+import "dotenv/config";
 import { Elysia } from "elysia";
 import { helmet } from "elysia-helmet";
 import path from "path";
-import configService, { validateEnv } from "./config/config";
 import RssPlugin from "./external/rss";
+import { mockTwitterService, testRoutes } from "./routes/test";
+import { ConfigService } from "./services/config/config.service";
 import { db } from "./services/db";
 import { DistributionService } from "./services/distribution/distribution.service";
 import { SubmissionService } from "./services/submissions/submission.service";
@@ -36,33 +37,39 @@ export async function main() {
   let distributionService: DistributionService | null = null;
 
   try {
-    // Load environment variables and config
-    startSpinner("env", "Loading environment variables and config...");
-    dotenv.config();
-    validateEnv();
+    // Load  config
+    startSpinner("config", "Loading config...");
+    const configService = ConfigService.getInstance();
     await configService.loadConfig();
-    succeedSpinner("env", "Environment variables and config loaded");
+    const config = configService.getConfig();
+    succeedSpinner("config", "Config loaded");
 
     // Initialize distribution service
     startSpinner("distribution-init", "Initializing distribution service...");
     distributionService = new DistributionService();
-    const config = configService.getConfig();
+
     await distributionService.initialize(config.plugins);
     succeedSpinner("distribution-init", "distribution service initialized");
 
-    // Try to initialize Twitter service, but continue if it fails
+    // Use mock service in development, real service in production
     try {
       startSpinner("twitter-init", "Initializing Twitter service...");
-      twitterService = new TwitterService({
-        username: process.env.TWITTER_USERNAME!,
-        password: process.env.TWITTER_PASSWORD!,
-        email: process.env.TWITTER_EMAIL!,
-        twoFactorSecret: process.env.TWITTER_2FA_SECRET,
-      });
-      await twitterService.initialize();
+      if (process.env.NODE_ENV === "development") {
+        logger.info("Using mock Twitter service");
+        twitterService = mockTwitterService;
+        await twitterService.initialize();
+      } else {
+        twitterService = new TwitterService({
+          username: process.env.TWITTER_USERNAME!,
+          password: process.env.TWITTER_PASSWORD!,
+          email: process.env.TWITTER_EMAIL!,
+          twoFactorSecret: process.env.TWITTER_2FA_SECRET,
+        });
+        await twitterService.initialize();
+      }
       succeedSpinner("twitter-init", "Twitter service initialized");
 
-      // Only initialize submission service if Twitter is available
+      // Initialize submission service
       startSpinner("submission-init", "Initializing submission service...");
       submissionService = new SubmissionService(
         twitterService,
@@ -80,18 +87,18 @@ export async function main() {
     // Initialize server
     startSpinner("server", "Starting server...");
 
-    const app = new Elysia()
+    new Elysia()
       .use(
         helmet({
           contentSecurityPolicy: {
             directives: {
               defaultSrc: ["'self'"],
-              imgSrc: ["'self'", "data:", "https:"], // Allow images from HTTPS sources
-              fontSrc: ["'self'", "data:", "https:"], // Allow fonts
+              imgSrc: ["'self'", "data:", "https:"],
+              fontSrc: ["'self'", "data:", "https:"],
             },
           },
-          crossOriginEmbedderPolicy: false, // Required for some static assets
-          crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow resources to be shared
+          crossOriginEmbedderPolicy: false,
+          crossOriginResourcePolicy: { policy: "cross-origin" },
           xFrameOptions: { action: "sameorigin" },
         }),
       )
@@ -102,6 +109,8 @@ export async function main() {
         }),
       )
       .use(swagger())
+      // Include test routes in development
+      .use(process.env.NODE_ENV === "development" ? testRoutes : new Elysia())
       .get("/health", () => new Response("OK", { status: 200 }))
       // API Routes
       .get("/api/twitter/last-tweet-id", () => {
@@ -147,7 +156,13 @@ export async function main() {
       })
       .get(
         "/api/submissions/:feedId",
-        ({ params: { feedId } }: { params: { feedId: string } }) => {
+        ({
+          params: { feedId },
+          query: { status },
+        }: {
+          params: { feedId: string };
+          query: { status?: string };
+        }) => {
           const config = configService.getConfig();
           const feed = config.feeds.find(
             (f) => f.id.toLowerCase() === feedId.toLowerCase(),
@@ -155,7 +170,11 @@ export async function main() {
           if (!feed) {
             throw new Error(`Feed not found: ${feedId}`);
           }
-          return db.getSubmissionsByFeed(feedId);
+          let submissions = db.getSubmissionsByFeed(feedId);
+          if (status) {
+            submissions = submissions.filter((sub) => sub.status === status);
+          }
+          return submissions;
         },
       )
       .get(
@@ -180,23 +199,6 @@ export async function main() {
         const rawConfig = await configService.getRawConfig();
         return rawConfig.feeds;
       })
-      // .post("/api/twitter/cookies", async ({ body }: { body: TwitterCookie[] }) => {
-      //   if (!twitterService) {
-      //     throw new Error("Twitter service not available");
-      //   }
-      //   if (!Array.isArray(body)) {
-      //     throw new Error("Expected array of cookies");
-      //   }
-      //   await twitterService.setCookies(body);
-      //   return { success: true };
-      // })
-      // .get("/api/twitter/cookies", () => {
-      //   if (!twitterService) {
-      //     throw new Error("Twitter service not available");
-      //   }
-      //   const cookies = twitterService.getCookies();
-      //   return cookies || [];
-      // })
       .get(
         "/api/config/:feedId",
         ({ params: { feedId } }: { params: { feedId: string } }) => {
@@ -227,53 +229,49 @@ export async function main() {
           return service.getItems();
         },
       )
-      // .post(
-      //   "/api/feeds/:feedId/process",
-      //   async ({ params: { feedId } }: { params: { feedId: string } }) => {
-      //     // Get feed config
-      //     const config = configService.getConfig();
-      //     const feed = config.feeds.find((f) => f.id === feedId);
-      //     if (!feed) {
-      //       throw new Error(`Feed not found: ${feedId}`);
-      //     }
+      .post(
+        "/api/feeds/:feedId/process",
+        async ({ params: { feedId } }: { params: { feedId: string } }) => {
+          // Get feed config
+          const config = configService.getConfig();
+          const feed = config.feeds.find((f) => f.id === feedId);
+          if (!feed) {
+            throw new Error(`Feed not found: ${feedId}`);
+          }
 
-      //     // Get approved submissions for this feed
-      //     const submissions = db
-      //       .getSubmissionsByFeed(feedId)
-      //       .filter((sub) =>
-      //         db
-      //           .getFeedsBySubmission(sub.tweetId)
-      //           .some((feed) => feed.status === "approved"),
-      //       );
+          // Get approved submissions for this feed
+          const submissions = db
+            .getSubmissionsByFeed(feedId)
+            .filter((sub) =>
+              db
+                .getFeedsBySubmission(sub.tweetId)
+                .some((feed) => feed.status === "approved"),
+            );
 
-      //     if (submissions.length === 0) {
-      //       return { processed: 0 };
-      //     }
+          if (submissions.length === 0) {
+            return { processed: 0 };
+          }
 
-      //     // Process each submission through stream output
-      //     let processed = 0;
-      //     if (!distributionService) {
-      //       throw new Error("Distribution service not available");
-      //     }
-      //     for (const submission of submissions) {
-      //       try {
-      //         await distributionService.processStreamOutput(
-      //           feedId,
-      //           submission.tweetId,
-      //           submission.content,
-      //         );
-      //         processed++;
-      //       } catch (error) {
-      //         logger.error(
-      //           `Error processing submission ${submission.tweetId}:`,
-      //           error,
-      //         );
-      //       }
-      //     }
+          // Process each submission through stream output
+          let processed = 0;
+          if (!distributionService) {
+            throw new Error("Distribution service not available");
+          }
+          for (const submission of submissions) {
+            try {
+              await distributionService.processStreamOutput(feedId, submission);
+              processed++;
+            } catch (error) {
+              logger.error(
+                `Error processing submission ${submission.tweetId}:`,
+                error,
+              );
+            }
+          }
 
-      //     return { processed };
-      //   },
-      // )
+          return { processed };
+        },
+      )
       // This was the most annoying thing to set up and debug. Serves our frontend and handles routing. alwaysStatic is essential.
       .use(
         staticPlugin({
@@ -321,7 +319,7 @@ export async function main() {
   } catch (error) {
     // Handle any initialization errors
     [
-      "env",
+      "config",
       "twitter-init",
       "distribution-init",
       "submission-monitor",

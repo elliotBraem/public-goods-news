@@ -67,7 +67,7 @@ const config: Config = {
       title: "curate.fun",
       logo: {
         alt: "curate.fun Docs Logo",
-        src: "img/grantsdotfun_icon.png",
+        src: "img/logo.png",
       },
       items: [
         {

@@ -19,6 +19,18 @@
     "@curatedotfun/gpt-transform": {
       "type": "transformer",
       "url": "./external/gpt-transform"
+    },
+    "@curatedotfun/simple-transform": {
+      "type": "transformer",
+      "url": "./external/simple-transform"
+    },
+    "@curatedotfun/supabase": {
+      "type": "distributor",
+      "url": "@curatedotfun/supabase"
+    },
+    "@curatedotfun/notion": {
+      "type": "distributor",
+      "url": "./external/notion"
     }
   },
   "feeds": [
@@ -37,26 +49,30 @@
             "owocki",
             "civilmonkey",
             "TheDevanshMehta",
-            "bbeats1"
+            "potlock_",
+            "bbeats1",
+            "elliot_braem"
           ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false,
+          "enabled": true,
           "distribute": [
             {
               "plugin": "@curatedotfun/telegram",
               "config": {
                 "botToken": "{TELEGRAM_BOT_TOKEN}",
-                "channelId": "@cryptograntwire"
+                "channelId": "-1002472938420",
+                "messageThreadId": "11"
               }
             },
             {
-              "plugin": "@curatedotfun/rss",
+              "plugin": "@curatedotfun/notion",
               "config": {
-                "title": "Crypto Grant Wire",
-                "path": "./public/grants.xml"
+                "token": "{CRYPTOGRANTWIRE_NOTION_TOKEN}",
+                "databaseId": "191000c0d5908055bdb7d6ec9bef599c",
+                "aiToken": "{OPENROUTER_API_KEY}"
               }
             }
           ]
@@ -94,13 +110,26 @@
             "sassal0x",
             "laurashin",
             "evan_van_ness",
+            "plugrel",
+            "potlock",
+            "potlock_intern",
             "abcoathup"
           ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "7"
+              }
+            }
+          ]
         }
       }
     },
@@ -122,15 +151,34 @@
             "Cameron_Dennis_",
             "cuongdc_real",
             "NEARQuant",
+            "potlock_",
             "_fiatisabubble",
             "David___Mo",
-            "slimedrgn"
+            "slimedrgn",
+            "potlock_intern",
+            "ai_x_crypto"
           ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/simple-transform",
+            "config": {
+              "format": "🔥 NEAR Protocol News Flash 🔥\n\n{CONTENT}\n\n{CURATOR_NOTES}\n\n🔗 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "8"
+              }
+            }
+          ]
         }
       }
     },
@@ -152,6 +200,7 @@
             "willyogo",
             "carlosjmelgar",
             "plugrel",
+            "potlock_intern",
             "JackWyldes"
           ]
         }
@@ -168,12 +217,22 @@
       "description": "AI and blockchain intersection",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "Cameron_Dennis_", "dabit3"]
+          "twitter": ["plugrel", "Cameron_Dennis_", "potlock_intern", "dabit3"]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "6"
+              }
+            }
+          ]
         }
       }
     },
@@ -183,12 +242,22 @@
       "description": "AI updates",
       "moderation": {
         "approvers": {
-          "twitter": ["Cameron_Dennis_", "plugrel"]
+          "twitter": ["Cameron_Dennis_", "potlock_intern", "plugrel"]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "5"
+              }
+            }
+          ]
         }
       }
     },
@@ -198,7 +267,7 @@
       "description": "General crypto updates",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel"]
+          "twitter": ["potlock_intern", "plugrel"]
         }
       },
       "outputs": {
@@ -218,6 +287,9 @@
             "owocki",
             "TheDevanshMehta",
             "niddhi",
+            "potlock_",
+            "potlock_intern",
+            "publicgoodsfm",
             "sejal_rekhan"
           ]
         }
@@ -242,13 +314,26 @@
             "MontyMerlin",
             "checkfit",
             "civilmonkey",
+            "potlock_",
+            "plutgrel",
+            "potlock_intern",
             "PaulBurg_"
           ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "10"
+              }
+            }
+          ]
         }
       }
     },
@@ -258,12 +343,29 @@
       "description": "Decentralized Science updates",
       "moderation": {
         "approvers": {
-          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci", "DesciWorld"]
+          "twitter": [
+            "JelaniC3",
+            "jb87ua",
+            "paulkhls",
+            "0xDeSci",
+            "potlock_intern",
+            "DeSciWorld"
+          ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "9"
+              }
+            }
+          ]
         }
       }
     },
@@ -281,6 +383,9 @@
             "timourxyz",
             "JoinEdgeCity",
             "shanhaiwoo",
+            "potlock_",
+            "plugrel",
+            "potlock_intern",
             "SocialLayer_im"
           ]
         }
@@ -304,13 +409,30 @@
             "aeyakovenko",
             "therealchaseeb",
             "Austin_Federa",
+            "potlock_intern",
             "KyleSamani"
           ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/simple-transform",
+            "config": {
+              "format": "⚡ Solana Spotlight: {CONTENT}\n\n{CURATOR_NOTES}\n\n🔗 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "12"
+              }
+            }
+          ]
         },
         "recap": {
           "enabled": false
@@ -336,6 +458,7 @@
             "0xMustafa_eth",
             "0xpratik",
             "0xNFTy",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -359,13 +482,24 @@
             "feemschats",
             "BryanPetes",
             "jwaup",
+            "potlock_intern",
             "plugrel"
           ]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "108"
+              }
+            }
+          ]
         }
       }
     },
@@ -383,6 +517,7 @@
             "Cameron_Dennis_",
             "cuongdc_real",
             "NEARQuant",
+            "potlock_intern",
             "_fiatisabubble",
             "plugrel"
           ]
@@ -405,6 +540,7 @@
             "cecilia_hsueh",
             "LxKus",
             "cryptogodfatha",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -437,6 +573,7 @@
             "scaaaht",
             "0xHunterBera",
             "ellaqiang9",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -465,6 +602,7 @@
             "joan_drb",
             "LuukDAO",
             "KohCelo",
+            "potlock_intern",
             "CeloAfricaDao",
             "plugrel"
           ]
@@ -487,7 +625,23 @@
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/simple-transform",
+            "config": {
+              "format": "{CONTENT}\n\n{CURATOR_NOTES}\n\n📌 source: https://x.com/x/status/{SUBMISSION_ID}\n"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "-1002472938420",
+                "messageThreadId": "4"
+              }
+            }
+          ]
         }
       }
     },
@@ -497,12 +651,27 @@
       "description": "$TRUMP ecosystem and American first crypto",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel"]
+          "twitter": ["plugrel", "0xAmerican", "potlock_intern", "potlock_"]
         }
       },
       "outputs": {
         "stream": {
-          "enabled": false
+          "enabled": true,
+          "transform": {
+            "plugin": "@curatedotfun/simple-transform",
+            "config": {
+              "format": "🇺🇸 {CONTENT}\n\n{CURATOR_NOTES}\n\n📌 Source: https://x.com/x/status/{SUBMISSION_ID}\n"
+            }
+          },
+          "distribute": [
+            {
+              "plugin": "@curatedotfun/telegram",
+              "config": {
+                "botToken": "{TELEGRAM_BOT_TOKEN}",
+                "channelId": "@americancryptofoundation"
+              }
+            }
+          ]
         }
       }
     },
@@ -512,7 +681,7 @@
       "description": "Updates around eliza OS",
       "moderation": {
         "approvers": {
-          "twitter": ["shawmakesmagic", "plugrel"]
+          "twitter": ["shawmakesmagic", "potlock_intern", "plugrel"]
         }
       },
       "outputs": {
@@ -527,7 +696,222 @@
       "description": "Updates around Stellar ecosystem, Soroban, & more",
       "moderation": {
         "approvers": {
-          "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "plugrel"]
+          "twitter": [
+            "anke_g_liu",
+            "kalepail",
+            "DenelleDixon",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "shippost",
+      "name": "Shippost",
+      "description": "Regular web3 builder demos",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "elliot_braem",
+            "ilblackdragon",
+            "David___Mo",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "ripple",
+      "name": "Ripple",
+      "description": "Updates around Ripple ecosystem, XRP, & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "bgarlinghouse",
+            "JoelKatz",
+            "RuleXRP",
+            "XRPcryptowolf",
+            "AlexCobb_",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "icp",
+      "name": "ICP",
+      "description": "Updates around Internet Computer / Dfinity ecosystem",
+      "moderation": {
+        "approvers": {
+          "twitter": ["ICPHUBS", "potlock_intern", "plugrel"]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "sui",
+      "name": "Sui",
+      "description": "Updates around Sui ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "SuiNetwork",
+            "markoggwp",
+            "lexiwangler",
+            "web3crusadr",
+            "b1ackd0g",
+            "EmanAbio",
+            "EvanWeb3",
+            "kostascrypto",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "hyperliquid",
+      "name": "Hyperliquid",
+      "description": "Updates around Hyperliquid ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "HyperFND",
+            "stevenyuntcap",
+            "henrik",
+            "Sakrexer",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "aptos",
+      "name": "Aptos",
+      "description": "Updates around Aptos ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "Aptos",
+            "stalesamy",
+            "moshaikhs",
+            "alex_aptos",
+            "lornyelle",
+            "Gemswizzard",
+            "christie__0",
+            "0xaptosj",
+            "AptosCollective",
+            "0xlightmark",
+            "0xSushiKev",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "pudgy",
+      "name": "Pudgy Penguins",
+      "description": "Updates around Pudgy Penguins ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "pudgypenguins",
+            "LucaNetz",
+            "JoeyMooose",
+            "Berko_Crypto",
+            "slushygmi",
+            "MetaGandhi_",
+            "PudgyRitesh",
+            "ppmctweets",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "avalanche",
+      "name": "Avalanche",
+      "description": "Updates around Avalanche ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "luigidemeo",
+            "John1wu",
+            "AVAXDaily",
+            "GamingOnAvax",
+            "frostLedger",
+            "potlock_intern",
+            "plugrel"
+          ]
+        }
+      },
+      "outputs": {
+        "stream": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "id": "base",
+      "name": "Base",
+      "description": "Updates around Base ecosystem & more",
+      "moderation": {
+        "approvers": {
+          "twitter": [
+            "gozdeaksay",
+            "CryptoStatuette",
+            "nameisnaemis",
+            "EvSlatts",
+            "jessepollak",
+            "kunal_modi",
+            "potlock_intern",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -542,7 +926,7 @@
       "description": "News about Bitcoin, Bitcoin devs, scaling, integrations, adoptions.",
       "moderation": {
         "approvers": {
-          "twitter": ["Blaze0x1", "plugrel", "aescobarindo"]
+          "twitter": ["Blaze0x1", "plugrel", "potlock_intern", "aescobarindo"]
         }
       },
       "outputs": {

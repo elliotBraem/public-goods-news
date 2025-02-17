@@ -29,6 +29,7 @@ interface DbInterface {
     name: string;
     description?: string;
   }) => void;
+  getSubmissionByCuratorTweetId: (curatorTweetId: string) => Submission | null;
   getSubmission: (tweetId: string) => Submission | null;
   getDailySubmissionCount: (userId: string) => number;
   saveSubmission: (submission: Submission) => void;
@@ -63,6 +64,9 @@ interface DbInterface {
 // Create mock functions for each database operation
 export const drizzleMock = {
   upsertFeed: mock<DbInterface["upsertFeed"]>(() => {}),
+  getSubmissionByCuratorTweetId: mock<
+    DbInterface["getSubmissionByCuratorTweetId"]
+  >(() => null),
   getSubmission: mock<DbInterface["getSubmission"]>(() => null),
   getDailySubmissionCount: mock<DbInterface["getDailySubmissionCount"]>(
     () => 0,

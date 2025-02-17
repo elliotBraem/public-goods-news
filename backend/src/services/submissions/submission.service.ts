@@ -160,8 +160,12 @@ export class SubmissionService {
       }
 
       if (
-        curatorTweet.username === this.config.global.botId || // if self
-        this.config.global.blacklist["twitter"].includes(curatorTweet.username)
+        curatorTweet.username.toLowerCase() ===
+          this.config.global.botId.toLowerCase() || // if self
+        this.config.global.blacklist["twitter"].some(
+          (blacklisted) =>
+            blacklisted.toLowerCase() === curatorTweet.username?.toLowerCase(),
+        )
       ) {
         logger.error(`${tweet.id}: Submitted by bot or blacklisted user`);
         // or blacklisted
@@ -260,8 +264,9 @@ export class SubmissionService {
           continue;
         }
 
-        const isModerator = feed.moderation.approvers.twitter.includes(
-          curatorTweet.username!,
+        const isModerator = feed.moderation.approvers.twitter.some(
+          (approver) =>
+            approver.toLowerCase() === curatorTweet.username!.toLowerCase(),
         );
         const existingFeed = existingFeeds.find(
           (f) => f.feedId.toLowerCase() === lowercaseFeedId,
@@ -293,8 +298,7 @@ export class SubmissionService {
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
                 feed.id,
-                originalTweet.id!,
-                originalTweet.text || "",
+                existingSubmission || submission!,
               );
             }
           }
@@ -332,8 +336,7 @@ export class SubmissionService {
             if (feed.outputs.stream?.enabled) {
               await this.DistributionService.processStreamOutput(
                 feed.id,
-                originalTweet.id!,
-                originalTweet.text || "",
+                existingSubmission || submission!,
               );
             }
           }
@@ -352,7 +355,7 @@ export class SubmissionService {
 
   private async handleAcknowledgement(tweet: Tweet): Promise<void> {
     // Like the tweet
-    await this.twitterService.likeTweet(tweet.id);
+    await this.twitterService.likeTweet(tweet.id!);
 
     // // Reply to curator's tweet confirming submission
     // await this.twitterService.replyToTweet(
@@ -364,7 +367,7 @@ export class SubmissionService {
   private async handleModeration(tweet: Tweet): Promise<void> {
     const userId = tweet.userId;
     if (!userId || !tweet.id) {
-      logger.error(`${tweet.id}: User ${userId} is not admin.`);
+      logger.error(`${tweet.id} or ${userId} is not valid.`);
       return;
     }
 
@@ -373,11 +376,11 @@ export class SubmissionService {
       return;
     }
 
-    // submission is what we're replying to
-    const inReplyToId = tweet.inReplyToStatusId;
-    if (!inReplyToId) return;
+    // Get the curator's tweet that the moderator is replying to
+    const curatorTweetId = tweet.inReplyToStatusId;
+    if (!curatorTweetId) return;
 
-    const submission = db.getSubmission(inReplyToId);
+    const submission = db.getSubmissionByCuratorTweetId(curatorTweetId);
     if (!submission) {
       logger.error(`${tweet.id}: Received moderation for unsaved submission`);
       return;
@@ -405,7 +408,9 @@ export class SubmissionService {
       .filter((feed) => feed.status === SubmissionStatus.PENDING)
       .filter((feed) => {
         const feedConfig = this.config.feeds.find((f) => f.id === feed.feedId);
-        return feedConfig?.moderation.approvers.twitter.includes(adminUsername);
+        return feedConfig?.moderation.approvers.twitter.some(
+          (approver) => approver.toLowerCase() === adminUsername.toLowerCase(),
+        );
       });
 
     if (pendingFeeds.length === 0) {
@@ -463,8 +468,7 @@ export class SubmissionService {
           if (feed.outputs.stream?.enabled) {
             await this.DistributionService.processStreamOutput(
               pendingFeed.feedId,
-              submission.tweetId,
-              submission.content,
+              submission,
             );
           }
         }
@@ -509,10 +513,9 @@ export class SubmissionService {
 
   private getModerationAction(tweet: Tweet): "approve" | "reject" | null {
     const hashtags = tweet.hashtags?.map((tag) => tag.toLowerCase()) || [];
-    if (tweet.text?.includes("!approve") || hashtags.includes("approve"))
-      return "approve";
-    if (tweet.text?.includes("!reject") || hashtags.includes("reject"))
-      return "reject";
+    const text = tweet.text?.toLowerCase() || "";
+    if (text.includes("!approve")) return "approve";
+    if (text.includes("!reject")) return "reject";
     return null;
   }
 
