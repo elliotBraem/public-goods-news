@@ -257,8 +257,7 @@ const FAQs = () => {
     },
     {
       question: "Wen token?",
-      answer:
-        "Soon. TG for alpha",
+      answer: "Soon. TG for alpha",
     },
     {
       question: "What is platforms are currently supported?",
@@ -1128,7 +1127,6 @@ export default function Home() {
                   </span>
                 </Link>
               </div>
-
 
               <div className="p-4 pb-8 md:p-8 md:border-r relative max-w-[300px] border-b border-neutral-500 mx-auto">
                 <div className="absolute right-0 bottom-0 opacity-20 backdrop-blur-md bg-white/50 rounded-full p-4">

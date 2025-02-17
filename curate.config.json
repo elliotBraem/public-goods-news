@@ -217,7 +217,7 @@
       "description": "AI and blockchain intersection",
       "moderation": {
         "approvers": {
-          "twitter": ["plugrel", "Cameron_Dennis_", "potlock_intern","dabit3"]
+          "twitter": ["plugrel", "Cameron_Dennis_", "potlock_intern", "dabit3"]
         }
       },
       "outputs": {
@@ -242,7 +242,7 @@
       "description": "AI updates",
       "moderation": {
         "approvers": {
-          "twitter": ["Cameron_Dennis_", "potlock_intern","plugrel"]
+          "twitter": ["Cameron_Dennis_", "potlock_intern", "plugrel"]
         }
       },
       "outputs": {
@@ -343,7 +343,14 @@
       "description": "Decentralized Science updates",
       "moderation": {
         "approvers": {
-          "twitter": ["JelaniC3", "jb87ua", "paulkhls", "0xDeSci", "potlock_intern", "DeSciWorld"]
+          "twitter": [
+            "JelaniC3",
+            "jb87ua",
+            "paulkhls",
+            "0xDeSci",
+            "potlock_intern",
+            "DeSciWorld"
+          ]
         }
       },
       "outputs": {
@@ -689,7 +696,13 @@
       "description": "Updates around Stellar ecosystem, Soroban, & more",
       "moderation": {
         "approvers": {
-          "twitter": ["anke_g_liu", "kalepail", "DenelleDixon", "potlock_intern","plugrel"]
+          "twitter": [
+            "anke_g_liu",
+            "kalepail",
+            "DenelleDixon",
+            "potlock_intern",
+            "plugrel"
+          ]
         }
       },
       "outputs": {
@@ -742,17 +755,13 @@
         }
       }
     },
-        {
+    {
       "id": "icp",
       "name": "ICP",
       "description": "Updates around Internet Computer / Dfinity ecosystem",
       "moderation": {
         "approvers": {
-          "twitter": [
-            "ICPHUBS",
-            "potlock_intern",
-            "plugrel"
-          ]
+          "twitter": ["ICPHUBS", "potlock_intern", "plugrel"]
         }
       },
       "outputs": {
@@ -900,7 +909,7 @@
             "EvSlatts",
             "jessepollak",
             "kunal_modi",
-             "potlock_intern",
+            "potlock_intern",
             "plugrel"
           ]
         }
@@ -917,7 +926,7 @@
       "description": "News about Bitcoin, Bitcoin devs, scaling, integrations, adoptions.",
       "moderation": {
         "approvers": {
-          "twitter": ["Blaze0x1", "plugrel", "potlock_intern","aescobarindo"]
+          "twitter": ["Blaze0x1", "plugrel", "potlock_intern", "aescobarindo"]
         }
       },
       "outputs": {
